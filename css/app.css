@@ -1,0 +1,158 @@
+/* Ayünka Studio · paleta "Acuarela Silvestre", la misma de la marca. */
+:root {
+  --crema:   #ECE6DA;
+  --carbon:  #2F3A40;
+  --coral:   #CB5A52;
+  --rosa:    #E39B96;
+  --pizarra: #5F7C8E;
+  --terra:   #C27A4E;
+
+  --fondo:   #FAF8F4;
+  --papel:   #FFFFFF;
+  --linea:   #E2DBCE;
+  --tenue:   #7C8890;
+  --ok:      #4E8C6A;
+  --alerta:  #B8862F;
+
+  --r: 10px;
+  --sombra: 0 1px 2px rgba(47,58,64,.06), 0 4px 14px rgba(47,58,64,.05);
+  --fuente: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--fuente);
+  background: var(--fondo);
+  color: var(--carbon);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- estructura ---------- */
+.app { display: flex; min-height: 100vh; }
+
+.lateral {
+  width: 214px; flex: 0 0 214px;
+  background: var(--crema);
+  border-right: 1px solid var(--linea);
+  padding: 18px 12px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: sticky; top: 0; height: 100vh;
+}
+.marca { font-weight: 700; font-size: 19px; letter-spacing: .2px; padding: 0 10px 14px; }
+.marca small { display: block; font-weight: 400; font-size: 11.5px; color: var(--pizarra); letter-spacing: .4px; }
+
+.nav { background: none; border: 0; text-align: left; font: inherit; color: var(--carbon);
+       padding: 9px 12px; border-radius: var(--r); cursor: pointer; display: flex; gap: 9px; align-items: center; }
+.nav:hover { background: rgba(255,255,255,.6); }
+.nav.activo { background: var(--papel); font-weight: 600; box-shadow: var(--sombra); }
+.nav .cuenta { margin-left: auto; font-size: 12px; color: var(--tenue); font-weight: 400; }
+
+.pie-lateral { margin-top: auto; padding: 10px; font-size: 11.5px; color: var(--tenue); line-height: 1.45; }
+.pie-lateral b { color: var(--carbon); font-weight: 600; }
+
+.principal { flex: 1; min-width: 0; padding: 26px 30px 60px; }
+.cabecera { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+.cabecera h1 { font-size: 23px; margin: 0; font-weight: 650; }
+.cabecera .sub { color: var(--tenue); font-size: 13.5px; }
+.cabecera .acciones { margin-left: auto; display: flex; gap: 8px; }
+
+/* ---------- piezas ---------- */
+.tarjeta { background: var(--papel); border: 1px solid var(--linea); border-radius: var(--r);
+           box-shadow: var(--sombra); padding: 16px 18px; margin-bottom: 16px; }
+.tarjeta > h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .6px;
+                color: var(--pizarra); margin: 0 0 12px; font-weight: 650; }
+
+.btn { font: inherit; font-size: 13.5px; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+       border: 1px solid var(--linea); background: var(--papel); color: var(--carbon); }
+.btn:hover { border-color: var(--pizarra); }
+.btn.primario { background: var(--coral); border-color: var(--coral); color: #fff; font-weight: 600; }
+.btn.primario:hover { filter: brightness(1.06); }
+.btn.sutil { background: transparent; border-color: transparent; color: var(--pizarra); }
+.btn.sutil:hover { background: var(--crema); }
+.btn.chico { padding: 4px 9px; font-size: 12.5px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .5px;
+     color: var(--tenue); font-weight: 600; padding: 0 10px 8px; border-bottom: 1px solid var(--linea); }
+td { padding: 9px 10px; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: #FCFAF6; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.etiqueta { display: inline-block; font-size: 11.5px; padding: 2px 8px; border-radius: 20px;
+            background: var(--crema); color: var(--pizarra); white-space: nowrap; }
+.etiqueta.bordado { background: #F6E4E2; color: #9C4A44; }
+.etiqueta.costura { background: #EDE6F2; color: #6B5384; }
+.etiqueta.d3     { background: #E3EDF2; color: #3F6076; }
+
+.chip { font-size: 11.5px; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+.chip.falta { background: #FBEEE9; color: var(--terra); }
+.chip.bajo  { background: #FBE9E8; color: var(--coral); }
+.chip.alto  { background: #FAF2E2; color: var(--alerta); }
+.chip.ok    { background: #E8F2EC; color: var(--ok); }
+
+.vacio { text-align: center; color: var(--tenue); padding: 34px 16px; font-size: 14px; }
+.vacio b { display: block; color: var(--carbon); font-size: 15px; margin-bottom: 4px; }
+
+.rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.dato { background: var(--papel); border: 1px solid var(--linea); border-radius: var(--r); padding: 13px 15px; }
+.dato .k { font-size: 11.5px; color: var(--tenue); text-transform: uppercase; letter-spacing: .5px; }
+.dato .v { font-size: 21px; font-weight: 650; margin-top: 3px; font-variant-numeric: tabular-nums; }
+.dato .n { font-size: 12px; color: var(--tenue); margin-top: 2px; }
+
+.campo { display: flex; flex-direction: column; gap: 4px; margin-bottom: 11px; }
+.campo.ancho { grid-column: 1 / -1; }
+.campo > span { font-size: 12.5px; color: var(--pizarra); font-weight: 600; }
+.campo > span i { font-style: normal; font-weight: 400; color: var(--tenue); margin-left: 6px; }
+.campo input, .campo select, .campo textarea {
+  font: inherit; font-size: 14px; padding: 7px 10px; border: 1px solid var(--linea);
+  border-radius: 8px; background: var(--papel); color: var(--carbon); width: 100%;
+}
+.campo input:focus, .campo select:focus, .campo textarea:focus {
+  outline: 2px solid var(--rosa); outline-offset: -1px; border-color: var(--rosa);
+}
+.formulario { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+
+/* ---------- desglose de costos ---------- */
+.desglose { font-size: 13.5px; }
+.desglose .fila { display: flex; padding: 5px 0; border-bottom: 1px dotted var(--linea); gap: 10px; }
+.desglose .fila:last-child { border-bottom: 0; }
+.desglose .fila .c { flex: 1; }
+.desglose .fila .n { color: var(--tenue); font-size: 12px; }
+.desglose .fila .m { font-variant-numeric: tabular-nums; font-weight: 600; }
+.desglose .total { border-top: 2px solid var(--carbon); margin-top: 6px; padding-top: 8px; font-size: 15px; }
+
+/* ---------- modal y avisos ---------- */
+.modal-fondo { position: fixed; inset: 0; background: rgba(47,58,64,.42); display: flex;
+               align-items: center; justify-content: center; padding: 20px; z-index: 90; }
+.modal { background: var(--papel); border-radius: 14px; max-width: 620px; width: 100%;
+         padding: 22px 24px; box-shadow: 0 18px 50px rgba(47,58,64,.28); max-height: 86vh; overflow: auto; }
+.modal h2 { margin: 0 0 12px; font-size: 18px; }
+.modal-cuerpo { font-size: 14px; line-height: 1.55; }
+.modal-botones { display: flex; gap: 9px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+
+.aviso { position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 14px);
+         background: var(--carbon); color: #fff; padding: 10px 18px; border-radius: 24px;
+         font-size: 13.5px; opacity: 0; pointer-events: none; transition: .2s; z-index: 95; }
+.aviso.visible { opacity: 1; transform: translate(-50%, 0); }
+.aviso.error { background: var(--coral); }
+
+.comparacion { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+.comparacion > div { border: 1px solid var(--linea); border-radius: var(--r); padding: 12px 14px; }
+.comparacion h3 { margin: 0 0 4px; font-size: 13.5px; }
+.comparacion .cuando { font-size: 12.5px; color: var(--tenue); margin-bottom: 8px; }
+.comparacion ul { margin: 0; padding-left: 17px; font-size: 13px; color: var(--pizarra); }
+
+@media (max-width: 820px) {
+  .app { flex-direction: column; }
+  .lateral { width: auto; flex: none; height: auto; position: static; flex-direction: row;
+             overflow-x: auto; padding: 10px; gap: 6px; }
+  .marca, .pie-lateral { display: none; }
+  .nav { white-space: nowrap; }
+  .principal { padding: 16px 14px 50px; }
+  .comparacion { grid-template-columns: 1fr; }
+  table { font-size: 13.5px; }
+}

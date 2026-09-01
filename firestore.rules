@@ -1,0 +1,39 @@
+rules_version = '2';
+
+// Ayünka Studio · reglas de acceso.
+//
+// OJO, Y ESTO NO ES UN DETALLE: cambiar este archivo NO cambia nada en Firebase.
+// Las reglas hay que PUBLICARLAS en la consola (Firestore → Reglas → Publicar) o con
+// `firebase deploy --only firestore:rules`. El 1-sep-2026 el archivo decía que la base
+// estaba cerrada, y llevaba semanas abierta a cualquiera porque nadie las publicó.
+//
+// Cómo comprobarlo de verdad, desde afuera:
+//   curl "https://firestore.googleapis.com/v1/projects/TU-PROYECTO/databases/(default)/documents/negocios/ayunka"
+// Tiene que responder 403. Si responde 200, está abierta.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Solo la cuenta de acceso de la app. Ese correo se crea en
+    // Authentication → Users y no es el Gmail personal.
+    function esDeAyunka() {
+      return request.auth != null
+          && request.auth.token.email == "CAMBIAR@ejemplo.com"
+          && request.auth.token.email_verified == true;
+    }
+
+    match /negocios/{negocio} {
+      allow read, write: if esDeAyunka();
+
+      // Una ficha por documento: productos, pedidos, clientes, filamentos…
+      match /{coleccion}/{ficha} {
+        allow read, write: if esDeAyunka();
+      }
+    }
+
+    // Todo lo demás, cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,11 @@
+# Configuración con credenciales de acceso: NUNCA entra a git.
+ayunka-config.json
+.env
+
+# Respaldos descargados desde la app
+ayunka-respaldo-*.json
+
+# Basura del sistema
+.DS_Store
+Thumbs.db
+node_modules/
