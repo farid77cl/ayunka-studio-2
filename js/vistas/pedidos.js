@@ -101,12 +101,20 @@
 
   function htmlTotales() {
     const c = calcularEnEdicion();
+    // Revisión del 3-sep de Cowork: una línea sin producto vinculado no suma horas de
+    // máquina ni costo real, y antes fallaba en silencio -- el pedido de LIDCAR quedó así
+    // un tiempo. Se puede aplazar (una línea con descripción libre es válida), pero ahora
+    // se ve.
+    const sinVincular = lineasEditando.filter(l => !l.productoId && (l.descripcion || '').trim()).length;
     return `<div class="desglose">
       <div class="fila total"><div class="c"><b>Total</b></div><div class="m">${c.total === null ? 'faltan precios' : A.plata(c.total)}</div></div>
       <div class="fila"><div class="c">Costo de producción</div><div class="m" style="color:var(--apagado)">${A.plata(c.costo)}</div></div>
       <div class="fila"><div class="c">Utilidad</div><div class="m" style="color:${(c.utilidad || 0) > 0 ? 'var(--ok)' : 'var(--coral)'}">${c.utilidad === null ? '—' : A.plata(c.utilidad)}</div></div>
       <div class="fila"><div class="c">Saldo por cobrar</div><div class="m">${c.saldo === null ? '—' : A.plata(c.saldo)}</div></div>
-    </div>`;
+    </div>
+    ${sinVincular ? `<p style="font-size:12px;color:var(--terra);margin:8px 0 0">
+      ${sinVincular} línea${sinVincular === 1 ? '' : 's'} sin producto del catálogo vinculado
+      — el costo y las horas de máquina de arriba no las incluyen.</p>` : ''}`;
   }
 
   function pintarLineas() {

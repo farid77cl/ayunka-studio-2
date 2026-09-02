@@ -80,6 +80,16 @@
         Mientras falten, la cola calcula de menos y el «alcanza» no es confiable.</div>`;
     }
 
+    // Revisión del 3-sep de Cowork: una línea de pedido sin producto vinculado no suma
+    // horas -- antes fallaba en silencio (pasó con el pedido real de LIDCAR).
+    const lineasSinVincular = abiertos.reduce((s, p) =>
+      s + (p.lineas || []).filter(l => !l.productoId && (l.descripcion || '').trim()).length, 0);
+    if (lineasSinVincular) {
+      html += `<div class="tarjeta aviso">
+        <b>${lineasSinVincular} línea${lineasSinVincular === 1 ? '' : 's'} de pedidos abiertos sin producto del catálogo vinculado.</b>
+        No suman horas acá — el acumulado de arriba también mira de menos.</div>`;
+    }
+
     A.$('#contenido').innerHTML = html;
   }
 

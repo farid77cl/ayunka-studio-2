@@ -44,18 +44,28 @@
         <div class="modal-cuerpo">${cuerpo}</div>
         <div class="modal-botones"></div></div>`;
       const cont = fondo.querySelector('.modal-botones');
+      let cerrado = false;
+      const cerrar = valor => {
+        if (cerrado) return; // Escape y un click en un botón pueden llegar casi juntos
+        cerrado = true;
+        let datos = null;
+        try { if (leer) datos = leer(fondo); } catch (e) { console.error(e); }
+        document.removeEventListener('keydown', alTecla);
+        fondo.remove();
+        resolve({ valor, datos });
+      };
       (botones || [{ txt: 'Entendido', valor: true }]).forEach(b => {
         const el = document.createElement('button');
         el.className = 'btn ' + (b.clase || '');
         el.textContent = b.txt;
-        el.onclick = () => {
-          let datos = null;
-          try { if (leer) datos = leer(fondo); } catch (e) { console.error(e); }
-          fondo.remove();
-          resolve({ valor: b.valor, datos });
-        };
+        el.onclick = () => cerrar(b.valor);
         cont.appendChild(el);
       });
+      // Escape y clic en el fondo oscuro cierran igual que "Cancelar" (valor null) --
+      // todas las pantallas ya tratan un valor falsy como "no se hizo nada".
+      const alTecla = e => { if (e.key === 'Escape') cerrar(null); };
+      document.addEventListener('keydown', alTecla);
+      fondo.addEventListener('click', e => { if (e.target === fondo) cerrar(null); });
       document.body.appendChild(fondo);
       if (alAbrir) { try { alAbrir(fondo); } catch (e) { console.error(e); } }
       const primero = fondo.querySelector('.modal-cuerpo input, .modal-cuerpo select') || cont.querySelector('button');

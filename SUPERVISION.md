@@ -442,3 +442,128 @@ ya existían. Sin esto, un producto nuevo no puede tener foto.
 ## Antes de nada
 
 Hay **dos commits sin subir** a GitHub. El trabajo que solo vive en el PC es el que se pierde.
+
+---
+
+# Revisión del 3-sep · v2.8.0 → v2.12.0 · y la auditoría de 40 sesiones
+
+Corrida sobre una copia del disco, en un navegador de verdad (Chromium, service worker
+apagado). Las once vistas pintan sin una sola excepción de JavaScript. Lo que sigue está
+separado en dos: **lo que hay que arreglar de lo recién hecho** y **lo que nunca llegó a
+este repo**, que es lo que Farid siente que falta y tiene razón.
+
+## Lo que quedó verificado
+
+- **Encargo A · Ventas y gastos — funciona y el costo queda congelado.** Venta de prueba:
+  2 × Regla de radios a $8.500 = **$17.000**, costo real **$5.086**, ganancia **$11.914**.
+  Se triplicó `precioPLA` después de guardar y el `costoAlVender` **no se movió**
+  (5086,0019 antes y después). Es exactamente lo que se pidió.
+- **Encargo B · exportaciones — salen archivos de verdad.** CSV de Meta 12.500 bytes con la
+  cabecera correcta (`id,title,description,availability,condition,price,link,image_link,brand`)
+  y XLSX de WhatsApp 30.327 bytes.
+- **Pendientes** existe, es la primera pestaña, cuenta en vivo y no tiene barras de progreso
+  ni porcentajes. El botón «Aceptar $X» está bien programado (`pendientes.js:88`).
+
+## Lo que hay que arreglar · en orden
+
+### 1 · Pendientes dice tres veces lo mismo · `js/vistas/pendientes.js`
+Marca **67 pendientes** y el trabajo real son **26 productos**. Los mismos 16 textiles
+aparecen en el bloque 1 («sin precio»), en el 2 («sin horas») y en el 3 («bordado o
+costura»); los mismos 9 productos 3D aparecen en el bloque 1 y en el 4. La pantalla mide
+cuatro pantallazos de alto repitiendo los mismos nombres.
+
+Peor: **el bloque 1 no tiene un solo botón «Aceptar»**, porque ninguno de los 24 productos
+sin precio tiene sugerido — 15 dicen «faltan las horas de trabajo» y 9 «faltan los gramos y
+las horas». O sea el bloque más importante hoy es una copia de los bloques 2 y 4, sin nada
+que apretar.
+
+Arreglo: **un producto aparece una sola vez, en el bloque de lo primero que le falta.** El
+precio no es un pendiente aparte — es la consecuencia de los otros. Deja el bloque de
+precios solo con los que **sí** tienen sugerido (los que se resuelven de un click) y saca de
+ahí a los que ya salen más abajo. El contador debe contar productos distintos, no filas.
+
+### 2 · Se puede guardar una venta vacía de $0 · `js/vistas/finanzas.js`
+Abrir «Nueva venta», elegir cliente y apretar Guardar **sin agregar ninguna línea** guarda
+una venta con `total: 0`, `costoAlVender: 0` y `lineas: []`, sin decir nada. Queda en la
+tabla como «LIDCAR · $0 · $0 · $0». Una venta sin líneas no es una venta: no dejar guardar,
+y decir por qué.
+
+### 3 · Los modales no se cierran con Escape ni clicando fuera · `js/ui.js`
+Se abre «Nuevo gasto», se aprieta **Escape** y el modal sigue ahí; se hace clic en el fondo
+oscuro y sigue ahí. El único modo de salir es el botón. Es de tres líneas y se nota todos
+los días.
+
+### 4 · El pedido de LIDCAR es invisible para la cola y para las ventas
+Las dos líneas del pedido real de `datos/semilla.json` tienen `productoId` ausente, así que
+`Costos.horasPedido` devuelve **0** y «Cargar desde un pedido abierto» arma una venta de
+**$0**. Hay que enlazar esas dos líneas a `AY-B2B-001` (o a los llaveros que correspondan)
+en la semilla, y que la pantalla avise cuando una línea de pedido no apunta a ningún
+producto — hoy falla en silencio.
+
+### 5 · Ningún producto tiene rollo asignado · `js/vistas/productos.js`
+`filamentoId` está **null en los 36 productos** y el formulario no tiene el campo, aunque
+`costos.js:20` sí lo usa si existe. Resultado: todos los costos se calculan con el PLA
+genérico. El mismo formulario tampoco tiene el campo de **costo extra** (`extraCosto`), que
+`costos.js:83` sí suma: sin él la caja de luz con LED no se puede costear (sesión 18).
+
+### 6 · Nada descuenta stock
+`gramosQuedan` del filamento y `stock` del producto solo cambian escribiéndolos a mano.
+Vender no descuenta nada. En la app vieja sí se descontaba (`js/app.js:573,576,616,619`).
+Falta el libro de movimientos que el MILESTONE pedía en la Fase 1.
+
+### 7 · No hay dónde poner las llaves, así que la nube y las fotos no funcionan
+`js/config.js` tiene `firebase.apiKey: ''` y `supabase: { url:'', clave:'' }`. Ajustes tiene
+un campo para pegar el JSON de Firebase, pero **no tiene ninguno para Supabase**: la subida
+de fotos del encargo E no puede funcionar en ningún equipo. O se agrega el campo en Ajustes,
+o los valores públicos van en `config.js` — pero hoy está en tierra de nadie.
+
+## Lo que nunca llegó a este repo
+
+Esto es lo que Farid pidió a lo largo de 40 sesiones y quedó afuera cuando el repo partió de
+cero. Del repo viejo (`ayunka-studio/js`, 8.465 líneas) **no se portaron 4.030 líneas** que
+el MILESTONE-ERP daba por parte del ERP. Ordenado por lo que él pidió más veces y por lo que
+bloquea vender.
+
+1. **El generador de perfiles de impresión — 2.237 líneas, 9 archivos.**
+   `PROJECT.md` lo llama textualmente **prioridad 1 de Farid**; `REQUIREMENTS.md` y
+   `ROADMAP.md` le dedican seis fases y 22 planes (sesiones 30 a 37). No existe nada:
+   ni `perfil.js`, ni `perfil-medidas.js`, ni `perfil-reglas.js`, ni el exportador
+   `.creality_printer`. Es el trabajo de más sesiones seguidas de todo el proyecto.
+2. **El editor 3D de verdad — `design3d.js`, 1.100 líneas.** Hoy «Personalizados 3D» son
+   presets con campos de texto (`disenos3d.js:6-9` lo admite). Falta el lienzo, los ocho
+   tiradores, el giro, las 39 figuras, elegir tipografía, grabado y calado, y **abrir los 19
+   diseños guardados**: `disenos3d.js:40` solo los cuenta.
+3. **La cotización formal al cliente — `pdf.js`, 176 líneas.** La colección `cotizaciones`
+   está declarada en `db.js:17` y **ningún archivo la usa**; `abonoPct`,
+   `validezCotizacionDias` e `iva` están en la semilla y nadie los lee. `cotizar.js` calcula
+   un precio pero no emite nada que se le pueda mandar a un cliente (sesión 9).
+4. **Envíos / Chilexpress.** Sesión 13 completa, y sigue en los pendientes del log. No hay
+   peso ni medidas por producto, ni dirección ni costo de envío en el pedido.
+5. **Los textos de WhatsApp — `whatsapp.js`, 148 líneas.** Bienvenida, ausencia, cinco
+   respuestas rápidas y el contador de caracteres (sesión 8).
+6. **«Aprobar una impresión y crear el producto» — `impresiones.js`, 244 líneas.** Hoy
+   `vistas/impresora.js:123` lista los 88 archivos huérfanos y no deja hacer nada con ellos.
+7. **Cotizar al revés y el semáforo de mercado.** Sesión 9: escribir lo que se quiere cobrar
+   y ver qué queda y en cuánto sale la hora, más el 🔴🟡🟢 contra los precios chilenos.
+8. **Verificador de G-code y armado de bandeja.** `d3d-3mf.js:170` escribe un solo `<item>`
+   con transformación identidad: no arma bandejas, y no escribe `negative_part` ni
+   `custom_gcode_per_layer` (el lector sí los entiende, `lector3mf.js:154`). Sin eso, un
+   redondo puede volver a salir macizo como en la sesión 36.
+9. **La velocidad de la máquina de bordar (puntadas/min)** que la sesión 9 agregó para
+   calcular la hora efectiva. Hoy `costos.js:75` cobra bordado como horas × $4.000.
+10. **Pagos parciales, dirección y fecha de entrega real en el pedido.** Hoy hay un solo
+    `abono`; no se puede registrar un segundo.
+
+Fuera del ERP por decisión ya tomada: redes sociales (`rrss.js`, `instagram.js`,
+`nuevo-post.js`, 708 líneas). Eso no es deuda.
+
+## Cómo seguir
+
+Primero los seis arreglos de arriba, que son horas, no días — sobre todo el 1, el 2 y el 4,
+que se ven cada vez que se abre la app. Después Farid decide qué se rescata del repo viejo y
+en qué orden; **el generador de perfiles es la pieza grande y es decisión suya**, no del
+código. Ojo: rescatar no es reescribir — esos archivos existen y funcionaban.
+
+Como siempre: entrega, commitea, escribe la entrada en `BITACORA.md` con su «cómo sé que
+funciona», y avísale a Farid. Yo traigo una copia, corro las comprobaciones y dejo el
+resultado acá abajo. No toco el repo.

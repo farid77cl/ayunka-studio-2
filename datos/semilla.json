@@ -888,6 +888,50 @@
    "extraCosto": 0,
    "extraNota": "",
    "activo": true
+  },
+  {
+   "id": "AY-B2B-002",
+   "sku": "AY-B2B-002",
+   "nombre": "Llavero NFC rectangular",
+   "categoria": "empresas",
+   "oficio": "3d",
+   "material": "PLA",
+   "gramos": 6.2,
+   "horas": 0.328,
+   "colores": 2,
+   "postMin": 0,
+   "precio": null,
+   "stock": 0,
+   "filamentoId": null,
+   "foto": "",
+   "descripcion": "Llavero NFC rectangular 70×35×3 mm, con chip grabado con el enlace de tus redes. Negativo del chip 27×27×0,40 mm en z 0,800–1,200, pausa en z=1,4. Perfil compartido: llaveros letra chica v4 (0,20/0,20, los dos carretes). Medido con LIDCAR el 1-sep: bandeja de 20, 6h29m, 112,70 g + 11,80 g de filamento — 6,2 g y 0,328 h por unidad.",
+   "igId": "",
+   "archivoOrigen": "LIDCAR rectangular 20 - vectorial v4.3mf",
+   "extraCosto": 0,
+   "extraNota": "",
+   "activo": true
+  },
+  {
+   "id": "AY-B2B-003",
+   "sku": "AY-B2B-003",
+   "nombre": "Llavero NFC redondo",
+   "categoria": "empresas",
+   "oficio": "3d",
+   "material": "PLA",
+   "gramos": 6.0,
+   "horas": 0.321,
+   "colores": 2,
+   "postMin": 0,
+   "precio": null,
+   "stock": 0,
+   "filamentoId": null,
+   "foto": "",
+   "descripcion": "Llavero NFC redondo Ø54×3 mm (54×60,03 con la lengüeta), con chip grabado con el enlace de tus redes. Mismo negativo de chip y pausa que el rectangular. Perfil compartido: llaveros letra chica v4. Medido con LIDCAR el 1-sep: bandeja de 15, 4h49m, 80,71 g + 8,61 g de filamento — 6,0 g y 0,321 h por unidad (derivado del g-code real, no está en CARGA-INICIAL.md — verificar).",
+   "igId": "",
+   "archivoOrigen": "LIDCAR redondo 15 v5.3mf",
+   "extraCosto": 0,
+   "extraNota": "",
+   "activo": true
   }
  ],
  "clientes": [
@@ -917,11 +961,13 @@
    "total": null,
    "lineas": [
     {
+     "productoId": "AY-B2B-002",
      "descripcion": "Llavero NFC rectangular 70×35×3 mm",
      "cantidad": 50,
      "precioUnit": null
     },
     {
+     "productoId": "AY-B2B-003",
      "descripcion": "Llavero NFC redondo Ø54×3 mm",
      "cantidad": 50,
      "precioUnit": null

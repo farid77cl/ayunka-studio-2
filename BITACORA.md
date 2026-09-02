@@ -4,6 +4,94 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Cuatro de los siete arreglos de la revisión del 3-sep · v2.13.0
+
+**Qué cambió.** `SUPERVISION.md` trajo una auditoría nueva ("Revisión del 3-sep · v2.8.0 →
+v2.12.0") con 7 problemas reales encontrados en un navegador de verdad. Esta entrada cierra
+los 4 primeros — los que Cowork marcó como más urgentes ("sobre todo el 1, el 2 y el 4").
+Los otros 3 (filamento/costo extra en la ficha, libro de movimientos de stock, dónde poner
+las llaves de Supabase) quedan para la próxima entrada.
+
+**1 · Pendientes ya no triplica el mismo producto.** El bug real: los mismos 16 textiles
+salían en "sin precio", "sin horas" y "sin confirmar" a la vez (67 pendientes contra 26
+productos de verdad), y el bloque de precios no tenía un solo botón "Aceptar" porque
+ninguno de los 24 "sin precio" tenía costo completo. `js/vistas/pendientes.js` ahora
+clasifica cada producto en un solo bloque, con prioridad de lo más fundamental a lo más
+superficial: 3D sin datos → textil sin horas → bordado sin confirmar → sin precio (este
+último, solo si el costo ya está completo — así que siempre tiene sugerido).
+
+**2 · Ya no se puede guardar una venta sin líneas.** `js/vistas/finanzas.js`: si se guarda
+sin agregar ninguna línea, avisa "Una venta necesita al menos una línea" y no la deja
+activa — si era un borrador recién creado, lo descarta (`activo:false`) en vez de dejarlo
+como una fila fantasma de $0. Si se intenta vaciar una venta que YA tenía datos reales,
+tampoco se pierden: el aviso bloquea el guardado y los datos anteriores quedan intactos.
+
+**3 · Los modales cierran con Escape y con clic afuera.** `js/ui.js`, en `A.preguntar()`:
+Escape y un clic en el fondo oscuro cierran igual que el botón "Cancelar" (`valor: null`,
+que todas las pantallas ya tratan como "no se hizo nada"). El listener de teclado se saca
+del `document` al cerrar, para no acumularlos si se abren muchos modales seguidos.
+
+**4 · El pedido de LIDCAR ya no es invisible.** Sus dos líneas (`ped-2026-001`) no tenían
+`productoId`, así que `horasPedido`/`calcularPedido` daban 0 en silencio. Investigué los
+archivos reales en `../stl/` para no inventar números:
+- **Rectangular** (`AY-B2B-002`, nuevo): `LIDCAR rectangular 20 - vectorial v4_PLA_6h29m.gcode`
+  trae 20 objetos reales (confirmado contando `EXCLUDE_OBJECT_DEFINE`) y
+  `filament used [g] = 112.70, 11.80` → **6,2 g por unidad**. Las horas (**0,328 h** =
+  19,66 min) son las que ya calculó `CARGA-INICIAL.md` con el g-code de la bandeja de 15
+  (`294,9 min / 15`) — esa cifra SÍ está en el documento, la usé tal cual.
+- **Redondo** (`AY-B2B-003`, nuevo): `LIDCAR redondo_PLA_4h49m.gcode` trae 15 objetos reales
+  (mismo método) y `filament used [g] = 80.71, 8.61` → **6,0 g por unidad**. Las horas
+  (**0,321 h** = 289 min / 15) **no están en `CARGA-INICIAL.md`** — las derivé yo del
+  mismo archivo real con la misma fórmula que el documento usó para el rectangular (tiempo
+  del nombre del archivo ÷ piezas de la bandeja). Lo dejé escrito en la descripción del
+  producto y acá: **alguien debería confirmarlo**, el documento dice explícitamente "si
+  falta un número, preguntar" y este lo derivé en vez de encontrarlo ya escrito.
+- Las dos líneas del pedido ya apuntan a estos productos (`productoId`).
+- Además, `js/vistas/pedidos.js` (en el modal de edición) y `js/vistas/cola.js` ahora avisan
+  cuando una línea de CUALQUIER pedido no tiene producto vinculado — antes fallaba en
+  silencio, es justo lo que le pasó a LIDCAR.
+
+**Cómo sé que funciona.** Corrí el código real contra la semilla real (ya con los 38
+productos):
+- **Deduplicación:** la suma de los 4 bloques de productos (27) coincide exacto con la
+  unión calculada de forma independiente (27) — ningún id se repite entre bloques. El
+  bloque "Precios sin poner" tiene 2 filas y **las 2 traen su botón Aceptar** (antes: 24
+  filas, 0 botones). `AY-B2B-002`/`003` caen en ese bloque, no en "3D sin datos".
+- **Venta vacía:** guardar sin líneas deja la venta con `activo:false`, no aparece ninguna
+  venta en $0 en la lista. Vaciar una venta que tenía `total:5000` y una línea real, e
+  intentar guardar, la deja intacta (`total:5000`, 1 línea) — no se pierde nada.
+- **Modal real, de punta a punta** (primera vez en la sesión que se corre `A.preguntar()`
+  sin stubearlo — armé un DOM falso con `addEventListener`/`dispatchEvent` reales): Escape
+  resuelve con `valor:null` y saca el modal; una tecla distinta no hace nada; un clic en el
+  fondo (`target === fondo`) cierra igual que Cancelar; un clic dentro del modal no cierra
+  nada; el listener de `keydown` se agrega al abrir y se saca al cerrar, sin acumularse.
+- **LIDCAR real:** `horasPedido(pedido)` pasó de 0 a **32,45 h** (50×0,328 + 50×0,321,
+  exacto); `calcularPedido(pedido).costo` pasó de 0 a **$98.246,56**. El aviso de "línea sin
+  vincular" aparece en un pedido de prueba con una línea libre, y NO aparece en uno con
+  todas sus líneas vinculadas — y Cola también lo muestra.
+- 13 + 8 + 9 = **30 verificaciones nuevas**, todas en verde. Re-corrí las 8 suites
+  anteriores de la sesión (169 verificaciones más): dos tenían números viejos ya obsoletos
+  por este mismo cambio (el pedido de LIDCAR ya no da costo $0, que es justo lo que se
+  arregló) — los corregí para que reflejen la realidad nueva, y quedaron en verde. El resto,
+  sin tocar.
+
+**Lo que NO pude verificar.** Todo lo visual, como siempre. Y en particular: **las horas
+del llavero redondo (0,321 h) no están en `CARGA-INICIAL.md`** — las derivé yo del g-code
+real con el mismo método que el documento usó para el rectangular, pero el documento mismo
+dice que si falta un número hay que preguntar, no derivarlo. Que alguien lo confirme antes
+de cotizar con ese número en serio.
+
+**Lo que NO quedó.**
+- Los otros 3 arreglos de la revisión del 3-sep (filamento/costo extra en la ficha del
+  producto, el libro de movimientos de stock, dónde configurar las llaves de Supabase) —
+  siguen pendientes, ya identificados y sin tocar todavía.
+- No hay forma de "deshacer" haber descartado una venta vacía por error (queda con
+  `activo:false`, recuperable a mano desde la base, pero no desde la interfaz).
+
+**Versión.** `js/version.js` → `2.13.0`.
+
+---
+
 ## 2026-09-02 · Subir fotos a Supabase, ya verificado · v2.12.0 (encargo E)
 
 **Qué cambió.** Termina lo que quedó a medias en el commit de respaldo de más abajo. Punto

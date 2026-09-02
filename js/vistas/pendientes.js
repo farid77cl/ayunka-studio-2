@@ -9,25 +9,49 @@
 (function () {
   const N = (v, d = 0) => (typeof v === 'number' && isFinite(v)) ? v : d;
 
-  function sinPrecio() { return Datos.activos('productos').filter(p => typeof p.precio !== 'number'); }
-  function sinHorasTextil() { return Datos.activos('productos').filter(p => p.oficio !== '3d' && !N(p.horasMano)); }
-  function sinConfirmar() { return Datos.activos('productos').filter(p => p.oficio === 'bordado' && !p.oficioConfirmado); }
-  function sin3d() { return Datos.activos('productos').filter(p => p.oficio === '3d' && (!N(p.gramos) || !N(p.horas))); }
+  /* Revisión del 3-sep de Cowork: un producto aparece UNA sola vez, en el bloque de lo
+   * PRIMERO que le falta -- antes los mismos 16 textiles salían en "sin precio", "sin
+   * horas" y "sin confirmar" a la vez (67 pendientes contra 26 productos reales), y el
+   * bloque de precios no tenía un solo botón "Aceptar" porque ninguno de esos 24 tenía
+   * costo completo. Prioridad, de lo más fundamental a lo más superficial:
+   *   1) 3D sin gramos/horas -- no se puede costear nada, ni con margen de bordado ni de 3D.
+   *   2) Textil sin horasMano -- mismo problema para bordado/costura.
+   *   3) Bordado sin confirmar -- ya tiene costo, pero el margen puede estar mal.
+   *   4) Sin precio -- lo único que falta es ponerle un número; siempre tiene sugerido.
+   * Cada producto cae en la PRIMERA categoría que le aplica y sale de las demás. */
+  function categorizarProductos() {
+    const sin3d = [], sinHorasTextil = [], sinConfirmar = [], sinPrecio = [];
+    Datos.activos('productos').forEach(p => {
+      if (p.oficio === '3d') {
+        if (!N(p.gramos) || !N(p.horas)) { sin3d.push(p); return; }
+      } else {
+        if (!N(p.horasMano)) { sinHorasTextil.push(p); return; }
+        if (p.oficio === 'bordado' && !p.oficioConfirmado) { sinConfirmar.push(p); return; }
+      }
+      // Llegó hasta acá: el costo se puede calcular de verdad. Si además no tiene precio,
+      // es un pendiente real de precio -- y va a tener sugerido siempre, por diseño.
+      if (typeof p.precio !== 'number') sinPrecio.push(p);
+    });
+    return { sin3d, sinHorasTextil, sinConfirmar, sinPrecio };
+  }
+
   function pedidosAbiertos() { return Datos.activos('pedidos').filter(p => p.estado !== 'entregado'); }
   function pedidosSinPrecio() { return pedidosAbiertos().filter(p => Costos.calcularPedido(p).faltanPrecios > 0); }
   function nubePendiente() { return !Nube.configurado() || !Nube.visto(); }
 
   function contar() {
-    return sinPrecio().length + sinHorasTextil().length + sinConfirmar().length +
-      sin3d().length + pedidosSinPrecio().length + (nubePendiente() ? 1 : 0);
+    const c = categorizarProductos();
+    return c.sin3d.length + c.sinHorasTextil.length + c.sinConfirmar.length + c.sinPrecio.length +
+      pedidosSinPrecio().length + (nubePendiente() ? 1 : 0);
   }
 
   function pintar() {
+    const c = categorizarProductos();
     const bloques = [
-      bloquePrecios(sinPrecio()),
-      bloqueHoras(sinHorasTextil()),
-      bloqueConfirmar(sinConfirmar()),
-      bloque3d(sin3d()),
+      bloquePrecios(c.sinPrecio),
+      bloqueHoras(c.sinHorasTextil),
+      bloqueConfirmar(c.sinConfirmar),
+      bloque3d(c.sin3d),
       bloquePedidos(pedidosSinPrecio()),
       bloqueNube()
     ].filter(Boolean).join('');

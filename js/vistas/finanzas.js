@@ -242,6 +242,16 @@
       lineasEditando = null; pedidoSeleccionado = null;
       if (!valor) return;
       const { marcarEntregado, ...resto } = datos;
+      // Revisión del 3-sep de Cowork: guardar sin líneas dejaba una venta fantasma de $0
+      // en la lista, sin avisar. Una venta sin líneas no es una venta.
+      if (!resto.lineas.length) {
+        A.aviso('Una venta necesita al menos una línea — no se guardó', 'error');
+        // Si es una venta recién creada (nunca tuvo líneas), no dejar el borrador vacío
+        // dando vueltas en la lista.
+        if (!v.lineas || !v.lineas.length) { Datos.quitar('ventas', v.id); Datos.guardar('venta vacía descartada'); }
+        pintar();
+        return;
+      }
       Object.assign(v, resto);
       Datos.guardar('venta');
       if (marcarEntregado && resto.pedidoId) {
