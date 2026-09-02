@@ -4,6 +4,47 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Editar las líneas de un pedido · v2.3.0
+
+**Qué cambió.** En Pedidos, la ficha ya deja agregar, cambiar y quitar líneas — antes solo
+se veían y no había forma de tocarlas. Cada línea se puede atar a un producto del catálogo
+(trae su nombre y precio solos, y se puede editar después) o dejarse libre con descripción y
+precio a mano, para cosas como envío o un extra puntual. El total, el costo y el saldo del
+pedido se recalculan en vivo mientras se edita, antes de guardar nada.
+
+**Cómo sé que funciona.** Corrí la lógica real del archivo (no una copia) contra un producto
+y un cliente de prueba, en Node, sin mockear el motor de costos:
+- Elegir un producto de $8.900 y ponerle cantidad 3 → el total sube a $26.700.
+- Agregar una línea libre "Envío a domicilio" a $3.000 → el total sube a $29.700.
+- Agregar una tercera línea y dejarla sin terminar → el total en pantalla dice **"faltan
+  precios"**, no un número inventado — el mismo principio que ya usa el costo de productos,
+  ahora también en el total del pedido mientras se edita.
+- Al guardar, esa línea sin terminar se descarta sola; las otras dos quedan con sus datos
+  exactos (verificado campo por campo).
+- Quitar una línea recalcula el total al vuelo, sin dejar huecos en el arreglo.
+- Los `.js` del repo pasan `node --check` y el servidor local sirve los 20 archivos que
+  toca `index.html` con 200.
+
+**Lo que NO pude verificar.** No hay navegador ni herramienta de captura de pantalla en este
+entorno: no lo recorrí clic a clic en pantalla, como pide `COMO-REPORTAR.md`. La lógica está
+probada contra el código real, pero falta que alguien la vea funcionar en el navegador — es
+lo primero que haría antes de dar esto por cerrado del todo.
+
+**Lo que NO quedó.**
+- Las líneas no se pueden reordenar ni duplicar.
+- El selector de producto es una lista larga sin buscador — con 36 productos hoy es usable,
+  pero no va a escalar mucho más así.
+
+**Nota sobre el commit.** Este cambio quedó empaquetado dentro de `5fb1a57` (otra sesión de
+Claude Code trabajando en el mismo repo al mismo tiempo, deshaciendo el pase de diseño), que
+no lo mencionó en su propia entrada. El código es exactamente el que se describe acá —
+confirmado después del commit, función por función.
+
+**Versión.** v2.3.0 (el código ya está en el commit `5fb1a57`; esta entrada es el reporte
+que faltaba, no trae cambios de código nuevos)
+
+---
+
 ## 2026-09-02 · Se deshace el pase de diseño · v2.3.0
 
 **Qué cambió.** El diseño de v2.2.0 estaba mal: copié la estética de `tools.kmorra3d.com`
