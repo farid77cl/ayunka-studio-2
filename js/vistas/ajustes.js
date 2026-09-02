@@ -13,34 +13,34 @@
 
       <div class="tarjeta"><h2>Costos de producción</h2>
         <div class="formulario">
-          ${A.campo('a-pla', 'Rollo de PLA', p.precioPLA, { tipo: 'number', nota: '1 kg' })}
-          ${A.campo('a-petg', 'Rollo de PETG', p.precioPETG, { tipo: 'number', nota: '1 kg' })}
-          ${A.campo('a-kwh', 'Precio del kWh', p.kwh, { tipo: 'number' })}
-          ${A.campo('a-kw', 'Consumo de la K2', p.consumoKw, { tipo: 'number', paso: '0.01', nota: 'kW' })}
-          ${A.campo('a-costoimp', 'Lo que costó la impresora', p.costoImpresora, { tipo: 'number' })}
-          ${A.campo('a-amort', 'Años para amortizarla', p.amortAnos, { tipo: 'number' })}
+          ${A.campo('a-pla', 'Rollo de PLA', p.precioPLA, { tipo: 'number', signo: '$', nota: '1 kg' })}
+          ${A.campo('a-petg', 'Rollo de PETG', p.precioPETG, { tipo: 'number', signo: '$', nota: '1 kg' })}
+          ${A.campo('a-kwh', 'Precio del kWh', p.kwh, { tipo: 'number', signo: '$' })}
+          ${A.campo('a-kw', 'Consumo de la K2', p.consumoKw, { tipo: 'number', paso: '0.01', unidad: 'kW' })}
+          ${A.campo('a-costoimp', 'Lo que costó la impresora', p.costoImpresora, { tipo: 'number', signo: '$' })}
+          ${A.campo('a-amort', 'Años para amortizarla', p.amortAnos, { tipo: 'number', unidad: 'años' })}
           ${A.campo('a-dias', 'Días de uso al año', p.diasAno, { tipo: 'number' })}
           ${A.campo('a-horas', 'Horas de uso al día', p.horasDia, { tipo: 'number' })}
-          ${A.campo('a-mano', 'Tu hora de trabajo', p.manoObraHora, { tipo: 'number' })}
-          ${A.campo('a-prep', 'Preparación por pieza', p.minPrep, { tipo: 'number', nota: 'min' })}
-          ${A.campo('a-empaque', 'Empaque', p.empaque, { tipo: 'number' })}
+          ${A.campo('a-mano', 'Tu hora de trabajo', p.manoObraHora, { tipo: 'number', signo: '$' })}
+          ${A.campo('a-prep', 'Preparación por pieza', p.minPrep, { tipo: 'number', unidad: 'min' })}
+          ${A.campo('a-empaque', 'Empaque', p.empaque, { tipo: 'number', signo: '$' })}
           ${A.campo('a-merma', 'Merma de material', p.merma, { tipo: 'number', paso: '0.01', nota: '0,08 = 8%' })}
           ${A.campo('a-falla', 'Tasa de fallas', p.tasaFalla, { tipo: 'number', paso: '0.01', nota: '0,10 = 10%' })}
-          ${A.campo('a-cap', 'Capacidad al día', p.capacidadDiaH, { tipo: 'number', nota: 'horas' })}
+          ${A.campo('a-cap', 'Capacidad al día', p.capacidadDiaH, { tipo: 'number', unidad: 'h' })}
         </div>
-        <p style="font-size:12.5px;color:var(--tenue);margin:4px 0 0">
+        <p style="font-size:12.5px;color:var(--apagado);margin:4px 0 0">
           Con estos números, cada hora de la K2 cuesta <b>${A.plata(amort)}</b> solo en amortización.</p>
       </div>
 
       <div class="tarjeta"><h2>Márgenes por oficio</h2>
-        <p style="font-size:13px;color:var(--tenue);margin:0 0 12px">
+        <p style="font-size:13px;color:var(--apagado);margin:0 0 12px">
           Son distintos a propósito y cada uno tiene su razón: el bordado es tiempo tuyo difícil
           de reemplazar, la costura compite con más oferta, y el 3D deja margen porque la máquina
           trabaja sola.</p>
         <div class="formulario">
-          ${A.campo('a-mbor', 'Bordado', m.bordado, { tipo: 'number', paso: '0.05', nota: '×' })}
-          ${A.campo('a-mcos', 'Costura', m.costura, { tipo: 'number', paso: '0.05', nota: '×' })}
-          ${A.campo('a-m3d', 'Impresión 3D', m['3d'], { tipo: 'number', paso: '0.05', nota: '×' })}
+          ${A.campo('a-mbor', 'Bordado', m.bordado, { tipo: 'number', paso: '0.05', unidad: '×' })}
+          ${A.campo('a-mcos', 'Costura', m.costura, { tipo: 'number', paso: '0.05', unidad: '×' })}
+          ${A.campo('a-m3d', 'Impresión 3D', m['3d'], { tipo: 'number', paso: '0.05', unidad: '×' })}
         </div>
       </div>
 
@@ -55,7 +55,7 @@
       </div>
 
       <div class="tarjeta"><h2>Sincronización entre el PC y el teléfono</h2>
-        <p id="nube-estado" style="font-size:13px;color:var(--tenue);margin:0 0 12px">
+        <p id="nube-estado" style="font-size:13px;color:var(--apagado);margin:0 0 12px">
           Estado: ${A.esc(Nube.estado())}</p>
         <div class="formulario">
           ${A.campo('n-correo', 'Correo de acceso', guardado.correo || '', { tipo: 'email', nota: 'no es tu Gmail' })}
@@ -70,7 +70,7 @@
           <button class="btn" onclick="Nube.forzarSubida().then(()=>A.aviso('Subido'))">Subir ahora</button>
           <button class="btn sutil" onclick="Nube.apagar();A.aviso('Sincronización apagada');Vistas.ajustes.pintar()">Apagar</button>
         </div>
-        <p style="font-size:12.5px;color:var(--tenue);margin:10px 0 0">
+        <p style="font-size:12.5px;color:var(--apagado);margin:10px 0 0">
           El correo y la contraseña se guardan <b>solo en este equipo</b>, nunca en el repositorio.
           Y recuerda: las reglas de <code>firestore.rules</code> hay que <b>publicarlas en la consola</b> —
           cambiar el archivo no publica nada.</p>
@@ -82,7 +82,7 @@
           <button class="btn" onclick="Vistas.ajustes.importar()">Restaurar desde un respaldo</button>
           <button class="btn sutil" onclick="Vistas.ajustes.recargarSemilla()">Volver al catálogo inicial</button>
         </div>
-        <p style="font-size:12.5px;color:var(--tenue);margin:10px 0 0">
+        <p style="font-size:12.5px;color:var(--apagado);margin:10px 0 0">
           El respaldo se descarga como archivo <b>al disco</b>, no al navegador. En la versión
           anterior la única copia de rescate vivía en el mismo lugar que se acababa de pisar.</p>
         <div class="rejilla" style="margin-top:14px">

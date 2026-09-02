@@ -36,7 +36,7 @@
       </div>`;
 
     if (incompletos) {
-      html += `<div class="tarjeta" style="border-color:var(--terra);background:#FEFAF7">
+      html += `<div class="tarjeta aviso">
         <b>${incompletos} productos no se pueden costear todavía.</b>
         A los de 3D les faltan los gramos o las horas de máquina; a los de bordado y costura,
         las horas de trabajo a mano. Mientras falten, esta app <b>no inventa un precio
@@ -60,7 +60,7 @@
       lista.forEach(p => {
         const c = Costos.calcular(p);
         html += `<tr onclick="Vistas.productos.abrir('${A.esc(p.id)}')" style="cursor:pointer">
-          <td style="color:var(--tenue);font-size:12.5px">${A.esc(p.sku || '—')}</td>
+          <td style="color:var(--apagado);font-size:12.5px">${A.esc(p.sku || '—')}</td>
           <td><b>${A.esc(p.nombre)}</b></td>
           <td><span class="etiqueta ${claseOficio(p.oficio)}">${p.oficio === '3d' ? '3D' : A.esc(p.oficio)}</span></td>
           <td class="num">${c.completo ? A.plata(c.costo) : '—'}</td>
@@ -89,7 +89,8 @@
     const es3d = p.oficio === '3d';
 
     const desglose = c.lineas.map(l => `<div class="fila">
-      <div class="c">${A.esc(l.concepto)}${l.nota ? `<div class="n">${A.esc(l.nota)}</div>` : ''}</div>
+      <div class="c"><span class="punto" style="background:var(--c-${l.color})"></span>
+        <span>${A.esc(l.concepto)}${l.nota ? `<span class="n">${A.esc(l.nota)}</span>` : ''}</span></div>
       <div class="m">${A.plata(l.monto)}</div></div>`).join('') +
       `<div class="fila total"><div class="c"><b>Costo por unidad</b></div><div class="m">${c.completo ? A.plata(c.costo) : '—'}</div></div>
        <div class="fila"><div class="c">Margen ×${c.margen} <span class="n">(${A.esc(p.oficio)})</span></div>
@@ -120,8 +121,8 @@
       </div>
       <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--pizarra);margin:16px 0 8px">Dónde está la plata</h3>
       <div class="desglose">${desglose}</div>
-      ${p.descripcion ? `<p style="color:var(--tenue);font-size:13px;margin-top:14px">${A.esc(p.descripcion)}</p>` : ''}
-      ${p.archivoOrigen ? `<p style="color:var(--tenue);font-size:12px">Origen: ${A.esc(p.archivoOrigen)}</p>` : ''}`;
+      ${p.descripcion ? `<p style="color:var(--apagado);font-size:13px;margin-top:14px">${A.esc(p.descripcion)}</p>` : ''}
+      ${p.archivoOrigen ? `<p style="color:var(--apagado);font-size:12px">Origen: ${A.esc(p.archivoOrigen)}</p>` : ''}`;
 
     A.preguntar({
       titulo: p.nombre,

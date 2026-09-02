@@ -23,14 +23,14 @@
     fs.forEach(f => {
       const pct = f.gramosRollo ? Math.max(0, Math.min(100, (f.gramosQuedan / f.gramosRollo) * 100)) : 0;
       h += `<tr onclick="Vistas.filamentos.abrir('${A.esc(f.id)}')" style="cursor:pointer">
-        <td><span style="display:inline-block;width:18px;height:18px;border-radius:5px;border:1px solid var(--linea);background:${A.esc(f.hex || '#ccc')}"></span></td>
+        <td><span style="display:inline-block;width:18px;height:18px;border-radius:5px;border:1px solid var(--borde);background:${A.esc(f.hex || '#ccc')}"></span></td>
         <td><b>${A.esc(f.marca || '—')}</b> · ${A.esc(f.color || '')}</td>
         <td><span class="etiqueta">${A.esc(f.material || 'PLA')}</span></td>
         <td class="num">${A.plata(f.precioRollo)}</td>
         <td class="num">${A.plata(gramoDe(f))}</td>
         <td class="num">${Math.round(f.gramosQuedan || 0)} g</td>
-        <td style="width:110px"><div style="background:var(--crema);border-radius:4px;height:7px;overflow:hidden">
-          <div style="width:${pct}%;height:100%;background:${pct < 20 ? 'var(--coral)' : 'var(--pizarra)'}"></div></div></td>
+        <td style="width:110px"><div class="barra">
+          <div style="width:${pct}%;background:${pct < 20 ? 'var(--malo)' : 'var(--c-luz)'}"></div></div></td>
       </tr>`;
     });
 
@@ -48,9 +48,9 @@
         ${A.campo('f-color', 'Color', f.color)}
         ${A.selector('f-mat', 'Material', f.material, [{ v: 'PLA', t: 'PLA' }, { v: 'PETG', t: 'PETG' }, { v: 'TPU', t: 'TPU' }, { v: 'ABS', t: 'ABS' }])}
         ${A.campo('f-hex', 'Color (hex)', f.hex, { tipo: 'color' })}
-        ${A.campo('f-precio', 'Precio del rollo', f.precioRollo, { tipo: 'number' })}
-        ${A.campo('f-gramos', 'Gramos del rollo', f.gramosRollo, { tipo: 'number' })}
-        ${A.campo('f-queda', 'Gramos que quedan', f.gramosQuedan, { tipo: 'number' })}
+        ${A.campo('f-precio', 'Precio del rollo', f.precioRollo, { tipo: 'number', signo: '$' })}
+        ${A.campo('f-gramos', 'Gramos del rollo', f.gramosRollo, { tipo: 'number', unidad: 'g' })}
+        ${A.campo('f-queda', 'Gramos que quedan', f.gramosQuedan, { tipo: 'number', unidad: 'g' })}
       </div>`,
       leer: n => {
         const v = i => { const e = n.querySelector('#' + i); return e ? e.value : ''; };

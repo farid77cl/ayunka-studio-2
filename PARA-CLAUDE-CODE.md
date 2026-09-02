@@ -79,3 +79,62 @@ En `../.planning/` quedaron, del mismo día:
 - `QUE-COMPRAR-QUE-CONSTRUIR.md` — qué producto ya existe, cuánto cuesta y qué vale construir.
 - `CARGA-INICIAL.md` — los datos reales de LIDCAR y Briones. **No inventar números: están ahí.**
 - `SEGURIDAD.md` — qué está abierto y en qué orden se cierra.
+
+---
+
+## Actualización · v2.2.0 (2-sep, madrugada)
+
+Se agregaron dos cosas que Farid había pedido y no estaban.
+
+### 1. Cotizar desde un 3MF · `js/lector3mf.js` + `js/vistas/cotizar.js`
+
+**Verificado contra los archivos reales de `../stl/`**, no contra un ejemplo:
+`LIDCAR redondo 5 v5.3mf` → 5 piezas, **54 × 60,03 × 3 mm**, hueco de **0,229 cm³**.
+Ese hueco es π × 13,5² × 0,4 — el bolsillo redondo del chip, exacto.
+
+**No estima gramos ni tiempo, y es a propósito.** Se midió contra los 11 productos de
+Ayünka que tienen datos de G-code real: el caudal va de **14 a 43 g/h** según la forma
+—un fidget de pared delgada tarda el triple por gramo que una repisa maciza— y un modelo
+lineal se equivoca **42% en promedio y hasta 154%**. Un presupuesto con ese error no es un
+presupuesto. Se piden los dos números de la bandeja (una laminada en Creality Print) y la
+app hace el resto. **Si alguien "mejora" esto agregando una estimación automática, está
+reintroduciendo el problema.**
+
+Dos trampas del formato 3MF que ya costaron caro y están documentadas en el código:
+
+1. **`model_settings.config` numera las partes DESDE 1 DENTRO DE CADA OBJETO.** Con 5
+   llaveros hay 150 partes y cinco veces la id 1. Mapear `id → subtipo` a secas hacía que
+   el volumen saliera **negativo** (−4,32 cm³).
+2. **Capturar `objectid` y `transform` en una sola expresión regular con grupo opcional
+   falla en silencio**: se perdía la transformación y el llavero medía 54 × 54 × 26 en vez
+   de 54 × 60 × 3. Los atributos se sacan de la etiqueta uno por uno.
+3. Y la caja del objeto hay que llevarla al sistema de la bandeja transformando las **ocho**
+   esquinas, no dos: con dos, una rotación de 90° da medidas absurdas.
+
+### 2. Pase de diseño
+
+Farid dijo que la app estaba fea y mandó `tools.kmorra3d.com` como referencia. Se analizaron
+sus 14 páginas. **Se tomaron las técnicas, no la paleta** — copiarles el naranja oscuro sería
+cambiar la marca de Ayünka por la de otro. Lo que sí se copió:
+
+- Los **números en tipografía condensada** (Barlow Condensed), grandes y en el color de marca.
+- **Unidades y `$` dentro del campo**, y sin las flechitas del input numérico. Es lo que más
+  saca el olor a planilla. Está en `A.campo(..., {unidad:'g'})` y `{signo:'$'}`.
+- **Un color fijo por categoría de costo**, repetido en el punto y la barra. Vive en el mapa
+  `COLOR` de `js/costos.js` — si agregas un concepto nuevo, dale su color ahí.
+- **Casi cero sombras**: la separación es borde de 1px más un fondo un escalón distinto.
+- **Tablas sin bordes verticales ni cebra**, y el desglose de costos como filas flex.
+
+Hay tema claro y oscuro (`data-tema` en el `<html>`, botón abajo a la izquierda), y la
+**versión se muestra en pantalla** para poder verificarla de un vistazo.
+
+**Lo que falta del diseño, y es lo que conviene hacer en VS Code con el navegador al lado:**
+
+- El **panel de total pegado al costado** (`.con-panel` + `.panel-pegado` + `.total-caja` ya
+  están en el CSS, sin usar). Va en la ficha de producto y en Cotizar: cargas datos a la
+  izquierda y el precio te sigue a la derecha. Es lo que más se nota.
+- En la tabla de productos, el chip "faltan las horas de trabajo" se repite en 15 filas
+  seguidas y hace ruido. Mejor una sola nota arriba y un punto discreto en la fila.
+- Las **barras de proporción** en el desglose (la clase `.barra` está lista): que cada
+  categoría muestre qué porcentaje del costo se lleva.
+- Revisar en pantalla chica: está resuelto pero no probado en un teléfono de verdad.

@@ -17,9 +17,10 @@ const BASE = [
   './', './index.html',
   './css/app.css',
   './js/version.js', './js/config.js', './js/db.js', './js/costos.js',
-  './js/nube.js', './js/ui.js', './js/app.js',
+  './js/nube.js', './js/lector3mf.js', './js/ui.js', './js/app.js',
   './js/vistas/productos.js', './js/vistas/filamentos.js', './js/vistas/clientes.js',
-  './js/vistas/pedidos.js', './js/vistas/cola.js', './js/vistas/ajustes.js',
+  './js/vistas/pedidos.js', './js/vistas/cola.js', './js/vistas/cotizar.js',
+  './js/vistas/ajustes.js',
   './datos/semilla.json',
   './manifest.webmanifest'
 ];

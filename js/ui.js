@@ -63,11 +63,15 @@
     });
   }
 
+  /* El `$` y las unidades van DENTRO del campo, no como texto al lado: es lo que más
+     separa una ficha de producto de una planilla. */
   const campo = (id, etiqueta, valor, opts = {}) => `
-    <label class="campo${opts.ancho ? ' ancho' : ''}">
+    <label class="campo${opts.ancho ? ' ancho' : ''}${opts.signo ? ' con-signo' : ''}">
       <span>${esc(etiqueta)}${opts.nota ? `<i>${esc(opts.nota)}</i>` : ''}</span>
       <input id="${id}" type="${opts.tipo || 'text'}" value="${esc(valor == null ? '' : valor)}"
         ${opts.paso ? `step="${opts.paso}"` : ''} ${opts.ph ? `placeholder="${esc(opts.ph)}"` : ''}>
+      ${opts.signo ? `<span class="signo">${esc(opts.signo)}</span>` : ''}
+      ${opts.unidad ? `<span class="unidad">${esc(opts.unidad)}</span>` : ''}
     </label>`;
 
   const selector = (id, etiqueta, valor, opciones) => `

@@ -46,9 +46,9 @@
       const urgente = d !== null && d <= 1 && p.estado !== 'entregado';
       h += `<tr onclick="Vistas.pedidos.abrir('${A.esc(p.id)}')" style="cursor:pointer">
         <td><b>${A.esc(cliente(p.clienteId))}</b>
-            <div style="font-size:12px;color:var(--tenue)">${(p.lineas || []).reduce((s, l) => s + (l.cantidad || 0), 0)} piezas</div></td>
+            <div style="font-size:12px;color:var(--apagado)">${(p.lineas || []).reduce((s, l) => s + (l.cantidad || 0), 0)} piezas</div></td>
         <td>${A.fecha(p.entrega)}${d !== null && p.estado !== 'entregado'
-              ? `<div style="font-size:12px;color:${urgente ? 'var(--coral)' : 'var(--tenue)'}">${d < 0 ? `atrasado ${-d} d` : d === 0 ? 'hoy' : d === 1 ? 'mañana' : `en ${d} días`}</div>` : ''}</td>
+              ? `<div style="font-size:12px;color:${urgente ? 'var(--coral)' : 'var(--apagado)'}">${d < 0 ? `atrasado ${-d} d` : d === 0 ? 'hoy' : d === 1 ? 'mañana' : `en ${d} días`}</div>` : ''}</td>
         <td><span class="etiqueta">${A.esc(nombreEstado(p.estado))}</span></td>
         <td class="num">${c.total === null ? `<span class="chip falta">faltan precios</span>` : A.plata(c.total)}</td>
         <td class="num">${A.plata(c.abonado)}</td>
@@ -79,12 +79,12 @@
           ${A.selector('pd-est', 'Estado', p.estado, ESTADOS)}
           ${A.campo('pd-fecha', 'Fecha del pedido', p.fecha, { tipo: 'date' })}
           ${A.campo('pd-entrega', 'Entrega comprometida', p.entrega, { tipo: 'date' })}
-          ${A.campo('pd-abono', 'Abono recibido', p.abono || 0, { tipo: 'number' })}
+          ${A.campo('pd-abono', 'Abono recibido', p.abono || 0, { tipo: 'number', signo: '$' })}
         </div>
         <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--pizarra);margin:14px 0 8px">Qué lleva</h3>
         <div class="desglose">${lineas || '<div class="fila"><div class="c">Sin líneas</div></div>'}
           <div class="fila total"><div class="c"><b>Total</b></div><div class="m">${c.total === null ? 'faltan precios' : A.plata(c.total)}</div></div>
-          <div class="fila"><div class="c">Costo de producción</div><div class="m" style="color:var(--tenue)">${A.plata(c.costo)}</div></div>
+          <div class="fila"><div class="c">Costo de producción</div><div class="m" style="color:var(--apagado)">${A.plata(c.costo)}</div></div>
           <div class="fila"><div class="c">Utilidad</div><div class="m" style="color:${(c.utilidad || 0) > 0 ? 'var(--ok)' : 'var(--coral)'}">${c.utilidad === null ? '—' : A.plata(c.utilidad)}</div></div>
           <div class="fila"><div class="c">Saldo por cobrar</div><div class="m">${c.saldo === null ? '—' : A.plata(c.saldo)}</div></div>
         </div>

@@ -13,9 +13,9 @@
       const saldo = peds.filter(p => p.estado !== 'entregado')
         .reduce((s, p) => s + (Costos.calcularPedido(p).saldo || 0), 0);
       h += `<tr onclick="Vistas.clientes.abrir('${A.esc(c.id)}')" style="cursor:pointer">
-        <td><b>${A.esc(c.nombre)}</b>${c.notas ? `<div style="font-size:12px;color:var(--tenue)">${A.esc(c.notas)}</div>` : ''}</td>
+        <td><b>${A.esc(c.nombre)}</b>${c.notas ? `<div style="font-size:12px;color:var(--apagado)">${A.esc(c.notas)}</div>` : ''}</td>
         <td><span class="etiqueta">${A.esc(c.tipo === 'empresa' ? 'Empresa' : 'Persona')}</span></td>
-        <td style="color:var(--tenue)">${A.esc(c.contacto || '—')}</td>
+        <td style="color:var(--apagado)">${A.esc(c.contacto || '—')}</td>
         <td class="num">${peds.length}</td>
         <td class="num"><b>${saldo ? A.plata(saldo) : '—'}</b></td></tr>`;
     });

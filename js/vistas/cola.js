@@ -56,26 +56,26 @@
     filas.forEach(f => {
       const cli = (Datos.obtener('clientes', f.p.clienteId) || {}).nombre || '—';
       html += `<tr onclick="Vistas.pedidos.abrir('${A.esc(f.p.id)}')" style="cursor:pointer">
-        <td><b>${A.esc(cli)}</b><div style="font-size:12px;color:var(--tenue)">${A.esc(f.p.estado)}</div></td>
-        <td>${A.fecha(f.p.entrega)}<div style="font-size:12px;color:var(--tenue)">${
+        <td><b>${A.esc(cli)}</b><div style="font-size:12px;color:var(--apagado)">${A.esc(f.p.estado)}</div></td>
+        <td>${A.fecha(f.p.entrega)}<div style="font-size:12px;color:var(--apagado)">${
           f.d === null ? '' : f.d < 0 ? `atrasado ${-f.d} d` : f.d === 0 ? 'hoy' : `en ${f.d} días`}</div></td>
         <td class="num">${f.h.toFixed(1)}</td>
-        <td class="num" style="color:var(--tenue)">${f.acumulado.toFixed(1)}</td>
-        <td class="num" style="color:var(--tenue)">${f.disponible === null ? '—' : f.disponible.toFixed(0)}</td>
+        <td class="num" style="color:var(--apagado)">${f.acumulado.toFixed(1)}</td>
+        <td class="num" style="color:var(--apagado)">${f.disponible === null ? '—' : f.disponible.toFixed(0)}</td>
         <td>${f.alcanza === null ? '' : f.alcanza
               ? '<span class="chip ok">alcanza</span>'
               : '<span class="chip bajo">no alcanza</span>'}</td></tr>`;
     });
 
     html += `</tbody></table>
-      <p style="font-size:12.5px;color:var(--tenue);margin:12px 0 0">
+      <p style="font-size:12.5px;color:var(--apagado);margin:12px 0 0">
         El acumulado suma las horas de los pedidos que van antes: un pedido puede caber solo
         y no caber en la fila. Las horas salen del catálogo, así que un producto sin horas
         cargadas hace que este cálculo mienta hacia abajo.</p></div>`;
 
     const sinHoras = Datos.activos('productos').filter(p => p.oficio === '3d' && !p.horas).length;
     if (sinHoras) {
-      html += `<div class="tarjeta" style="border-color:var(--terra);background:#FEFAF7">
+      html += `<div class="tarjeta aviso">
         <b>${sinHoras} productos 3D no tienen horas de máquina cargadas.</b>
         Mientras falten, la cola calcula de menos y el «alcanza» no es confiable.</div>`;
     }

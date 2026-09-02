@@ -4,6 +4,7 @@
     { id: 'productos',  txt: 'Productos',  cuenta: () => Datos.activos('productos').length },
     { id: 'pedidos',    txt: 'Pedidos',    cuenta: () => Datos.activos('pedidos').filter(p => p.estado !== 'entregado').length },
     { id: 'cola',       txt: 'Cola',       cuenta: null },
+    { id: 'cotizar',    txt: 'Cotizar',    cuenta: null },
     { id: 'clientes',   txt: 'Clientes',   cuenta: () => Datos.activos('clientes').length },
     { id: 'filamentos', txt: 'Filamentos', cuenta: () => Datos.activos('filamentos').length },
     { id: 'ajustes',    txt: 'Ajustes',    cuenta: null }
@@ -31,8 +32,17 @@
   function pintarPie() {
     const e = A.$('#pie');
     if (!e) return;
-    const est = Nube.estado();
-    e.innerHTML = `<b>v${A.esc(self.AYUNKA_VERSION)}</b><br>${A.esc(est)}`;
+    const oscuro = document.documentElement.dataset.tema === 'oscuro';
+    e.innerHTML = `<b>v${A.esc(self.AYUNKA_VERSION)}</b><br>${A.esc(Nube.estado())}
+      <button class="tema" onclick="App.tema()">${oscuro ? '☾ oscuro' : '☀ claro'}</button>`;
+  }
+
+  function tema() {
+    const r = document.documentElement;
+    const nuevo = r.dataset.tema === 'oscuro' ? 'claro' : 'oscuro';
+    r.dataset.tema = nuevo;
+    try { localStorage.setItem('ayunka2-tema', nuevo); } catch (e) {}
+    pintarPie();
   }
 
   /* El diálogo que la versión anterior no tenía, y por eso perdió tres semanas. */
@@ -46,7 +56,7 @@
           <div><h3>Este equipo</h3><div class="cuando">${A.esc(plan.local.fecha)}</div><ul>${lista(plan.local)}</ul></div>
           <div><h3>La nube</h3><div class="cuando">${A.esc(plan.remoto.fecha)}</div><ul>${lista(plan.remoto)}</ul></div>
         </div>
-        <p style="font-size:13px;color:var(--tenue)">
+        <p style="font-size:13px;color:var(--apagado)">
           Se descargó un respaldo de lo que hay en este equipo antes de preguntarte, así que
           cualquiera de las dos opciones se puede deshacer.</p>`,
       botones: [
@@ -91,6 +101,6 @@
     }
   }
 
-  window.App = { ir, arrancar, conectarNube, pintarPie };
+  window.App = { ir, arrancar, conectarNube, pintarPie, tema };
   document.addEventListener('DOMContentLoaded', arrancar);
 })();

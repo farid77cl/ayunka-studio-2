@@ -42,8 +42,20 @@
    */
   function calcular(prod, params) {
     params = params || DB.params || {};
+    /* Cada concepto lleva SIEMPRE el mismo color, y ese color se repite en el punto de la
+       lista, en la barra y en el porcentaje. Es lo que hace que el desglose se lea de un
+       vistazo en vez de tener que ir leyendo etiqueta por etiqueta. */
+    const COLOR = {
+      'Filamento': 'material', 'Merma': 'material', 'Materiales': 'material',
+      'Electricidad': 'luz',
+      'Amortización de la K2': 'maquina',
+      'Preparación': 'mano', 'Post-proceso': 'mano', 'Trabajo a mano': 'mano',
+      'Empaque': 'otros', 'Extra': 'otros', 'Fallas': 'otros'
+    };
     const lineas = [];
-    const add = (concepto, monto, nota) => { if (monto) lineas.push({ concepto, monto, nota }); };
+    const add = (concepto, monto, nota) => {
+      if (monto) lineas.push({ concepto, monto, nota, color: COLOR[concepto] || 'otros' });
+    };
 
     if (prod.oficio === '3d') {
       const gr = N(prod.gramos), hr = N(prod.horas);
