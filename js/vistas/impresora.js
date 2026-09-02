@@ -190,9 +190,23 @@
     for (const prop of lista) {
       const prod = Datos.obtener('productos', prop.productoId);
       if (!prod) continue;
-      // Si de verdad estaba cambiando un valor que alguien ya había puesto, queda guardado
-      // para poder volver atrás — no se pisa en silencio (SUPERVISION.md, 2-sep).
-      if (prop.cambiaReal) prod.datosAnteriores = { gramos: prod.gramos, horas: prod.horas };
+      // Si el valor que trae el historial ya es el que está guardado, no hay nada que
+      // aplicar -- aplicar la fila y después "Aplicar todas" no debe pisar datosAnteriores
+      // con el valor que la propia app acaba de escribir (bug encontrado en la revisión
+      // del 2-sep de v2.6.0). `prop.cambiaReal` se calculó al soltar el archivo y queda
+      // viejo después de la primera aplicación -- por eso se recalcula aquí, contra el
+      // valor ACTUAL del producto, no contra el que tenía cuando se leyó el historial.
+      if (prod.gramos === prop.gramosReales && prod.horas === prop.horasReales) continue;
+      const eraBlanco = !prod.gramos && !prod.horas;
+      const cambioDeVerdad = !eraBlanco &&
+        (Math.abs(N(prod.gramos, 0) - prop.gramosReales) > Impresora.DIF_GRAMOS ||
+         Math.abs(N(prod.horas, 0) - prop.horasReales) > Impresora.DIF_HORAS);
+      // Solo se guarda la PRIMERA vez que se pisa un valor real -- si ya había uno
+      // guardado, no se toca, o dos aplicaciones seguidas terminan guardando el valor
+      // nuevo en vez del original.
+      if (cambioDeVerdad && !prod.datosAnteriores) {
+        prod.datosAnteriores = { gramos: prod.gramos, horas: prod.horas };
+      }
       prod.gramos = prop.gramosReales;
       prod.horas = prop.horasReales;
       prod.origenDatos = 'historial-k2';

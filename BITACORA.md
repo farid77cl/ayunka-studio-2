@@ -4,6 +4,42 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Arregla el bug que Cowork encontró en el navegador: datosAnteriores se perdía · v2.6.1
+
+**Qué cambió.** Cowork revisó v2.6.0 en un navegador de verdad y encontró un bug real:
+`datosAnteriores` (el valor que un producto tenía antes de que la K2 lo pisara) se
+sobrescribía cada vez que se aplicaba, no solo la primera. Reproducido exacto: aplicar la
+fila individual de `AY-3D-001` (80 g / 2,6 h → 75,2 g / 2,515 h, guarda `datosAnteriores:
+{80, 2.6}`) y después "Aplicar las 11" en bloque volvía a evaluar la propuesta —que ya
+estaba vieja, calculada contra el valor de ANTES de la primera aplicación— y terminaba
+guardando `datosAnteriores: {75.2, 2.515}`: el valor nuevo, no el original. Dos clicks
+seguidos borraban justo lo que la función existe para proteger.
+
+`aplicar()` en `js/vistas/impresora.js` ahora recalcula contra el valor VIVO del producto en
+vez de confiar en `prop.cambiaReal` (que quedó viejo tras la primera aplicación): si el
+producto ya tiene exactamente el valor que trae el historial, no toca nada (evita
+reprocesar); y `datosAnteriores` solo se escribe si el producto no lo tiene ya, nunca se
+pisa una segunda vez.
+
+**Cómo sé que funciona.** Reproduje el caso exacto de Cowork contra la semilla real: apliqué
+la fila individual de `AY-3D-001` (80/2,6 → 75,2/2,515, `datosAnteriores` queda en 80/2,6),
+después "Aplicar las 11" en bloque, y un tercer aplicar más por si acaso. Las tres veces
+`datosAnteriores` se quedó en `{gramos: 80, horas: 2.6}` — nunca cambió. Un producto que ya
+coincidía con el historial (`AY-3D-002`) tampoco quedó con `datosAnteriores` tras aplicarlo
+dos veces. 6 de 6 verificaciones. Re-corrí también los dos tests de v2.5.0 y v2.6.0 contra
+el código actual (10/10 y 18/18): nada se rompió.
+
+**Lo que NO pude verificar.** Sin navegador acá, no vi el bug reproducirse visualmente antes
+del arreglo, solo lo reproduje con el código real por consola/Node — igual que el resto de
+esta pestaña.
+
+**Lo que NO quedó.** Nada nuevo pendiente de esto — sigue sin haber un botón de "deshacer"
+en la propia pestaña, como ya decía la entrada de v2.6.0.
+
+**Versión.** `js/version.js` → `2.6.1`.
+
+---
+
 ## 2026-09-02 · Historial K2: se ve el cambio antes de pisar un valor que ya estaba · v2.6.0
 
 **Qué cambió.** Implementa el pedido de Farid que quedó en `SUPERVISION.md` tras la revisión

@@ -168,3 +168,140 @@ El 1 y el 2 son de Farid, no de código: la app ya está lista para recibirlos.
 Termina, commitea, escribe la entrada en `BITACORA.md` con su «cómo sé que funciona», y
 avísale a Farid. Yo traigo una copia, corro las comprobaciones y dejo el resultado acá abajo.
 No toco el repo.
+
+---
+
+## Revisión del 2-sep · v2.6.0 · aprobada, con un bug
+
+El cambio pedido está bien hecho y lo comprobé en un navegador de verdad —la parte que la
+bitácora decía no haber podido ver—. Reproduje el mismo caso: desajusté `AY-3D-001` a
+80 g / 2,6 h (diferencia real) y `AY-3D-004` a 63,4 g / 2,211 h (bajo el umbral). Todo
+coincide con lo reportado:
+
+- Secciones: «Piezas que se pueden actualizar · 11», «Parecidas, revisar antes · 1»,
+  «Sin producto en el catálogo · 88».
+- Subsecciones: **«Cambian un valor que ya estaba · 1»** y **«Se completan · 1»**.
+- La fila muestra la columna *Tenía*: **80 g / 2.6 h** junto a **75.2 / 2.515**.
+- El botón dice literalmente **«Aplicar las 11 (1 cambian, 10 sin cambios)»**.
+- `AY-3D-004`, bajo el umbral, cae en «10 más ya tienen estos mismos datos — sin cambios».
+- Cero errores en consola.
+
+### El bug · aplicar dos veces borra el valor original
+
+`datosAnteriores` se sobrescribe en cada aplicación. Al aplicar la fila individual y después
+«Aplicar las 11», `AY-3D-001` quedó con:
+
+```
+datosAnteriores: { gramos: 75.2, horas: 2.515 }   ← el valor NUEVO, no el que tenía
+```
+
+Debería seguir siendo `{ gramos: 80, horas: 2.6 }`. Es fácil de hacer sin querer —dos clicks
+seguidos— y **destruye justamente lo que la función existe para proteger.**
+
+**Arreglo:** escribir `datosAnteriores` **solo si el producto no lo tiene ya**, o guardar la
+primera versión y no pisarla. Y si el valor entrante es igual al que ya está, no tocar nada.
+
+---
+
+## La identidad de marca · pedido de Farid el 2-sep
+
+*«En algún momento se diseñó la marca de Ayünka y lo necesario. Que la web use esa identidad
+de marca.»* Existe y es específica: **`../branding/identidad-de-marca.md`** (rediseño
+"Acuarela Silvestre", junio 2026) más `../branding/README.md`. **Léelos antes de tocar el
+CSS.** Lo que la app no está cumpliendo hoy:
+
+**1. La tipografía está mal.** La app usa Barlow, que no es de la marca. Según el manual:
+
+| Rol | Fuente | Dónde va en la app |
+|---|---|---|
+| Marca / logotipo | **Sacramento** | La palabra «Ayünka» del menú |
+| Sublínea / handle | **Outfit Bold**, mayúsculas con interletrado | «STUDIO», etiquetas |
+| Cuerpo y labels | **Outfit** | Todo el texto de la app |
+| Tagline | **Cormorant Garamond Italic** | «Bordamos. Creamos. Siempre con cariño.» |
+
+Todas están en Google Fonts. **Ojo con una contradicción:** `branding/README.md` dice
+Poppins, pero es la tabla vieja — el manual del rediseño de junio dice Outfit y es
+posterior. **Pregúntale a Farid cuál manda antes de cambiar.** Yo iría con el manual.
+
+**2. Faltan dos colores de la paleta.** La app tiene seis de los ocho:
+
+- **Azul niebla `#9FB6C4`** — secundario frío
+- **Mostaza suave `#D2A14E`** — acento pequeño
+
+Los otros seis ya están y coinciden con el manual.
+
+**3. No aparece el logo por ninguna parte.** El menú dice «Ayünka STUDIO» en texto plano.
+Los archivos están en `../branding/`: `logo-principal-borda-crea.png` (color),
+`logo-mono-borda-crea.svg` (monocromo carbón, vectorial). **Cópialos a `img/` del repo** —
+no los enlaces desde fuera, la app tiene que poder abrirse sola. El monocromo en carbón es
+el que mejor va en el menú.
+
+**4. Cuida el tono al escribir textos de pantalla.** El manual lo define: cercano, cálido,
+primera persona plural («armamos tu pedido»), frases cortas. La app ya está bastante en ese
+registro; no la vuelvas fría al tocar el CSS.
+
+**Y lo de siempre, que ya costó una vez:** Ayünka es bordado y costura hecho a mano. Nada de
+mayúsculas en títulos, menú ni botones — solo en etiquetas chicas, como dice el manual para
+la sublínea.
+
+---
+
+## Investigación · la API de Creality Cloud · 2-sep
+
+Farid mandó `https://www.crealitycloud.com/es/flowslicer/device` y avisó que ahí **sale la K2
+aunque esté apagada**. La revisé con su sesión abierta, mirando el tráfico de red.
+
+### Lo que se encontró · corrige lo que dije ayer
+
+**Sí existe una API REST en Creality Cloud.** Lo que dije en
+`../.planning/QUE-COMPRAR-QUE-CONSTRUIR.md` —«no tiene API»— es cierto solo para una API
+*pública y documentada*. Hay una interna, y la propia página la usa:
+
+```
+POST https://www.crealitycloud.com/api/rest/print/cluster/ctl/getAvailableDevices
+POST https://www.crealitycloud.com/api/rest/print/cluster/devices/pollState
+POST https://www.crealitycloud.com/api/cxy/v2/printer3mf/list
+```
+
+Las tres responden 200 desde el navegador. `pollState` es el estado en vivo, `getAvailableDevices`
+la lista de impresoras, y `printer3mf/list` los archivos subidos a la nube.
+
+### El obstáculo real, y es el que decide
+
+**No basta con la sesión del navegador.** Llamé a las dos primeras desde la propia página, con
+sus cookies, y responden:
+
+```json
+{"result":null,"code":4,"msg":"invalid login","reqId":null}
+```
+
+La aplicación manda **además un token en una cabecera**. Para que Ayünka Studio use este
+camino, algo tendría que guardar ese token: es una credencial, caduca, y hay que renovarla.
+
+Dato técnico secundario: la página es una **app Flutter** dibujada en canvas (canvaskit), no
+HTML. Automatizarla por la interfaz no es opción — no hay elementos que leer ni clickear.
+
+### Qué hacer con esto · mi recomendación, la decisión es de Farid
+
+**El agente local sigue siendo el camino principal** (`PLAN.md`, Fase 3). Razón: no depende de
+que Creality no cambie nada. Un endpoint interno y sin documentar se puede romper cualquier
+martes, y se rompe **en silencio** — que es el peor modo de fallar para algo de lo que
+dependen los avisos de producción.
+
+**La API de la nube queda anotada como plan B**, con sus condiciones sobre la mesa:
+
+| | Agente local | API de Creality Cloud |
+|---|---|---|
+| Funciona si la K2 cambia de red | hay que reconfigurarlo | **sí, es https desde cualquier lado** |
+| Depende de terceros | no | **sí, y sin contrato** |
+| Necesita guardar una credencial | no | **sí, un token que caduca** |
+| Se puede romper sin avisar | no | **sí** |
+
+**Lo que sí confirma esta investigación, y vale por sí solo:** la nube de Creality guarda el
+último estado de la impresora aunque esté apagada. Refuerza la idea de Farid —la información
+se recupera después, no hay que estar vigilando— y respalda el diseño de la pestaña de
+Historial que ya está hecha.
+
+**Si Farid decide ir por la nube:** el token lo administra él, nunca entra al repositorio, y
+el código tiene que avisar en pantalla cuando la API responda distinto de lo esperado, en vez
+de mostrar datos vacíos como si todo estuviera bien.
