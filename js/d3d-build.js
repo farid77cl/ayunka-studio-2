@@ -64,12 +64,12 @@
       const p = proyectoVacio({ nombre: 'Llavero publicitario', tipo: 'llavero' });
       p.base.ancho = 65; p.base.alto = 28; p.base.grosor = 3;
       p.argolla = { activa: true, d: 4.5, x: -26, y: 0 };
-      p.capas = [capaTexto('AYÜNKA', { mm: 9, y: 4, x: 4, color: 2 }),
-                 capaTexto('+56 9 8542 1490', { mm: 4.5, y: -5, x: 4, color: 2, altura: 1 })];
+      p.capas = [capaTexto('AYÜNKA', { nombre: 'Marca o texto principal', mm: 9, y: 4, x: 4, color: 2 }),
+                 capaTexto('+56 9 8542 1490', { nombre: 'Teléfono o segunda línea', mm: 4.5, y: -5, x: 4, color: 2, altura: 1 })];
       return p;
     },
     'llavero-foto': () => {
-      const p = proyectoVacio({ nombre: 'Llavero con imagen', tipo: 'llavero' });
+      const p = proyectoVacio({ nombre: 'Llavero con imagen', tipo: 'llavero-foto' });
       p.base.figura = 'circulo'; p.base.ancho = 40; p.base.alto = 40; p.base.grosor = 3;
       p.argolla = { activa: true, d: 4.5, x: 0, y: 16 };
       return p; // la imagen la agrega Farid desde «Subir imagen»
@@ -80,30 +80,30 @@
       // trasera, igual que las que se venden como decoración de pieza.
       p.base = { origen: 'texto', txt: 'L', fuente: 'poppins', figura: 'rrect', params: {},
                  ancho: 90, alto: 90, grosor: 35, color: 1, margen: 4 };
-      p.capas = [capaTexto('Lorena', { fuente: 'pacifico', mm: 32, altura: 5, color: 2, y: -14 })];
+      p.capas = [capaTexto('Lorena', { nombre: 'Nombre', fuente: 'pacifico', mm: 32, altura: 5, color: 2, y: -14 })];
       return p;
     },
     'caja-luz': () => {
       const p = proyectoVacio({ nombre: 'Caja de luz LED', tipo: 'caja-luz' });
       p.base.ancho = 180; p.base.alto = 90; p.base.grosor = 2.4; p.base.color = 2;
       p.led = { modo: 'caja', muro: 3, alto: 22, fondo: 2, holgura: 0.3, cable: 6 };
-      p.capas = [capaTexto('AYÜNKA', { mm: 34, color: 1, altura: 1.6 })];
+      p.capas = [capaTexto('AYÜNKA', { nombre: 'Texto', mm: 34, color: 1, altura: 1.6 })];
       return p;
     },
     'letrero-nombre': () => {
       const p = proyectoVacio({ nombre: 'Letrero con nombre', tipo: 'letrero' });
       p.base.ancho = 160; p.base.alto = 60; p.base.grosor = 3;
       p.montaje = { activa: true, d: 4.5 };
-      p.capas = [capaTexto('Lorena', { fuente: 'dancing', mm: 34, color: 2, altura: 1.6 })];
+      p.capas = [capaTexto('Lorena', { nombre: 'Nombre', fuente: 'dancing', mm: 34, color: 2, altura: 1.6 })];
       return p;
     },
     recuerdo: () => {
       const p = proyectoVacio({ nombre: 'Recuerdo de nacimiento', tipo: 'recuerdo' });
       p.base.figura = 'nube'; p.base.ancho = 150; p.base.alto = 105; p.base.grosor = 3; p.base.color = 3;
       p.capas = [
-        capaTexto('María', { fuente: 'pacifico', mm: 20, y: 16, color: 2, altura: 1.6 }),
-        capaTexto('27·05·2026', { mm: 8, y: -2, color: 2 }),
-        capaTexto('3,4 kg · 51 cm', { mm: 6.5, y: -13, color: 2 }),
+        capaTexto('María', { nombre: 'Nombre', fuente: 'pacifico', mm: 20, y: 16, color: 2, altura: 1.6 }),
+        capaTexto('27·05·2026', { nombre: 'Fecha', mm: 8, y: -2, color: 2 }),
+        capaTexto('3,4 kg · 51 cm', { nombre: 'Peso y talla', mm: 6.5, y: -13, color: 2 }),
         capaFigura('estrella', { ancho: 14, alto: 14, x: -52, y: 26, color: 4 }),
         capaFigura('luna', { ancho: 20, alto: 22, x: 54, y: 24, color: 4 })
       ];

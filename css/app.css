@@ -217,6 +217,42 @@ body {
 .preset3d span { font-size: 12.5px; color: var(--apagado); }
 .preset3d:hover { border-color: var(--coral); }
 
+/* Selector de forma: la miniatura ES la etiqueta, nunca solo el nombre en una lista. */
+.grupo-figuras h3, .grupo-fuentes h3 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--pizarra);
+  margin: 14px 0 8px;
+}
+.figuras-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.figura-mini {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 4px; border: 1px solid var(--borde2); border-radius: var(--r-campo);
+  background: var(--panel2); color: var(--suave); cursor: pointer;
+}
+.figura-mini svg { width: 30px; height: 30px; color: var(--texto); }
+.figura-mini span { font-size: 10.5px; text-align: center; line-height: 1.15; }
+.figura-mini.activa { border-color: var(--coral); background: color-mix(in srgb, var(--coral) 10%, var(--panel2)); }
+
+/* Selector de tipografía: la palabra escrita en cada fuente, no el nombre de la fuente. */
+.fuentes-grid { display: flex; flex-direction: column; gap: 6px; }
+.fuente-swatch {
+  text-align: left; padding: 8px 12px; border: 1px solid var(--borde2); border-radius: var(--r-campo);
+  background: var(--panel2); color: var(--texto); cursor: pointer; font-size: 19px; line-height: 1.2;
+}
+.fuente-swatch.activa { border-color: var(--coral); background: color-mix(in srgb, var(--coral) 10%, var(--panel2)); }
+
+/* "Más opciones": nativo del navegador, se queda abierto solo mientras alguien no lo cierre. */
+.mas-opciones { margin-top: 14px; border-top: 1px solid var(--borde); padding-top: 12px; }
+.mas-opciones > summary {
+  cursor: pointer; font-size: 13px; font-weight: 600; color: var(--pizarra); list-style: none;
+}
+.mas-opciones > summary::-webkit-details-marker { display: none; }
+.mas-opciones > summary::before { content: '▸ '; }
+.mas-opciones[open] > summary::before { content: '▾ '; }
+.mas-opciones h3 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--pizarra);
+  margin: 16px 0 8px;
+}
+
 /* ---------- tablas: sin bordes verticales, sin cebra ---------- */
 table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 th {

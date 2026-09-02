@@ -932,3 +932,36 @@ todavía se elija a mano en Creality Print. Un texto no es el generador, pero ev
 - **No empieces portando `design3d.js`.** El editor libre (arrastrar, tiradores, girar) es un
   proyecto aparte. Con los ocho puntos de arriba, el 90% de lo que Farid hace todas las
   semanas se resuelve sin editor.
+
+## Los seis presets, uno por uno · comprobado en la app publicada
+
+Para cada uno: lo que la pantalla deja tocar, contra lo que la pieza realmente tiene dentro.
+
+| Preset | En pantalla | Lo que la pieza tiene y no se ve |
+|---|---|---|
+| **Llavero publicitario** | 2 cajas: `AYÜNKA`, `+56 9 8542 1490` | rrect 65 × 28 × **3 mm**, redondeo 0,18, Poppins 9 y 4,5 mm, relieve 1 mm, **argolla Ø4,5 fijada en x = −26** |
+| **Llavero con imagen** | **nada** — dice literal *«Este diseño no tiene texto para cambiar — se genera tal cual»* | círculo 40 × 40 × 3, argolla arriba, y **cero forma de subir la imagen**. Promete «sube un logo y se vuelve 3D» y entrega un disco liso |
+| **Letra con nombre** | 2 cajas: `L`, `Lorena` | la letra es de 90 × 90 × **35 mm**; el nombre va en Pacifico **32 mm, relieve 1 mm**. Ni tamaño, ni grosor, ni tipografía, ni relieve/grabado |
+| **Letrero con nombre** | 1 caja: `Lorena` | rrect 160 × 60 × 3, Dancing Script 34 mm, y **`montaje` activo** — los agujeros para colgarlo existen y no se pueden mover ni quitar |
+| **Caja de luz LED** | 1 caja: `AYÜNKA` | 180 × 90 × 2,4 y **cinco medidas críticas invisibles**: muro 3, alto 18, fondo 2, **holgura 0,3**, cable 6. Si la tira LED no calza, no hay dónde tocarlo |
+| **Recuerdo de nacimiento** | 3 cajas: `María`, `27·05·2026`, `3,4 kg · 51 cm` | nube 150 × 105 × 3, y **dos capas de figura —estrella y luna— que no se pueden cambiar, mover ni sacar** |
+| **Desde cero** | **no aparece en la lista** | existe en el motor (60 × 30 × 3, sin capas); está filtrado porque sin editor no habría con qué llenarlo |
+
+### Tres cosas que salen de mirarlos juntos
+
+**1 · «Llavero con imagen» está roto, no incompleto.** Es el único que ofrece algo que no
+puede cumplir. Mientras no tenga el botón de subir imagen, **sácalo de la lista** — un preset
+que miente cuesta más que uno que falta. Ponlo de vuelta el día que suba imágenes.
+
+**2 · Los campos no tienen nombre: se rotulan con su propio valor.** En «Recuerdo de
+nacimiento» hay tres cajas que dicen `María`, `27·05·2026` y `3,4 kg · 51 cm`. Si Farid las
+borra para escribir las suyas, quedan tres cajas vacías **sin ninguna indicación de cuál es
+cuál**. Y la capa **ya tiene un campo `nombre`** que nadie está usando como etiqueta. Eso son
+diez minutos y arregla los seis presets de una vez.
+
+**3 · Cada preset esconde justo el número que decide si la pieza sirve.** No es que falten
+opciones en general — falta, en cada uno, *la que importa*: el **grosor** en el llavero (3 mm
+es lo que hace que se doble o no), los **35 mm** de la letra (lo que decide si se para sola),
+la **holgura de 0,3** en la caja de luz (si la tira LED entra), la **posición de la argolla**
+(si el texto queda descentrado). Si hay que elegir qué exponer primero, es eso: **una medida
+por preset, la que rompe la pieza**, antes que veinte controles genéricos.

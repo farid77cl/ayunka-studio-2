@@ -4,6 +4,105 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Personalizados 3D expone lo que el motor ya sabía hacer · v2.18.0
+
+**Qué cambió.** `SUPERVISION.md` trajo una auditoría grande: Farid preguntó *«en el llavero
+solo puedo cambiar el nombre y el teléfono? qué hay de la forma? o si quiero importar una
+imagen? o más copias?»* — y tenía razón: el motor (`D3DFormas`, `D3DFuentes`, `D3DBuild`)
+ya sabía hacer casi todo desde que se portó, pero la pantalla solo dejaba tocar dos cajas de
+texto. Reescribí `js/vistas/disenos3d.js` para EXPONER lo que ya existe, sin tocar el motor
+ni portar el editor libre (`design3d.js`, eso sigue siendo otro proyecto):
+
+1. **Forma** — selector con las 39 figuras reales, **con su dibujo** (SVG generado en vivo
+   con `D3DFormas.figura()`, no un ícono aparte), agrupadas (`gruposFiguras()` ya las traía
+   agrupadas — "Escolar" es un grupo real que ya existía y no se usaba). Elegir una cambia
+   `proyecto.base.figura` de verdad.
+2. **Medida y grosor** — ancho, alto y grosor en mm, editables, con el valor del preset ya
+   puesto.
+3. **Tipografía** — selector con la palabra que se está escribiendo, **renderizada en cada
+   fuente real** (`@font-face` apuntando a los mismos TTF que ya usa `D3DFuentes`), agrupada
+   por su grupo real (Palo seco, Cursiva, Con serifa…). Uno por cada texto del diseño (la
+   Letra y el Nombre, por separado en "Letra con nombre").
+4. **Relieve o grabado, y cuán hondo** — `modo`/`prof` editables para cada capa (texto,
+   figura o imagen).
+5. **Subir una imagen** — con los 4 controles reales del motor: umbral, invertir, detalle,
+   solo la figura mayor. Antes "Llavero con imagen" no tenía ni el botón y encima
+   **prometía algo que no podía cumplir** ("sube un logo y se vuelve 3D" → entregaba un
+   disco liso); ahora sube de verdad, vectoriza con `D3DFormas.trazarImagen()` y arma la
+   capa. No hizo falta sacarlo de la lista: se arregló de raíz.
+6. **Argolla y montaje** — activa/inactiva, diámetro y posición, ya editables (antes fijos
+   en el código, invisibles en pantalla).
+7. **Caja de luz** — las 5 medidas que la revisión llamó "invisibles" (muro, alto, fondo,
+   **holgura de la tira LED**, cable) ahora tienen su campo.
+8. **Los campos ya no se rotulan con su propio valor.** Antes "Recuerdo de nacimiento"
+   mostraba tres cajas que decían `María`, `27·05·2026`, `3,4 kg · 51 cm` — si Farid las
+   borraba para escribir las suyas, quedaban vacías sin ninguna pista de cuál era cuál.
+   Arreglado en `js/d3d-build.js`: cada capa de texto de cada preset trae ahora un `nombre`
+   real (Nombre, Fecha, Peso y talla, Marca o texto principal, Teléfono o segunda línea…),
+   y el formulario usa ESE nombre como etiqueta, no el texto que trae por defecto.
+9. **De paso, un bug real:** el preset "Llavero con imagen" tenía `tipo: 'llavero'` en vez
+   de `'llavero-foto'` — un typo que hacía que ni el aviso de perfil ni la sección de subir
+   imagen lo reconocieran. Corregido.
+10. Todo lo secundario (tipografía, relieve, argolla, montaje, caja de luz) vive detrás de
+    un `<details>` "Más opciones" — nativo del navegador, se abre y se queda abierto solo,
+    sin JavaScript de más. Lo primero que se ve sigue siendo forma, medida y textos.
+11. Un texto corto por preset con el perfil sugerido de impresión (altura de capa,
+    planchado) — no es el generador de perfiles (`perfil-reglas.js`, sin portar, es
+    prioridad 1 de Farid y un proyecto aparte), solo evita reimprimir por elegir mal a
+    mano en Creality Print.
+
+**Cómo sé que funciona.** Corrí el código real, incluyendo las **39 figuras reales** de
+`D3DFormas` (no una muestra) y un pipeline de imagen de punta a punta con una `ImageData`
+sintética (un cuadrado sólido) — lo único que no se puede probar sin browser es leer el
+archivo del disco y dibujarlo en un canvas real:
+- Las 39 figuras generan un `<svg>` real cada una, ninguna con `NaN` ni un `path` vacío —
+  si una figura rompiera al generar contornos, se habría notado acá.
+- `elegirForma('estrella')` cambia `proyecto.base.figura` de verdad, y `generar()` compila
+  una pieza real con la forma nueva.
+- La tipografía trae la Letra y el Nombre por separado en "Letra con nombre", con la
+  palabra real ("Lorena") en cada swatch, agrupadas por su grupo real.
+- `cambiarModo`/`cambiarProf`/`cambiarArgolla`/`cambiarMontaje` escriben en el proyecto
+  real, no en una copia.
+- Caja de luz expone los 5 campos reales que antes eran invisibles.
+- "Llavero con imagen" ya no dice "no hay texto para cambiar": trae el botón real de subir
+  imagen. Subí una imagen sintética disparando el evento REAL de elegir un archivo (mismo
+  camino que un click de verdad: `FileReader` → `Image` → `canvas` → `getImageData`, todo
+  interceptado solo en el paso que es 100% navegador) y `D3DFormas.trazarImagen()` real
+  encontró la forma y armó la capa. Tocar el checkbox real de "invertir" — sin volver a
+  subir el archivo — reprocesó la MISMA imagen y dio un resultado geométricamente distinto
+  (comprobé que no eran el mismo objeto comparado consigo mismo, un error que cometí en la
+  primera versión de esta prueba y corregí antes de dar el número final).
+- Los 6 presets reales dan los `nombre` correctos por capa de texto.
+- 34 de 34 verificaciones nuevas. Re-corrí las 17 suites anteriores de la sesión (más de
+  230 verificaciones): todas en verde, nada se rompió.
+
+**Lo que NO pude verificar.** Todo lo visual — cómo se ven las miniaturas de verdad, si el
+degradado de tamaños se lee bien, si el `<details>` se siente natural al abrir. Y en
+particular: nunca vi un archivo real subirse por un click real de un mouse real — el
+`FileReader`/`Image`/`canvas` de un navegador de verdad es la única pieza 100% fuera del
+alcance de este entorno.
+
+**Lo que NO quedó, a propósito — decisión mía, no descuido:**
+- **Cuántas copias caben en la bandeja y cuánto demora.** Necesita una lógica de empaquetado
+  nueva (qué tamaño de pieza, cuántas entran en la cama de la K2) que no existe en ningún
+  lado del proyecto todavía — es un cálculo propio, no "exponer algo que ya estaba". Lo dejo
+  para una pasada dedicada en vez de improvisarlo rápido y arriesgarme a un número mal
+  calculado con algo tan concreto como cuántas piezas entran físicamente.
+- **Ver la pieza girando antes de generar.** Three.js ya se carga para exportar, pero armar
+  una escena 3D en vivo (crear, actualizar, destruir al cambiar de preset) es trabajo real
+  de gestión de WebGL que no pude probar sin navegador y no quise arriesgar a medias.
+- **El volumen en vivo mientras se mueve el tamaño.** Lo pensé y lo descarté: calcularlo bien
+  (con huecos, capas superpuestas) sin poder verlo en un visor 3D real es exactamente el
+  tipo de número que podría salir mal sin que nadie lo note — el mismo espíritu de "no
+  inventar gramos" se extiende a "no inventar un volumen que no puedo confirmar".
+- No se pueden tocar los parámetros propios de cada figura (puntas de la estrella, pétalos
+  de la flor, etc.) — se eligió la forma, no se ajustan sus sub-parámetros. Es un recorte de
+  alcance a propósito, coherente con "no pongas los 20 controles a la vez".
+
+**Versión.** `js/version.js` → `2.18.0`.
+
+---
+
 ## 2026-09-02 · El botón mudo, las dos tasas de fallo, y avisar lo apagado · v2.17.0
 
 **Qué cambió.** Tres piezas de `SUPERVISION.md`: la revisión del stock/filamento de v2.16.0
