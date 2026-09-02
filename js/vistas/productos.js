@@ -12,6 +12,15 @@
   const OFICIOS = [{ v: 'bordado', t: 'Bordado' }, { v: 'costura', t: 'Costura' }, { v: '3d', t: 'Impresión 3D' }];
   const claseOficio = o => o === 'bordado' ? 'bordado' : o === 'costura' ? 'costura' : 'd3';
 
+  // Revisión del 3-sep de Cowork: filamentoId estaba en el modelo y en costos.js pero
+  // nunca en el formulario -- todos los costos usaban el PLA/PETG genérico de Ajustes.
+  function opcionesFilamento() {
+    const rollos = Datos.activos('filamentos').map(f => ({
+      v: f.id, t: (f.material || 'PLA') + ' · ' + (f.marca || '') + (f.color ? ' ' + f.color : '')
+    }));
+    return [{ v: '', t: '(genérico, según el material)' }].concat(rollos);
+  }
+
   let filtro = '';
 
   function pintar() {
@@ -106,7 +115,7 @@
           <div>
             <input type="file" id="p-foto-archivo" accept="image/jpeg,image/png,image/webp" hidden>
             <button type="button" class="btn chico sutil" onclick="document.getElementById('p-foto-archivo').click()">${p.foto ? 'Cambiar foto' : 'Subir foto'}</button>
-            <div id="p-foto-estado" style="font-size:12px;color:var(--apagado);margin-top:4px">${window.Supabase && Supabase.configurado() ? '' : 'Supabase no está configurado (js/config.js) — no se puede subir todavía'}</div>
+            <div id="p-foto-estado" style="font-size:12px;color:var(--apagado);margin-top:4px">${window.Supabase && Supabase.configurado() ? '' : 'Falta configurar Supabase en Ajustes → Fotos y archivos'}</div>
           </div>
         </div>
       </div>
@@ -119,12 +128,15 @@
           ${A.campo('p-gramos', 'Gramos', p.gramos, { tipo: 'number', paso: '0.1' })}
           ${A.campo('p-horas', 'Horas de máquina', p.horas, { tipo: 'number', paso: '0.01' })}
           ${A.selector('p-material', 'Material', p.material, [{ v: 'PLA', t: 'PLA' }, { v: 'PETG', t: 'PETG' }])}
+          ${A.selector('p-filamento', 'Rollo', p.filamentoId || '', opcionesFilamento())}
           ${A.campo('p-post', 'Post-proceso (min)', p.postMin, { tipo: 'number' })}
         ` : `
           ${A.campo('p-horasmano', 'Horas de trabajo a mano', p.horasMano || 0, { tipo: 'number', paso: '0.25' })}
           ${A.campo('p-materiales', 'Costo de materiales', p.costoMateriales || 0, { tipo: 'number' })}
           ${A.campo('p-notamat', 'Qué materiales', p.notaMateriales || '', { ancho: true })}
         `}
+        ${A.campo('p-extracosto', 'Costo extra', p.extraCosto || 0, { tipo: 'number', signo: '$', nota: 'algo que no entra en las líneas de arriba' })}
+        ${A.campo('p-extranota', 'Qué es ese extra', p.extraNota || '', { ancho: true })}
         ${A.campo('p-precio', 'Precio de venta', p.precio == null ? '' : p.precio,
                   { tipo: 'number', ph: c.sugerido === null ? 'faltan datos para sugerir' : 'sugerido: ' + c.sugerido })}
         ${A.campo('p-stock', 'Stock', p.stock || 0, { tipo: 'number' })}
@@ -142,11 +154,13 @@
         const d = {
           nombre: v('p-nombre'), sku: v('p-sku'), oficio: v('p-oficio'), categoria: v('p-cat'),
           precio: v('p-precio') === '' ? null : A.num(v('p-precio')),
-          stock: A.num(v('p-stock'))
+          stock: A.num(v('p-stock')),
+          extraCosto: A.num(v('p-extracosto')), extraNota: v('p-extranota')
         };
         if (v('p-gramos') !== undefined) Object.assign(d, {
           gramos: A.num(v('p-gramos')), horas: A.num(v('p-horas')),
-          material: v('p-material'), postMin: A.num(v('p-post'))
+          material: v('p-material'), postMin: A.num(v('p-post')),
+          filamentoId: v('p-filamento') || null
         });
         if (v('p-horasmano') !== undefined) Object.assign(d, {
           horasMano: A.num(v('p-horasmano')), costoMateriales: A.num(v('p-materiales')),

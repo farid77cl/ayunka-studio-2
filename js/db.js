@@ -14,7 +14,7 @@
   const ESQUEMA = 1;
 
   const COLECCIONES = ['productos', 'filamentos', 'clientes', 'pedidos', 'ventas',
-                       'gastos', 'bandejas', 'cotizaciones', 'disenos3d'];
+                       'gastos', 'bandejas', 'cotizaciones', 'disenos3d', 'movimientos'];
 
   // id legible y ordenable: 2026-09-01T2143-a7f3
   function nuevoId(prefijo) {

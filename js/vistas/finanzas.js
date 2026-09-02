@@ -252,7 +252,24 @@
         pintar();
         return;
       }
+      // Revisión del 3-sep de Cowork, punto 6: vender no descontaba nada. Se descuenta
+      // SOLO la primera vez que esta venta pasa de "sin líneas" a tener líneas de verdad
+      // -- si se reabre una venta YA guardada para corregir algo (la nota, el método de
+      // pago), no se vuelve a descontar. Editar la CANTIDAD de una línea de una venta ya
+      // guardada no ajusta el stock de nuevo por ahora; queda dicho en la bitácora.
+      const esVentaNueva = !v.lineas || !v.lineas.length;
       Object.assign(v, resto);
+      if (esVentaNueva) {
+        resto.lineas.forEach(l => {
+          if (!l.productoId) return;
+          Movimientos.registrar('productos', 'stock', l.productoId, -N(l.cantidad), 'venta');
+          const prod = Datos.obtener('productos', l.productoId);
+          if (prod && prod.oficio === '3d' && prod.filamentoId) {
+            Movimientos.registrar('filamentos', 'gramosQuedan', prod.filamentoId,
+              -N(prod.gramos) * N(l.cantidad), 'venta de ' + (prod.sku || prod.nombre));
+          }
+        });
+      }
       Datos.guardar('venta');
       if (marcarEntregado && resto.pedidoId) {
         const pedido = Datos.obtener('pedidos', resto.pedidoId);

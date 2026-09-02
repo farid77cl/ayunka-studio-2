@@ -4,6 +4,79 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Rollo en la ficha, costo extra, y vender descuenta stock de verdad · v2.15.0
+
+**Qué cambió.** Cierra los 2 arreglos que quedaban de la revisión del 3-sep en
+`SUPERVISION.md` (puntos 5 y 6 — el 7, Supabase, ya se hizo en la entrada anterior).
+
+**5 · `filamentoId` y el costo extra, ya editables.** Los 38 productos tenían
+`filamentoId: null` y el formulario de `js/vistas/productos.js` no traía el campo, aunque
+`costos.js:20` ya lo usaba si existía — todos los costos 3D se calculaban con el PLA/PETG
+genérico de Ajustes, nunca con el precio real de un rollo. Igual pasaba con `extraCosto`/
+`extraNota` (`costos.js:83` los suma, pero no había dónde escribirlos — sin eso la caja de
+luz con LED no se podía costear). Ahora la ficha de un producto 3D trae el selector "Rollo"
+(con los 6 filamentos reales de la semilla) y todo producto trae "Costo extra" + su nota.
+
+**6 · Vender descuenta stock de verdad, con un libro real.** Nuevo `js/movimientos.js`:
+`Movimientos.registrar(coleccion, campo, refId, cambio, motivo)` no solo resta un número —
+guarda una ficha en la colección nueva `movimientos` con **antes y después**, para poder
+reconstruir qué pasó, tal como pedía `MILESTONE-ERP.md` Fase 1 ("products.stock y
+filaments.gramsLeft son escalares mutados sin libro"). `js/vistas/finanzas.js` lo llama al
+guardar una venta: descuenta `stock` del producto vendido y, si el producto 3D tiene un
+rollo vinculado (la corrección 5 recién hecha), también `gramosQuedan` de ESE rollo
+específico, con el motivo escrito.
+
+**La salvedad que dejo a propósito:** el descuento corre **solo la primera vez** que una
+venta pasa de "sin líneas" a tener líneas reales — si se reabre una venta ya guardada para
+corregir la nota o el método de pago, no se vuelve a descontar (evita el doble descuento).
+Pero eso también significa que **cambiar la cantidad de una línea en una venta ya guardada
+no ajusta el stock** — hay que corregirlo a mano si pasa. Lo dejo escrito abajo.
+
+**Cómo sé que funciona.** Corrí el código real contra la semilla real:
+- El formulario de un producto 3D real (`AY-3D-001`) trae el selector de rollo con los 6
+  filamentos reales como opciones, más "(genérico, según el material)". Elegir un rollo y
+  guardar deja `filamentoId` real en el producto, y **el costo de filamento pasa a usar el
+  precio de ESE rollo**, no el genérico — comprobado con la línea real del desglose.
+  `extraCosto`/`extraNota` se guardan y aparecen en la línea "Extra" del desglose con su
+  monto y su nota reales.
+- `DB.movimientos` existe como colección de verdad (no un número), y `Datos.COLECCIONES` la
+  trae — una base vieja la va a crear sola al migrar, sin perder nada.
+- Vendí 3 unidades de `AY-3D-001` (con un rollo vinculado a mano, como haría el selector
+  nuevo): el `stock` del producto bajó de 10 a 7, y `gramosQuedan` del rollo bajó
+  exactamente `75,2 g × 3`. El libro de movimientos quedó con una ficha real
+  (`cambio:-3, antes:10, despues:7`), no solo el número final. El movimiento del filamento
+  dejó escrito qué SKU lo consumió.
+- **La salvedad, probada de verdad:** reabrí esa misma venta ya guardada, cambié la nota, y
+  volví a guardar — el stock **se quedó en 7**, no bajó a 4. Un solo movimiento en el libro,
+  no dos.
+- Una venta con una línea libre (sin producto) se sigue guardando sin romperse — no intenta
+  tocar ningún stock que no exista.
+- 17 + 9 = **26 verificaciones nuevas**, todas en verde. Re-corrí las 12 suites anteriores de
+  la sesión (208 verificaciones más): una (`verificar-finanzas`) le faltaba cargar
+  `movimientos.js` en su propio sandbox de prueba — no era un bug del código, era la prueba
+  vieja sin la dependencia nueva; la corregí y quedó en verde. El resto, sin tocar.
+
+**Lo que NO pude verificar.** Todo lo visual, como siempre.
+
+**Lo que NO quedó.**
+- Editar la cantidad de una línea de una venta ya guardada no reajusta el stock (ver la
+  salvedad arriba) — se puede corregir a mano en la ficha del producto/filamento mientras
+  tanto.
+- No hay pantalla para NAVEGAR el libro de movimientos — `Movimientos.historialDe()` existe
+  y funciona, pero nadie lo llama todavía desde ninguna vista. El valor de hoy es que el
+  `stock`/`gramosQuedan` que ya se ven en Productos/Filamentos por fin reflejan lo vendido.
+- Comprar un rollo nuevo o ajustar stock a mano sigue sin pasar por el libro — solo las
+  ventas generan movimientos, por ahora.
+
+**Versión.** `js/version.js` → `2.15.0`.
+
+Con esto quedan cerrados los 7 puntos de "Lo que hay que arreglar" de la revisión del 3-sep.
+Lo que sigue es "Lo que nunca llegó a este repo" — la lista de 10 funciones del app anterior
+que Cowork dice que Farid pidió en 40 sesiones y no se portaron. Esa lista es explícitamente
+decisión de Farid, no mía: qué rescatar y en qué orden.
+
+---
+
 ## 2026-09-02 · Supabase con sesión real, no la clave anónima sola · v2.14.0
 
 **Qué cambió.** `SUPERVISION.md` trajo una sección nueva: Cowork encontró que el bucket
