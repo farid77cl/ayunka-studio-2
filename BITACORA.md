@@ -4,6 +4,30 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Subir fotos a Supabase — SIN TERMINAR, respaldo de emergencia (encargo E)
+
+**Qué es esto.** Farid pidió parar para apagar el PC y respaldar. Esto es exactamente eso:
+un commit de lo que hay escrito, **sin la verificación de siempre en esta bitácora**. No lo
+tomes como una entrada de "cómo sé que funciona" — no corrí los tests todavía.
+
+**Qué hay escrito.** `js/supabase.js` (subir un archivo a Supabase Storage por REST, sin
+SDK, valida tipo JPEG/PNG/WEBP y tamaño máximo 8 MB, devuelve la URL pública) y su
+integración en `js/vistas/productos.js` (sección de foto en la ficha del producto, con
+vista previa y botón para subir/cambiar). Registrado en `index.html` y `sw.js`.
+
+**Lo que falta, tal cual quedó:**
+- Correr la verificación real contra el código (ya escrita en el scratchpad de la sesión,
+  no corrida).
+- Confirmar que no rompió nada de lo demás.
+- Subir la versión en `js/version.js` (sigue en `2.11.0`, sin cambiar).
+- Probarlo de verdad contra un Supabase real — igual que con el agente de la K2, esto no
+  se puede probar sin credenciales reales.
+
+**Cuando retome la sesión, esto es lo primero que hay que terminar antes de darlo por
+hecho.**
+
+---
+
 ## 2026-09-02 · La impresora en vivo: el agente que empuja a Firestore · v2.11.0 (encargo D)
 
 **Qué cambió.** Punto D del "Encargo del 2-sep": hasta ahora la app solo sabía el *pasado*

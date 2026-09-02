@@ -100,6 +100,16 @@
         sugerido — un cálculo sin su insumo principal es un cero disfrazado de número.</p>` : '');
 
     const cuerpo = `
+      <div class="campo ancho"><span>Foto</span>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:4px">
+          <div id="p-foto-vista">${htmlFoto(p)}</div>
+          <div>
+            <input type="file" id="p-foto-archivo" accept="image/jpeg,image/png,image/webp" hidden>
+            <button type="button" class="btn chico sutil" onclick="document.getElementById('p-foto-archivo').click()">${p.foto ? 'Cambiar foto' : 'Subir foto'}</button>
+            <div id="p-foto-estado" style="font-size:12px;color:var(--apagado);margin-top:4px">${window.Supabase && Supabase.configurado() ? '' : 'Supabase no está configurado (js/config.js) — no se puede subir todavía'}</div>
+          </div>
+        </div>
+      </div>
       <div class="formulario">
         ${A.campo('p-nombre', 'Nombre', p.nombre, { ancho: true })}
         ${A.campo('p-sku', 'SKU', p.sku)}
@@ -144,6 +154,10 @@
         });
         return d;
       },
+      alAbrir: nodo => {
+        const archivo = nodo.querySelector('#p-foto-archivo');
+        if (archivo) archivo.onchange = e => { const f = e.target.files[0]; if (f) _subirFoto(p.id, f); };
+      },
       botones: [
         { txt: 'Cancelar', valor: null, clase: 'sutil' }
       ].concat(c.sugerido === null ? [] : [{ txt: 'Usar el sugerido', valor: 'sugerido' }])
@@ -163,6 +177,39 @@
     });
   }
 
+  function htmlFoto(p) {
+    return p.foto
+      ? `<img src="${A.esc(p.foto)}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--borde)">`
+      : `<div style="width:64px;height:64px;border-radius:8px;background:var(--panel2);border:1px solid var(--borde);
+           display:flex;align-items:center;justify-content:center;color:var(--apagado);font-size:10.5px;text-align:center">sin foto</div>`;
+  }
+
+  // Sube la foto a Supabase (SUPERVISION.md, encargo del 2-sep, punto E) y la aplica de
+  // una vez -- no espera a que se guarde el resto del formulario, para no perder la subida
+  // si alguien cancela después.
+  async function _subirFoto(id, file) {
+    const estadoEl = document.getElementById('p-foto-estado');
+    const vistaEl = document.getElementById('p-foto-vista');
+    if (estadoEl) estadoEl.textContent = 'Subiendo…';
+    if (!window.Supabase || !Supabase.configurado()) {
+      if (estadoEl) estadoEl.textContent = 'Supabase no está configurado (js/config.js)';
+      return;
+    }
+    try {
+      const p = Datos.obtener('productos', id);
+      if (!p) return;
+      const url = await Supabase.subirFoto(file, p.sku || p.id);
+      p.foto = url;
+      Datos.guardar('foto del producto');
+      if (vistaEl) vistaEl.innerHTML = htmlFoto(p);
+      if (estadoEl) estadoEl.textContent = 'Foto subida';
+      A.aviso('Foto subida');
+    } catch (e) {
+      if (estadoEl) estadoEl.textContent = 'No se pudo subir: ' + e.message;
+      A.aviso('No se pudo subir la foto', 'error');
+    }
+  }
+
   function nuevo() {
     const p = {
       id: Datos.nuevoId('prod'), sku: '', nombre: 'Producto nuevo', categoria: 'sin-categoria',
@@ -177,5 +224,5 @@
   }
 
   window.Vistas = window.Vistas || {};
-  Vistas.productos = { pintar, abrir, nuevo, CATS };
+  Vistas.productos = { pintar, abrir, nuevo, CATS, _subirFoto };
 })();
