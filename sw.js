@@ -20,6 +20,7 @@ const BASE = [
   './js/nube.js', './js/lector3mf.js', './js/ui.js', './js/app.js',
   './js/d3d-formas.js', './js/d3d-fuentes.js', './js/d3d-build.js', './js/d3d-3mf.js',
   './js/impresora.js',
+  './js/vistas/pendientes.js',
   './js/vistas/productos.js', './js/vistas/filamentos.js', './js/vistas/clientes.js',
   './js/vistas/pedidos.js', './js/vistas/cola.js', './js/vistas/cotizar.js',
   './js/vistas/disenos3d.js', './js/vistas/impresora.js', './js/vistas/ajustes.js',

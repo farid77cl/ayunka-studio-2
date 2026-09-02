@@ -305,3 +305,140 @@ Historial que ya está hecha.
 **Si Farid decide ir por la nube:** el token lo administra él, nunca entra al repositorio, y
 el código tiene que avisar en pantalla cuando la API responda distinto de lo esperado, en vez
 de mostrar datos vacíos como si todo estuviera bien.
+
+---
+
+# Encargo del 2-sep · lo que sigue
+
+Farid pidió dos cosas: que la app **le muestre destacado qué datos faltan**, para irlos
+llenando cuando tenga tiempo, y que quede **listo el pendiente de programación**.
+
+---
+
+## 1 · Pantalla «Pendientes» · lo primero a construir
+
+Una pestaña nueva, **la primera del menú**, con el número de pendientes al lado. Es lo que
+Farid abre para saber qué le toca hacer sin tener que acordarse.
+
+**Todo se calcula en vivo desde la base. Nada de listas escritas a mano** — si se arregla algo,
+desaparece solo. Una lista de pendientes que hay que mantener a mano se abandona en dos
+semanas.
+
+### Qué muestra, en este orden
+
+Cada bloque: **qué falta**, **cuántos**, **qué se rompe mientras falte**, y la lista de fichas
+en las que hay que hacerlo — cada una clickeable, que abra su ficha directo.
+
+**1. Precios sin poner** — `productos` con `precio` nulo.
+> *Sin precio no se puede cargar el catálogo de WhatsApp, y «¿cuánto vale?» es la primera
+> pregunta de toda consulta.*
+Los que ya tienen el costo completo traen **el sugerido al lado y un botón para aceptarlo de
+un click, sin abrir la ficha.** Eso convierte una tarde de trabajo en diez minutos.
+
+**2. Textiles sin horas de trabajo** — `oficio` distinto de `3d` y sin `horasMano`.
+> *Sin las horas no se puede costear y la app no sugiere precio: sale «—» en toda la fila.*
+Basta cronometrar **uno de cada tipo**, no los dieciséis. Dilo así en pantalla.
+
+**3. Falta separar bordado de costura** — los textiles marcados `bordado` sin confirmar.
+> *Van con márgenes distintos: bordado ×2,55 y costura ×2. Si están todos como bordado, los
+> de costura salen 27% caros.*
+Necesita un campo nuevo, `oficioConfirmado: true`, y en la lista un par de botones —**«es
+bordado» / «es costura»**— que lo marquen sin abrir nada. Mientras no esté confirmado, aparece
+acá; al confirmarlo, desaparece.
+
+**4. Productos 3D sin gramos ni horas** — `oficio: '3d'` sin `gramos` o sin `horas`.
+> *Mientras falten, la cola de producción calcula de menos y su «alcanza / no alcanza» no es
+> confiable.*
+Con un aviso útil: **«revisa primero Historial K2 — puede que la impresora ya los tenga»**, y
+un enlace a esa pestaña. Es el atajo real.
+
+**5. Pedidos abiertos con líneas sin precio** — mientras existan, el total y el saldo del
+pedido salen en blanco.
+
+**6. La nube** — solo si aplica: sincronización apagada, o configurada pero **sin subir nunca**.
+> *Ese fue exactamente el estado que precedió a la pérdida de datos del 1-sep.*
+
+### Cómo NO hacerlo
+
+- **Nada de barras de progreso ni porcentajes de completitud.** Esto no es un juego; es una
+  lista de trabajo. Un «catálogo 67% completo» no le dice a nadie qué hacer.
+- **Nada de rojo ni signos de exclamación.** Que falte un precio no es un error: es trabajo
+  pendiente. El tono del manual de marca es cálido, no de alarma.
+- **Si no falta nada, dilo y ya** — sin confeti. Un «no hay nada pendiente» tranquilo.
+- **No la conviertas en un tablero.** Si un bloque no tiene nada, no se muestra.
+
+---
+
+## 2 · Lo que falta programar, en orden
+
+El criterio del orden es **qué desbloquea plata**, no qué es más entretenido.
+
+### A · Ventas y gastos · el hueco más grande
+
+Las colecciones `ventas` y `gastos` existen en la base, están vacías y **no tienen pantalla**.
+Hoy la app sabe cuánto cuesta producir y cuánto habría que cobrar, pero **no sabe cuánto se
+ganó**. Para algo que quiere ser el ERP del negocio, eso es el agujero de fondo.
+
+Mínimo que sirve: registrar una venta (fecha, cliente, qué productos, cuánto se cobró, cómo se
+pagó) y un gasto (fecha, categoría, monto, nota). Y una pantalla que responda **«¿cómo me fue
+este mes?»**: vendido, costo real de lo vendido, gastos, y lo que quedó.
+
+Cuidado con lo de siempre: el costo de una venta se congela al momento de venderla
+(`costoAlVender`), no se recalcula después. Si sube el filamento, lo que ganaste en agosto
+no cambia.
+
+> **Hecho cuando:** Farid registra la entrega de LIDCAR y la app le dice cuánto ganó con ese
+> pedido, con el costo real de producirlo.
+
+### B · Que Studio sea la fuente única de precios
+
+No hay exportación a Meta ni a WhatsApp — lo busqué, no existe. Hoy el catálogo se sigue
+editando en tres lados, que es **exactamente lo que desordenó la versión anterior**.
+
+El precio se pone en Studio y de ahí **salen** el CSV de Meta y el XLSX de WhatsApp. El
+formato del CSV ya existe y hay que respetarlo: `../catalogo/catalogo-meta-importar.csv`
+(id, title, description, availability, condition, price, link, image_link, brand).
+
+> **Hecho cuando:** cambiar un precio y regenerar los dos archivos toma un minuto, y nadie
+> vuelve a editarlos a mano.
+
+### C · Publicar la app y cerrar la nube de verdad
+
+`PLAN.md` Fase 2, sin saltarse nada:
+1. Publicar en un hosting con `https` — GitHub Pages sobre este repo alcanza.
+2. Poner el correo real en `firestore.rules` y **publicarlas en la consola**.
+3. **Comprobarlo desde afuera con el `curl` del README: tiene que dar 403.**
+4. **Forzar un conflicto a propósito** y ver el diálogo de comparación con las dos fechas.
+
+El punto 4 no es opcional: hasta que ese diálogo no se vea funcionando con datos reales, la
+parte que se comió tres semanas **no está cerrada, está escrita**.
+
+> **Hecho cuando:** Farid edita un precio en el teléfono, desde la calle, y lo ve en el PC.
+
+### D · La impresora en vivo
+
+Hoy está el pasado (Historial K2), falta el presente. Un agente en la red de la K2 que lea
+`ws://<ip>:9999` y **empuje** el estado a Firestore, más el aviso al teléfono cuando entra en
+pausa — que es lo que le costó tiempo el 1-sep.
+
+Antes de empezar, lee la investigación de la API de Creality Cloud más arriba: hay un plan B,
+pero exige guardar un token y puede romperse sin avisar. **El agente local es el camino.**
+
+### E · Subir fotos
+
+Supabase solo aparece en `config.js`; no está implementado. Las fotos actuales son URLs que
+ya existían. Sin esto, un producto nuevo no puede tener foto.
+
+---
+
+## Lo que no hay que hacer todavía
+
+- Facturación electrónica — nunca. SII gratuito hasta que el volumen justifique otra cosa.
+- Inventario de filamento por báscula — si hace falta, se adopta **Spoolman**, no se escribe.
+- Multiusuario, permisos, roles. Es un operador.
+
+---
+
+## Antes de nada
+
+Hay **dos commits sin subir** a GitHub. El trabajo que solo vive en el PC es el que se pierde.

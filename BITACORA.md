@@ -4,6 +4,71 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Pantalla «Pendientes» — la primera del menú · v2.8.0
+
+**Qué cambió.** Nueva pestaña `js/vistas/pendientes.js`, primera del menú y pantalla por
+defecto al abrir la app (antes era Productos), tal como pidió Farid en el «Encargo del
+2-sep» de `SUPERVISION.md`: lo que abre para saber qué le toca hacer sin acordarse. Todo se
+calcula **en vivo** desde la base — nada de listas escritas a mano — y cada bloque solo
+aparece si tiene algo. Los seis bloques, en el orden pedido:
+
+1. **Precios sin poner** — con el sugerido al lado y un botón "Aceptar" que lo pone sin
+   abrir la ficha.
+2. **Textiles sin horas de trabajo**.
+3. **Falta separar bordado de costura** — campo nuevo `oficioConfirmado`, con botones
+   "Es bordado" / "Es costura" que confirman sin abrir nada.
+4. **Productos 3D sin gramos ni horas** — con un botón directo a Historial K2.
+5. **Pedidos abiertos con líneas sin precio**.
+6. **La nube** — agrega `Nube.visto()` en `js/nube.js` (expone si este equipo alguna vez
+   terminó un ciclo de sincronización completo) para distinguir "apagada" de "configurada
+   pero nunca sincronizó", con un botón a Ajustes o a "Sincronizar ahora" según el caso.
+
+Cada fila de producto/pedido es clickeable y abre su ficha real (`Vistas.productos.abrir` /
+`Vistas.pedidos.abrir`, los mismos modales que ya existían). Sin barras de progreso, sin
+porcentajes de completitud, sin rojo ni signos de exclamación — siguiendo la regla explícita
+del encargo de que un dato pendiente no es un error.
+
+**Cómo sé que funciona.** Corrí el código real contra la semilla real (no una copia), con
+`Vistas.productos`/`Vistas.pedidos`/`App` reemplazados por espías para comprobar que los
+llaman con el id correcto, sin necesitar el navegador para eso:
+- Los seis bloques dieron los números reales de la semilla: **24 precios sin poner, 16
+  textiles sin horas, 16 sin confirmar bordado/costura, 9 productos 3D sin datos, 1 pedido
+  con líneas sin precio**, y el bloque de la nube apareció como "apagada" (sin
+  configuración en el sandbox) — total **67**, y la cabecera lo mostró igual.
+- **"Aceptar" un sugerido:** en la semilla real los 24 sin precio también tienen el costo
+  incompleto (comprobado explícitamente — no es un bug, es coherente: son los mismos que
+  aparecen en los otros bloques). Completé `horasMano` a propósito en uno para darle un
+  costo completo sin tocar el precio, y comprobé el camino completo: el conteo bajó de 67 a
+  66 al completarse el dato, `aceptarSugerido()` puso el precio sugerido real ($17.800), y
+  el conteo bajó a 65.
+- **Confirmar oficio:** confirmé un producto como bordado (queda `oficio:'bordado'`,
+  `oficioConfirmado:true`) y otro como costura (`oficio` cambia a `'costura'`,
+  `oficioConfirmado:true`) — los dos desaparecieron del bloque 3 y el conteo bajó
+  exactamente en 2, sin arrastrar cambios en ningún otro bloque.
+- **La nube:** simulé que SÍ está configurada pero nunca terminó un ciclo
+  (`Nube.configurado()` true, `Nube.visto()` false) — el mensaje cambia al de "nunca
+  sincronizó" y aparece "Sincronizar ahora", que llama a `App.conectarNube()`. Con
+  `visto()` en true, el bloque desaparece.
+- 27 de 27 verificaciones. Re-corrí también los tests de v2.5.0/v2.6.1 (10/10 y 6/6) para
+  confirmar que agregar `Nube.visto()` no rompió nada de lo que ya usaba `nube.js`.
+
+**Lo que NO pude verificar.** Todo lo visual: cómo se ve la pantalla, si el orden de lectura
+es cómodo, si los botones "Aceptar"/"Es bordado"/"Es costura" quedan claros al lado del
+nombre del producto sin abrir nada. Es exactamente lo que le pido a Cowork que mire.
+
+**Lo que NO quedó.**
+- No hay una forma de "posponer" o silenciar un pendiente sin resolverlo — cada vez que se
+  abre la pestaña se ven todos. No estaba pedido y no lo agregué sin que se pida.
+- El bloque de la nube usa `Nube.visto()`, que es un estado **por equipo** (vive en el
+  `localStorage` de ese navegador), no un estado real de "la nube tiene una copia". Si
+  alguien sincronizó una vez en el teléfono, el PC lo va a seguir marcando "nunca
+  sincronizó" hasta que sincronice él también — es correcto para lo que pide el encargo
+  ("este equipo"), pero vale la pena que quede escrito.
+
+**Versión.** `js/version.js` → `2.8.0`.
+
+---
+
 ## 2026-09-02 · La app usa la identidad de marca de verdad · v2.7.0
 
 **Qué cambió.** Cowork pidió (`SUPERVISION.md`) que la app use `../branding/identidad-de-marca.md`

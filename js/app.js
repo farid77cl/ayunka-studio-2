@@ -1,6 +1,7 @@
 /* Ayünka Studio · arranque y navegación. */
 (function () {
   const VISTAS = [
+    { id: 'pendientes', txt: 'Pendientes', cuenta: () => Vistas.pendientes.contar() },
     { id: 'productos',  txt: 'Productos',  cuenta: () => Datos.activos('productos').length },
     { id: 'pedidos',    txt: 'Pedidos',    cuenta: () => Datos.activos('pedidos').filter(p => p.estado !== 'entregado').length },
     { id: 'cola',       txt: 'Cola',       cuenta: null },
@@ -93,7 +94,7 @@
     document.addEventListener('nube:estado', pintarPie);
 
     const inicial = (location.hash || '').replace('#', '');
-    ir(VISTAS.some(v => v.id === inicial) ? inicial : 'productos');
+    ir(VISTAS.some(v => v.id === inicial) ? inicial : 'pendientes');
     pintarPie();
 
     if (Nube.configurado()) conectarNube();

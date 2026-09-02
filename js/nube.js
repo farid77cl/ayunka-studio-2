@@ -232,6 +232,8 @@
   window.Nube = {
     cfg, configurado, encendida, guardarCfg, apagar, conectar, guardarPronto,
     estado: () => st.estado, correo: () => st.correo,
+    // true si este equipo alguna vez terminó un ciclo de sincronización completo.
+    visto: () => !!localStorage.getItem(VISTO),
     forzarSubida: async () => { const c = cfg(); if (c && st.lista) { await subirTodo(c, 'forzado'); nota('subido a mano'); } }
   };
 })();
