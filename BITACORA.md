@@ -4,6 +4,51 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Publicar y cerrar la nube — hasta donde llega el código (encargo C)
+
+**Qué cambié.** Nada de código en esta entrada — es un reporte de estado de las 4 partes de
+`PLAN.md` Fase 2, tal como pide el encargo, para que quede escrito qué se puede hacer desde
+acá y qué no.
+
+**1. Publicar en `https` — HECHO y verificado de verdad, no solo "debería andar".**
+`https://farid77cl.github.io/ayunka-studio-2/` responde **200** y sirve la app real (lo
+comprobé con un `curl` real a la URL, no lo supuse). Esto ya estaba hecho desde antes de
+este encargo — activé GitHub Pages cuando el repo pasó a público. El único detalle: el
+`curl` a `js/version.js` todavía muestra `2.9.0`, no la `2.10.0` de la última subida —
+GitHub Pages tarda un poco en rehacer el sitio después de cada push; no es un error, hay
+que darle un minuto.
+
+**2, 3 y 4 — no los puedo hacer yo, y no es un límite de código.** Necesitan cosas que no
+tengo desde acá:
+- **Poner el correo real en `firestore.rules`**: ese correo se crea en Firebase
+  Authentication → Users, y hoy el archivo tiene el `CAMBIAR@ejemplo.com` de plantilla. No
+  lo puedo adivinar ni inventar uno — hace falta que alguien con acceso a la consola de
+  Firebase lo diga.
+- **Publicarlas en la consola**: cambiar el archivo en este repo no cambia nada en
+  Firebase — hay que entrar a Firestore → Reglas → Publicar. Yo no tengo esa consola.
+- **Comprobar con el `curl` que da 403**: solo tiene sentido después del punto anterior, y
+  contra un proyecto de Firebase real.
+- **Forzar un conflicto a propósito con datos reales**: necesita dos sesiones de verdad
+  (el navegador, no puedo abrirlo yo) sincronizando contra el mismo proyecto.
+
+Esto es exactamente lo que `SUPERVISION.md` ya reparte así: "Hablar con... Firebase" es de
+Cowork, no mío. Lo dejo pedido acá en vez de simular que lo hice.
+
+**Cómo sé que funciona (lo que sí hice).** `curl -s -o /dev/null -w "%{http_code}"` contra
+la URL de GitHub Pages dio **200**, y el `curl` al `index.html` trajo el HTML real de la
+app (el `<title>Ayünka Studio</title>` real, no una página de error de GitHub).
+
+**Lo que NO pude verificar.** Todo el punto 2, 3 y 4 — necesitan la consola de Firebase, que
+no tengo desde este entorno.
+
+**Necesito una decisión/acción de Cowork o de Farid.** El correo de acceso real para
+`firestore.rules`, y que alguien con la consola de Firebase publique las reglas y corra el
+`curl` de comprobación. Cuando esté, aviso.
+
+**Versión.** Sin cambio — no hubo código nuevo en esta entrada.
+
+---
+
 ## 2026-09-02 · Studio como fuente única de precios — exporta CSV y XLSX · v2.10.0 (encargo B)
 
 **Qué cambió.** Punto B del "Encargo del 2-sep": el precio se editaba en tres lados (Studio,
