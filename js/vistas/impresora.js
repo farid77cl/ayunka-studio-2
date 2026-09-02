@@ -110,17 +110,14 @@
       <div class="tarjeta"><h2>Piezas que se pueden actualizar · ${porArchivo.length}</h2>
         <p style="font-size:13px;color:var(--pizarra);margin:0 0 12px">
           Emparejadas por el nombre exacto del archivo de origen del producto. Confianza alta.</p>
-        ${tablaPropuestas(porArchivo, true)}
-        ${porArchivo.length ? `<div class="row" style="margin-top:12px">
-          <button class="btn primario" onclick="Vistas.impresora.aplicarTodas('por archivo')">Aplicar las ${porArchivo.length}</button>
-        </div>` : ''}
+        ${pintarGrupo(porArchivo, 'por archivo', true)}
       </div>
 
       ${porParecido.length ? `<div class="tarjeta"><h2>Parecidas, revisar antes · ${porParecido.length}</h2>
         <p style="font-size:13px;color:var(--pizarra);margin:0 0 12px">
           El nombre del archivo se parece al del producto, pero no hay un origen exacto guardado.
           Revisa una por una antes de aplicar.</p>
-        ${tablaPropuestas(porParecido, true)}
+        ${pintarGrupo(porParecido, 'por parecido', false)}
       </div>` : ''}
 
       ${sinDueno.length ? `<div class="tarjeta"><h2>Sin producto en el catálogo · ${sinDueno.length}</h2>
@@ -130,16 +127,44 @@
       </div>` : ''}`;
   }
 
-  function tablaPropuestas(lista, conAplicar) {
+  // Un grupo (por archivo o por parecido), separado en "se completan" / "cambian un valor
+  // que ya estaba" / "sin cambios reales" — nunca mezclados (SUPERVISION.md, 2-sep).
+  function pintarGrupo(lista, origen, conBoton) {
+    if (!lista.length) return '<p style="color:var(--apagado);font-size:13px">Ninguna.</p>';
+    const blanco = lista.filter(p => p.enBlanco);
+    const cambia = lista.filter(p => !p.enBlanco && p.cambiaReal);
+    const resto = lista.filter(p => !p.enBlanco && !p.cambiaReal);
+
+    const partes = [];
+    if (blanco.length) partes.push(`<h3 style="font-size:14px;margin:14px 0 8px">Se completan · ${blanco.length}</h3>${tablaPropuestas(blanco, true)}`);
+    if (cambia.length) partes.push(`<h3 style="font-size:14px;margin:14px 0 8px">Cambian un valor que ya estaba · ${cambia.length}</h3>
+      <p style="font-size:12px;color:var(--apagado);margin:0 0 8px">Manda la máquina, pero antes de aplicar se ve qué cambia.</p>
+      ${tablaPropuestas(cambia, true, true)}`);
+    if (resto.length) partes.push(`<p style="font-size:12px;color:var(--apagado);margin:14px 0 0">
+      ${resto.length} más ya tienen estos mismos datos — sin cambios reales.</p>`);
+
+    if (conBoton) {
+      const detalle = [blanco.length && `${blanco.length} se completan`, cambia.length && `${cambia.length} cambian`, resto.length && `${resto.length} sin cambios`]
+        .filter(Boolean).join(', ');
+      partes.push(`<div class="row" style="margin-top:12px">
+        <button class="btn primario" onclick="Vistas.impresora.aplicarTodas('${origen}')">Aplicar las ${lista.length}${detalle ? ' (' + detalle + ')' : ''}</button>
+      </div>`);
+    }
+    return partes.join('');
+  }
+
+  function tablaPropuestas(lista, conAplicar, conAntes) {
     if (!lista.length) return '<p style="color:var(--apagado);font-size:13px">Ninguna.</p>';
     return `<table><thead><tr>
       <th>Producto</th><th>Archivo</th><th class="num">Veces</th>
+      ${conAntes ? '<th class="num">Tenía</th>' : ''}
       <th class="num">Gramos reales</th><th class="num">Horas reales</th><th></th>
     </tr></thead><tbody>
       ${lista.map(p => `<tr>
         <td><b>${A.esc(p.productoSku || '')}</b> ${A.esc(p.productoNombre || '')}</td>
         <td style="color:var(--apagado);font-size:12px">${A.esc(p.archivo)}</td>
         <td class="num">${p.veces}</td>
+        ${conAntes ? `<td class="num" style="color:var(--apagado)">${p.gramosAntes} g / ${p.horasAntes} h</td>` : ''}
         <td class="num">${p.gramosReales}</td>
         <td class="num">${p.horasReales}</td>
         <td>${conAplicar ? `<button class="btn chico" onclick="Vistas.impresora.aplicarUna('${A.esc(p.productoId)}')">Aplicar</button>` : ''}</td>
@@ -165,6 +190,9 @@
     for (const prop of lista) {
       const prod = Datos.obtener('productos', prop.productoId);
       if (!prod) continue;
+      // Si de verdad estaba cambiando un valor que alguien ya había puesto, queda guardado
+      // para poder volver atrás — no se pisa en silencio (SUPERVISION.md, 2-sep).
+      if (prop.cambiaReal) prod.datosAnteriores = { gramos: prod.gramos, horas: prod.horas };
       prod.gramos = prop.gramosReales;
       prod.horas = prop.horasReales;
       prod.origenDatos = 'historial-k2';

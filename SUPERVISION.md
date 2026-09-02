@@ -92,3 +92,79 @@ las que hacen confiable la cola de producción y las cotizaciones.
 `COMO-REPORTAR.md` manda sobre cómo reportar y sobre qué espera Farid. `PLAN.md` tiene las
 fases. `BITACORA.md` es tuya: una entrada por sesión, arriba, con el «cómo sé que funciona»
 obligatorio.
+
+---
+
+## Revisión del 2-sep · v2.5.0 · APROBADA
+
+Corrí la app real —una copia traída del disco, en un navegador de verdad— y comprobé lo que
+había pedido en la especificación. **Pasa todo:**
+
+- Nueve pestañas, **cero errores en consola**.
+- El motor de costos no se movió: `AY-3D-001` sigue dando costo **$2.543**, sugerido **$8.900**
+  contra los $8.500 que se cobran.
+- El historial de la K2 da los números exactos: **154 trabajos, 159,8 h, 4,0 kg, 593 g
+  perdidos, 12,9% de fallas** contra el 10% de Ajustes.
+- La prueba dura: borré los datos de `AY-3D-001`, `AY-3D-002` y `AY-3D-004`, solté el
+  historial, apliqué, y volvieron **exactos** (75,2 g / 2,515 h · 13,1 g / 0,658 h ·
+  63,2 g / 2,21 h) con `origenDatos: historial-k2`. La tasa quedó en 12,9%.
+
+**Dos cosas quedaron mejor que la especificación** y así se quedan: separar las coincidencias
+por confianza («se pueden actualizar · 11», «parecidas, revisar antes · 1», «sin producto en
+el catálogo · 88»), y mostrar esos 88 archivos huérfanos — es todo lo que la impresora hizo y
+nunca llegó al catálogo.
+
+### Un cambio pedido · decidido por Farid el 2-sep
+
+Hoy se proponen para actualizar **también los productos que ya tienen gramos y horas**, no
+solo los que están en blanco. Con los datos actuales da igual, pero si alguien ajusta un
+valor a mano, aplicar se lo sobrescribe sin avisar.
+
+**Farid lo decidió así: manda la máquina, pero el cambio se ve.** Seguir proponiendo todos
+—los que están en blanco y los que ya tienen datos— y, cuando el valor vaya a cambiar, que
+la fila lo diga con las dos cifras:
+
+> *Regla de radios — tenía 75,2 g / 2,515 h · la impresora dice 79,1 g / 2,64 h*
+
+Detalles de cómo hacerlo:
+
+- Solo se marca como cambio si la diferencia es real: **más de 0,5 g o más de 1 minuto**.
+  Si no, es ruido y no vale la pena mostrarlo.
+- Las que cambian van agrupadas aparte de las que están en blanco, con su propio contador:
+  «se completan · N» y «cambian un valor que ya estaba · N». No mezcladas.
+- El botón de aplicar todo dice cuántas de cada tipo lleva.
+- Al aplicar, `origenDatos` guarda también qué valor tenía antes, para poder volver atrás.
+
+**El porqué, y es lo que no hay que perder de vista:** cambiar en silencio un dato que una
+persona puso a mano es la misma familia de error que se comió tres semanas de trabajo el
+1-sep. La máquina puede tener la razón; igual tiene que decir qué está cambiando.
+
+---
+
+## Lo que sigue, en orden
+
+Medido en la semilla al 2-sep, no estimado:
+
+1. **Los 24 precios que faltan.** De 36 productos, 12 tienen precio. Es la tarea de mayor
+   retorno del negocio: sin precios no hay catálogo de WhatsApp, y «¿cuánto vale?» es la
+   primera pregunta de toda consulta.
+2. **Las horas de trabajo de los 16 textiles.** Ninguno tiene `horasMano`, así que ninguno
+   se puede costear y la app —bien— se niega a sugerirles precio. Basta con cronometrar uno
+   de cada tipo.
+3. **Separar bordado de costura.** Los 16 entraron como `bordado` (×2,55); hay que revisar
+   cuáles son costura (×2). **Es criterio de Farid, no técnico: pregúntale.**
+4. **Los 9 productos 3D sin gramos ni horas.** Los que estaban en el historial ya se
+   completaron; para el resto hay que laminar una vez. Mientras falten, la cola calcula de
+   menos y su «alcanza / no alcanza» no es confiable.
+5. **Fase 2 completa** (`PLAN.md`): publicar la app, cerrar Firestore **y comprobarlo desde
+   afuera con el `curl`**, y forzar un conflicto a propósito para ver el diálogo de
+   comparación. Si aparece y las cifras cuadran, la parte que causó la pérdida de datos
+   queda cerrada de verdad.
+
+El 1 y el 2 son de Farid, no de código: la app ya está lista para recibirlos.
+
+## Cómo pedirme una revisión
+
+Termina, commitea, escribe la entrada en `BITACORA.md` con su «cómo sé que funciona», y
+avísale a Farid. Yo traigo una copia, corro las comprobaciones y dejo el resultado acá abajo.
+No toco el repo.

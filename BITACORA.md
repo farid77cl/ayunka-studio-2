@@ -4,6 +4,52 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Historial K2: se ve el cambio antes de pisar un valor que ya estaba · v2.6.0
+
+**Qué cambió.** Implementa el pedido de Farid que quedó en `SUPERVISION.md` tras la revisión
+de v2.5.0: "manda la máquina, pero el cambio se ve". Antes, aplicar en bloque pisaba en
+silencio cualquier gramos/horas que ya estuvieran cargados a mano. Ahora `js/impresora.js`
+(`emparejar()`) marca cada propuesta con `enBlanco` (el producto no tenía nada) y `cambiaReal`
+(ya tenía datos y la diferencia es real: más de 0,5 g o más de 1 minuto — por debajo es
+ruido de redondeo y no se avisa). La vista (`js/vistas/impresora.js`, `pintarGrupo()`)
+separa cada sección ("por archivo", "por parecido") en tres, nunca mezcladas: **se
+completan** (estaban en blanco), **cambian un valor que ya estaba** (con una columna "Tenía"
+junto al valor que trae la K2) y un conteo aparte de las que no cambian nada real. El botón
+de aplicar-todas dice el desglose ("Aplicar las 11 · 1 cambian, 10 sin cambios"). Al aplicar
+algo que sí cambiaba de verdad, el producto guarda `datosAnteriores: {gramos, horas}` con lo
+que tenía antes, para poder revertirlo a mano si hizo falta.
+
+**Cómo sé que funciona.** Corrí el código real (no una copia) contra la semilla real y
+`../historial-impresion.json`, con un caso a propósito: desajusté `AY-3D-001` a 80 g / 2,6 h
+(la K2 dice 75,2 g / 2,515 h — diferencia real) y `AY-3D-004` a 63,4 g / 2,211 h (diferencia
+de 0,2 g — por debajo del umbral, a propósito, para probar que NO se marca como cambio).
+- La sección "Cambian un valor que ya estaba" aparece con `AY-3D-001` y muestra en la tabla
+  **tenía 80 g / 2,6 h · la K2 dice 75,2 g / 2,515 h**.
+- `AY-3D-004` (diferencia bajo el umbral) y `AY-3D-002` (ya coincidía) caen en el conteo
+  "sin cambios reales", no en la sección de cambios — no eran cambios de verdad.
+- El botón de "por archivo" mostró el texto real **"Aplicar las 11 (1 cambian, 10 sin
+  cambios)"**.
+- Tras aplicar, `AY-3D-001` quedó con los valores reales (75,2 g / 2,515 h) y con
+  `datosAnteriores: {gramos: 80, horas: 2.6}` — se puede volver atrás a mano. Los nueve
+  productos 3D que estaban en blanco (`AY-3D-003, 005, 010, 011, 012, 017, 018, 019`) no
+  quedaron con `datosAnteriores` — correcto, nunca hubo un valor previo que perder.
+- Re-corrí también el test de la sesión anterior (v2.5.0) contra el código actual: los mismos
+  11 "por archivo", los mismos 154 trabajos, la misma tasa de 12,9% — nada se rompió.
+- 28 de 28 verificaciones en total, las dos corridas juntas.
+
+**Lo que NO pude verificar.** Sigue sin haber navegador acá: no vi la tabla nueva pintada de
+verdad, solo el HTML que genera el código real. La columna "Tenía" y el texto del botón los
+comprobé por contenido del HTML, no visualmente.
+
+**Lo que NO quedó.** Sigue sin haber un botón de "deshacer" en la propia pestaña — el dato
+anterior queda guardado en `datosAnteriores` pero hay que ir a Productos a restaurarlo a
+mano si hizo falta. No cambié el criterio de "por parecido" (sigue pendiente, ya lo decía la
+entrada anterior).
+
+**Versión.** `js/version.js` → `2.6.0`.
+
+---
+
 ## 2026-09-02 · Historial de la K2: gramos y horas reales, propuestos no aplicados · v2.5.0
 
 **Qué cambió.** Nueva pestaña "Historial K2" (`js/impresora.js` + `js/vistas/impresora.js`,

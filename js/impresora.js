@@ -106,6 +106,11 @@
    * corte/sufijo), 3) por parecido del nombre (solo si el producto no tiene archivoOrigen).
    * Nunca aplica nada — devuelve propuestas para que una persona decida.
    */
+  // Umbral de "esto es un cambio de verdad" — por debajo es ruido de redondeo, no vale
+  // avisar (SUPERVISION.md, cambio decidido por Farid el 2-sep).
+  const DIF_GRAMOS = 0.5;
+  const DIF_HORAS = 1 / 60; // 1 minuto
+
   function emparejar(piezas, productos) {
     return piezas.map(pieza => {
       const raizPieza = raiz(pieza.archivo);
@@ -125,14 +130,20 @@
         }
       }
 
+      const gramosAntes = prod ? N(prod.gramos) : 0;
+      const horasAntes = prod ? N(prod.horas) : 0;
+      const enBlanco = !gramosAntes && !horasAntes;
+      const cambiaReal = !!prod && !enBlanco &&
+        (Math.abs(gramosAntes - pieza.gramosReales) > DIF_GRAMOS || Math.abs(horasAntes - pieza.horasReales) > DIF_HORAS);
+
       return {
         archivo: pieza.archivo, veces: pieza.veces, horasReales: pieza.horasReales, gramosReales: pieza.gramosReales,
         productoId: prod ? prod.id : null, productoSku: prod ? prod.sku : null, productoNombre: prod ? prod.nombre : null,
         origenDatos: origen,
-        cambia: !!prod && (prod.gramos !== pieza.gramosReales || prod.horas !== pieza.horasReales)
+        gramosAntes, horasAntes, enBlanco, cambiaReal
       };
     });
   }
 
-  window.Impresora = { normalizar, normalizarMoonraker, normalizarResumen, raiz, emparejar, G_POR_MM };
+  window.Impresora = { normalizar, normalizarMoonraker, normalizarResumen, raiz, emparejar, G_POR_MM, DIF_GRAMOS, DIF_HORAS };
 })();
