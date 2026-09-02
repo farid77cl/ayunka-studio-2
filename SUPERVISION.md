@@ -723,3 +723,212 @@ en Authentication (el proyecto tiene cero) y pegue la clave en Ajustes. Cuando l
 prueba que cierra el tema sigue siendo la del encargo anterior, y va en `BITACORA.md` con la
 respuesta textual: **con la app sin sesión, subir debe fallar con
 `new row violates row-level security policy`**. Si sube, la puerta sigue abierta.
+
+---
+
+# Revisión del 3-sep · v2.16.0
+
+## Los dos arreglos, medidos
+
+**El piso del stock: bien resuelto por el lado correcto.** Se eligió la salida (a) —una
+casilla «Este producto lleva stock» en la ficha— y funciona: vendí 3 de `AY-3D-002`, que no
+la lleva, y su stock **siguió en 0**, sin movimiento y sin ruido. Que la mayoría del
+catálogo se haga contra pedido dejó de ser un problema.
+
+**El descuento de filamento: el mecanismo funciona, exacto.** Elegí un rollo por defecto y
+vendí 3 unidades de 13,1 g: el rollo pasó de **1000 g a 960,7 g**, que es exactamente
+1000 − 39,3. `filamentoDe` cae bien al por defecto, y el selector de Ajustes existe y lista
+los rollos con su saldo.
+
+## Pero hay dos cosas abiertas
+
+### 1 · El descuento está apagado y nadie lo dice
+`filamentoPorDefecto` solo resuelve solo cuando hay **un** rollo de ese material con saldo.
+Hoy hay **seis PLA**, así que devuelve `null`, el selector de Ajustes está en «(automático)»
+y **no se descuenta un solo gramo**. Es un clic de Farid, no un bug — pero es exactamente
+la forma de falla que llevamos tres días persiguiendo: algo escrito, correcto, y apagado en
+silencio.
+
+Que Pendientes lo diga. Un bloque más: **«El filamento no se está descontando»**, con el
+porqué en una línea (seis rollos de PLA, ninguno elegido) y el botón que lleva a Ajustes.
+Desaparece solo cuando se elija uno, como todos los demás.
+
+### 2 · El stock sigue yendo a negativo, solo que ahora en menos casos
+Un producto que **sí** lleva stock aún baja sin piso: puse stock 2, vendí 5, quedó en
+**−3**. Y ese −3 no aparece en ninguna parte — Pendientes no lo menciona y la fila de
+Productos no muestra el stock. Elegiste la opción (a), así que acá el negativo sí significa
+algo real («vendí más de lo que tenía»), pero un número que nadie ve no es un aviso.
+
+O lo muestras con su nombre en Pendientes —«3 por producir»— o no dejas que baje de 0 y
+avisas al guardar la venta. Cualquiera de las dos, pero que se vea.
+
+## Supabase
+
+El usuario ya existe: **`farid+ayunka-acceso@gmail.com`**, proveedor Email, el mismo correo
+de la sincronización — que es justo lo que el código necesita, porque reusa esas
+credenciales. El mensaje de error feo también se arregló: ahora dice «no pude hablar con
+Supabase — revisa la URL del proyecto o tu conexión».
+
+Falta el último tramo, y no lo puede hacer nadie desde acá: **pegar la URL y la clave
+anónima en Ajustes → Fotos y archivos** (la clave sale de Supabase → Project Settings →
+API Keys → `anon` `public`; la URL es `https://ncuvdpydwnepbysadoux.supabase.co` y el
+bucket `archivos`). Con eso, las dos pruebas que cierran el tema, textuales en `BITACORA.md`:
+
+1. Subir una foto a un producto y que la URL que devuelve **responda 200 en otro navegador,
+   sin sesión**.
+2. Con la app **sin las credenciales de acceso puestas**, intentar subir: tiene que fallar.
+   Si sube, la puerta sigue abierta.
+
+---
+
+# El botón «Traer de la impresora» no falla: se cuelga · 3-sep
+
+Farid puso la IP, apretó el botón y **no pasó nada**. Reproducido en su propio Chrome, en
+`https://farid77cl.github.io/ayunka-studio-2/`, con la K2 encendida y respondiendo:
+
+    document.getElementById('imp-ip').value = '192.168.100.90:4408';
+    Vistas.impresora.traerDeIp();
+    // 33 segundos después: #imp-resultado sigue vacío. Ni error, ni card, nada.
+
+**Por qué.** El `fetch` a `http://…` desde una página `https` **no rechaza**: se queda
+colgado. El navegador intenta subir la llamada a `https`, la K2 no habla `https`, y la
+promesa nunca se resuelve. Todo el manejo de error de `traerDeIp()` está en un `catch` que
+**nunca se ejecuta**, así que el texto que explica el problema —que está bien escrito, y
+dice justo lo que hay que hacer— no se muestra jamás.
+
+Es el peor tipo de falla que puede tener esta app: la que no dice nada. Un error visible se
+arregla en dos minutos; un botón mudo cuesta media tarde.
+
+**Tres cosas, en este orden:**
+
+1. **No hagas la llamada si la página va por `https`.** `location.protocol === 'https:'` se
+   sabe antes de intentar nada. Muestra el aviso de entrada, junto al botón, con las dos
+   salidas reales: soltar el archivo del historial, o abrir la app por `http` en el PC.
+2. **Ponle plazo a todo `fetch` que salga a la red local.** `AbortController` con 8 segundos.
+   Que colgarse sea un mensaje, no un silencio. Vale para `traerDeIp` y para cualquier
+   llamada futura al agente.
+3. **Guarda la IP.** El campo `#imp-ip` sale vacío cada vez que se repinta la vista: lo que
+   escribió se perdió. Va al `localStorage` como el resto de la configuración.
+
+## De paso, hay historial nuevo y cambia un número importante
+
+Se bajó el historial completo desde Moonraker (`192.168.100.90:4408`) y quedó en
+`impresora/historial-impresion.json` — **199 trabajos**, del 16 de junio al 1 de septiembre.
+El que tenía la app traía 154.
+
+    trabajos      199        (151 completados, 48 no)
+    horas         297,7 h
+    material      6,54 kg
+    perdido       37,8 h y 797 g  ≈ $11.958 de filamento
+
+**La tasa de fallas ya no es 12,9%.** En crudo da **24,1%**, pero ese número está inflado:
+de los 48 no completados, **16 se cancelaron antes de los 10 minutos**, y esos casi siempre
+son una decisión —se vio que iba mal, se cambió de idea— no una falla. Contando solo los
+que se cayeron después de comprometer tiempo de verdad, la tasa es **16,1%**.
+
+Ajustes tiene **10%**. Pasar a 16% sube todos los costos 3D un **7%**, y eso hoy se está
+regalando. Pero la decisión es de Farid, y por eso la pantalla debe mostrar **los dos
+números con su explicación**, no proponer uno solo: «24,1% contando todo · 16,1% sin los
+cancelados en los primeros 10 minutos». Que elija sabiendo qué está eligiendo.
+
+Los cuatro trabajos que más material se llevaron al fallar, para que se vean con nombre:
+`poop_chute` 182 g, `Object_1` 129 g, y **`Borrador de llavero` dos veces, 92 g y 52 g** —
+esos dos son del trabajo de LIDCAR y valen como aprendizaje, no como desperdicio.
+
+Detalle menor: **2 trabajos traen fecha anterior a 2020** — el reloj de la K2 estuvo sin
+sincronizar. No rompe nada, pero si alguna vez se ordena por fecha, aparecen en 1970.
+
+---
+
+# Personalizados 3D · la pantalla no muestra casi nada de lo que ya sabe hacer
+
+Farid, hoy: *«en el llavero solo puedo cambiar el nombre y el teléfono? qué hay de la forma?
+o si quiero importar una imagen? o más copias, y todo lo de la definición y el planchado?»*
+Y después: *«lo mismo para la letra con nombre — la idea de esa sección es ayudar a diseñar,
+dar opciones»*.
+
+Tiene razón, y la buena noticia es que **casi todo ya está en el navegador**. Lo comprobé en
+la app publicada, en consola:
+
+- **`D3DFormas` tiene las 39 figuras cargadas**: rrect, círculo, óvalo, hexágono, triángulo,
+  corazón, estrella, flor, nube, luna, gota, hoja, rayo, sol, huella, oso, conejo, globo,
+  moño, mariposa, arcoíris, etiqueta, hueso, carrete, botón, lápiz, libro, manzana, mochila,
+  regla, pizarra, birrete, campana, bus, cohete, paleta, avión, nota, tijeras.
+- **La vectorización de imágenes también está portada**: `trazarImagen`, `mascaraDe`,
+  `contornosDeMascara`. El preset **«Llavero con imagen» existe y está en la lista**, pero
+  no hay ningún botón para subir la imagen.
+- **Cada capa ya tiene** `x, y, z, rot, escalaX, escalaY, altura, modo, prof, fuente, mm,
+  align, espaciado, interlinea`. Y la base tiene `figura, params (redondeo), ancho, alto,
+  grosor, color, margen`. Más `argolla`, `montaje`, `led`, `bed` a nivel de proyecto.
+
+Y esto es lo que la pantalla muestra hoy para el llavero:
+
+    campos: ["AYÜNKA", "+56 9 8542 1490"]
+    selects: []
+
+Dos cajas de texto. Nada más. Para «Letra con nombre», lo mismo: la base es una **L de
+90 × 90 × 35 mm en Poppins** y el nombre va en **Pacifico 32 mm en relieve de 1 mm** — y no
+se puede tocar ni el tamaño, ni el grosor, ni la tipografía, ni si el nombre va en relieve o
+grabado, ni cuán hondo.
+
+**El motor está entero. Lo que falta es la pantalla.** No hay que portar `design3d.js` para
+arreglar esto — eso viene después, y es otra conversación.
+
+## Lo que tiene que mostrar la ficha de un personalizado
+
+Ordenado por lo que más se usa. Todo esto ya existe en el proyecto; es exponerlo, no
+inventarlo.
+
+**1 · La forma.** Un selector con las 39 figuras, **con su dibujo, no con su nombre** —
+«mariposa» en una lista de texto no le sirve a nadie. Cuadrícula de miniaturas, agrupadas.
+Para el llavero cambia la base; para el recuerdo, los adornos.
+
+**2 · La medida y el grosor.** Ancho, alto y grosor en mm, con el valor del preset ya
+puesto. Que se vea el volumen resultante mientras se mueve — es lo que decide los gramos.
+
+**3 · La tipografía.** El catálogo de fuentes ya está y viene agrupado (palo seco, cursiva…).
+Selector con **la palabra escrita en cada tipografía**, no el nombre de la fuente.
+
+**4 · Relieve o grabado, y cuán hondo.** `modo` y `prof` por capa. Es la diferencia entre
+que se lea y que no, y hoy está fijo en el código.
+
+**5 · Subir una imagen.** El botón que falta para «Llavero con imagen», y para cualquier
+capa. Con los cuatro controles que tenía el editor viejo, que son los que hacen que un logo
+salga bien: **umbral, invertir, detalle y «solo la figura mayor»**. Sin eso, un logo con
+sombras sale convertido en manchas.
+
+**6 · Cuántas copias, y si caben.** Un campo «copias» y la respuesta antes de generar:
+cuántas caben en la bandeja de la K2 y cuánto demora la bandeja completa. Los números de
+LIDCAR ya los tenemos medidos (`.planning/CARGA-INICIAL.md`): máximo 20 rectangulares o 15
+redondos por bandeja, 19,66 min por llavero. Hoy se genera **una** pieza y el resto se
+arma a mano en el laminador.
+
+**7 · La argolla.** `argolla` está en el proyecto y no se ve: si lleva o no, diámetro, y
+en qué borde.
+
+**8 · Ver antes de generar.** Ya se carga three.js. Que se vea la pieza girando, y la
+bandeja con las copias puestas.
+
+## La definición y el planchado son otra cosa, y esa sí falta de verdad
+
+Lo del planchado (`ironing_type`, `ironing_speed`, `ironing_flow`, `top_surface_speed`,
+`top_surface_line_width`) y la altura de capa vive en **`perfil-reglas.js`** del repo
+anterior, junto con los otros ocho archivos `perfil-*.js` — **2.237 líneas que no se
+portaron**. Es lo que `PROJECT.md` llama prioridad 1 de Farid y lo que ocupó las sesiones
+30 a 37.
+
+O sea: el diseño y el perfil de impresión son dos piezas distintas y hoy falta una entera.
+Mientras no esté, que la ficha al menos **diga con qué perfil hay que imprimir esto** —
+«llavero con texto fino: capa 0,12 y planchado en la cara de arriba»— aunque el perfil
+todavía se elija a mano en Creality Print. Un texto no es el generador, pero evita reimprimir.
+
+## Cómo no hacerlo
+
+- **No pongas los 20 controles a la vez.** Lo primero que se ve son la forma, la medida y los
+  textos. El resto va detrás de un «Más opciones» que se abre y se queda abierto.
+- **Nada de listas de nombres para cosas visuales.** Figuras y tipografías se eligen viéndolas.
+- **No inventes gramos ni horas**, igual que en Cotizar: el diseño se guarda como producto
+  sin precio hasta que alguien lo mida. Eso ya está bien y no hay que tocarlo.
+- **No empieces portando `design3d.js`.** El editor libre (arrastrar, tiradores, girar) es un
+  proyecto aparte. Con los ocho puntos de arriba, el 90% de lo que Farid hace todas las
+  semanas se resuelve sin editor.

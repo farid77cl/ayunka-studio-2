@@ -39,15 +39,40 @@
   function pedidosSinPrecio() { return pedidosAbiertos().filter(p => Costos.calcularPedido(p).faltanPrecios > 0); }
   function nubePendiente() { return !Nube.configurado() || !Nube.visto(); }
 
+  /* Revisión del 3-sep, "El descuento está apagado y nadie lo dice": Movimientos.
+   * filamentoPorDefecto(material) solo resuelve solo cuando hay UN rollo de ese material
+   * con saldo. Con varios (como hoy: seis PLA), devuelve null y no se descuenta ni un
+   * gramo -- sin que se note mirando la pantalla. Esto junta, por material, los que
+   * quedaron sin resolver. */
+  function filamentosApagados() {
+    const materiales = new Set();
+    Datos.activos('productos').forEach(p => { if (p.oficio === '3d' && !p.filamentoId) materiales.add(p.material || 'PLA'); });
+    const out = [];
+    materiales.forEach(mat => {
+      if (window.Movimientos && Movimientos.filamentoPorDefecto(mat)) return; // ya resuelve solo
+      const candidatos = Datos.activos('filamentos').filter(f => (f.material || 'PLA') === mat && N(f.gramosQuedan) > 0).length;
+      out.push({ material: mat, candidatos });
+    });
+    return out;
+  }
+
+  /* Revisión del 3-sep, punto 2: un producto que lleva stock de verdad puede venderse de
+   * más y quedar negativo -- eso sí es una alarma real ("vendí más de lo que tenía"), pero
+   * hoy no aparece en ningún lado. Se muestra acá como lo que es: piezas por producir. */
+  function stockVendidoDeMas() { return Datos.activos('productos').filter(p => p.llevaStock && N(p.stock) < 0); }
+
   function contar() {
     const c = categorizarProductos();
     return c.sin3d.length + c.sinHorasTextil.length + c.sinConfirmar.length + c.sinPrecio.length +
-      pedidosSinPrecio().length + (nubePendiente() ? 1 : 0);
+      pedidosSinPrecio().length + (nubePendiente() ? 1 : 0) +
+      filamentosApagados().length + stockVendidoDeMas().length;
   }
 
   function pintar() {
     const c = categorizarProductos();
     const bloques = [
+      bloqueFilamentoApagado(filamentosApagados()),
+      bloqueStockNegativo(stockVendidoDeMas()),
       bloquePrecios(c.sinPrecio),
       bloqueHoras(c.sinHorasTextil),
       bloqueConfirmar(c.sinConfirmar),
@@ -97,6 +122,29 @@
   }
 
   function nombreProd(p) { return (p.sku ? A.esc(p.sku) + ' · ' : '') + A.esc(p.nombre); }
+
+  function bloqueFilamentoApagado(lista) {
+    if (!lista.length) return '';
+    return `<div class="tarjeta aviso"><h2>El filamento no se está descontando</h2>
+      <p style="font-size:13px;color:var(--pizarra);margin:0 0 12px">
+        ${lista.map(x => `${x.candidatos} rollos de ${A.esc(x.material)}, ninguno elegido`).join(' · ')}.
+        Mientras tanto, vender un producto 3D sin rollo propio no descuenta ni un gramo real.</p>
+      <div class="row"><button class="btn primario" onclick="App.ir('ajustes')">Elegir en Ajustes</button></div>
+    </div>`;
+  }
+
+  function bloqueStockNegativo(lista) {
+    if (!lista.length) return '';
+    return `<div class="tarjeta aviso"><h2>Vendiste más de lo que tenías · ${lista.length}</h2>
+      <p style="font-size:13px;color:var(--pizarra);margin:0 0 12px">
+        El stock bajó de 0 — hay que producir la diferencia.</p>
+      <table><thead><tr><th>Producto</th><th class="num">Por producir</th></tr></thead><tbody>
+        ${lista.map(p => `<tr>
+          <td style="cursor:pointer" onclick="Vistas.pendientes.abrirProducto('${A.esc(p.id)}')"><b>${nombreProd(p)}</b></td>
+          <td class="num">${-p.stock}</td>
+        </tr>`).join('')}
+      </tbody></table></div>`;
+  }
 
   function bloquePrecios(lista) {
     if (!lista.length) return '';

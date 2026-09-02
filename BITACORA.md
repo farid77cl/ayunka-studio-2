@@ -4,6 +4,84 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · El botón mudo, las dos tasas de fallo, y avisar lo apagado · v2.17.0
+
+**Qué cambió.** Tres piezas de `SUPERVISION.md`: la revisión del stock/filamento de v2.16.0
+(dos cosas seguían abiertas), el botón «Traer de la impresora» que se cuelga en vez de
+fallar, y el historial nuevo de la K2 (199 trabajos) que cambia la tasa de fallas real.
+
+**1 · El filamento apagado ya no es silencioso.** `filamentoPorDefecto` solo resuelve solo
+con UN candidato — hoy hay 6 rollos de PLA, así que da `null` y no se descuenta nada, sin
+que nadie lo note. Bloque nuevo en Pendientes: **«El filamento no se está descontando»**,
+con el porqué («6 rollos de PLA, ninguno elegido») y un botón a Ajustes. Desaparece solo en
+cuanto se elige uno.
+
+**2 · El stock negativo real, visible.** Un producto que sí `llevaStock` puede venderse de
+más (stock 2, vender 5, queda en −3) — antes ese número no aparecía en ningún lado. Bloque
+nuevo: **«Vendiste más de lo que tenías»**, con cuánto falta producir por cada uno. Elegí
+mostrarlo (no bloquear la venta) porque impedir guardar una venta ya hecha por un problema
+de inventario es peor que dejar el hueco a la vista.
+
+**3 · El botón de la impresora ya no se cuelga.** `fetch('http://…')` desde una página
+`https` no rechaza — se queda esperando para siempre, y el `catch` de `traerDeIp()` nunca
+corría. Farid apretó el botón y no pasó nada en 33 s. Tres cambios en
+`js/vistas/impresora.js`:
+- Se revisa `location.protocol` **antes** de intentar la llamada — en https, ni se intenta:
+  aviso inmediato con las dos salidas reales (soltar el archivo, o abrir por http en el PC).
+- Todo `fetch` a la red local lleva `AbortController` con **8 segundos** de plazo — colgarse
+  ahora es un mensaje, no un silencio.
+- La IP se guarda en `localStorage` al tipear — antes se perdía cada vez que se repintaba
+  la vista.
+
+**4 · Dos tasas de fallo, no una.** Bajado el historial completo (`impresora/
+historial-impresion.json`, 199 trabajos, no los 154 que tenía la app). En crudo, la tasa de
+fallas es 24,1% — pero 16 de los 48 no completados se cancelaron **antes de los 10
+minutos**, que casi siempre es una decisión, no una falla. Sin esos, **16,1%**.
+`js/impresora.js` ahora calcula las dos (`tasaFalloMaterial` y `tasaFalloReal`) y la
+pantalla las muestra **juntas**, con su explicación — nunca se elige una sola por código.
+`usarTasaReal()` pasó a `usarTasa(cual)` (`'cruda'` o `'real'`).
+
+**Cómo sé que funciona.** Corrí el código real, incluido contra el historial de 199
+trabajos de verdad:
+- Reproduje EXACTO lo que reportó Cowork desde el archivo real: 199 trabajos, 297,7 h,
+  6,54 kg, 37,8 h perdidas, 797 g perdidos, tasa cruda 24,1%, tasa real 16,1%.
+- El formato resumido viejo (sin detalle por trabajo) no puede separar las dos — repite el
+  mismo número en ambos campos en vez de inventar una separación que no puede calcular.
+- Con la página en https (el caso real de GitHub Pages), `pintar()` muestra el aviso de
+  entrada, y `traerDeIp()` **no llama a `fetch` en absoluto** — comprobado contando las
+  llamadas reales, no solo leyendo el código.
+- La IP tipeada queda en `localStorage` y sobrevive a un repintado completo.
+- Con un `fetch` que nunca resuelve (simula la K2 sin responder), la llamada se corta sola
+  a los **8 segundos reales** (medido con el reloj, no simulado) y avisa que fue un corte
+  por tiempo.
+- Las dos tasas aparecen juntas en pantalla, con sus dos botones; `usarTasa('real')` y
+  `usarTasa('cruda')` ponen cada una el número que corresponde en Ajustes.
+- El bloque de filamento apagado aparece con el escenario real (6 PLA, ninguno elegido) y
+  desaparece solo al elegir uno en Ajustes o si todos los productos 3D ya tienen rollo
+  propio. El de stock negativo muestra el producto que sí lleva stock y está en −3, sin
+  incluir uno que está negativo pero no lo lleva marcado.
+- 8 + 21 + 9 = **38 verificaciones nuevas**, todas en verde. Re-corrí las 15 suites
+  anteriores (más de 210 verificaciones): una llamaba a la función vieja `usarTasaReal()`,
+  renombrada a propósito — corregida para usar `usarTasa('cruda')`. El resto, sin tocar.
+
+**Lo que NO pude verificar.** Todo lo visual. Y no puedo probar `traerDeIp()` contra la K2
+real desde acá — solo contra los tres escenarios (https, timeout, respuesta real) con
+código real.
+
+**Lo que NO quedó.**
+- La decisión de qué tasa de fallas usar (24,1% o 16,1%) es de Farid — la pantalla se la
+  muestra, no la elige por él.
+- Los cuatro trabajos que más material perdieron al fallar (`poop_chute` 182 g, `Object_1`
+  129 g, `Borrador de llavero` ×2 92 g y 52 g — estos dos son de LIDCAR, aprendizaje, no
+  desperdicio) no tienen una lista dedicada en pantalla — Cowork los mencionó como parte de
+  su propia verificación, no como un pedido explícito de UI nueva.
+- Las 2 fechas de trabajos anteriores a 2020 (reloj de la K2 sin sincronizar) no se
+  corrigen ni se filtran — es un detalle menor que Cowork marcó como "no rompe nada".
+
+**Versión.** `js/version.js` → `2.17.0`.
+
+---
+
 ## 2026-09-02 · El stock ya no miente, y el filamento por fin se descuenta · v2.16.0
 
 **Qué cambió.** Cowork revisó v2.13.0→v2.15.0 en un navegador real y aprobó casi todo (el

@@ -22,6 +22,11 @@
   // ya usaba el flujo de n8n del repo anterior contra estos mismos datos.
   const G_POR_MM = 2.98 / 1000;
 
+  // Revisión del 3-sep: un trabajo cancelado antes de los 10 minutos casi siempre es una
+  // decisión ("se vio que iba mal, se cambió de idea"), no una falla real -- inflaba la
+  // tasa de fallos de 16,1% a 24,1%. No se elige un solo número: se muestran los dos.
+  const SEG_CANCELADO_TEMPRANO = 600;
+
   const N = v => (typeof v === 'number' && isFinite(v)) ? v : 0;
 
   /* ---------- Moonraker crudo: GET /server/history/list ---------- */
@@ -34,7 +39,7 @@
       porArchivo.get(j.filename).push(j);
     }
     const piezas = [];
-    let trabajos = 0, horasImpresas = 0, gramosImpresos = 0, horasPerdidas = 0, gramosPerdidos = 0, fallidos = 0;
+    let trabajos = 0, horasImpresas = 0, gramosImpresos = 0, horasPerdidas = 0, gramosPerdidos = 0, fallidos = 0, fallidosTempranos = 0;
     for (const [archivo, js] of porArchivo) {
       trabajos += js.length;
       const ok = js.filter(j => j.status === 'completed');
@@ -43,6 +48,7 @@
       for (const j of malos) {
         horasPerdidas += N(j.print_duration) / 3600;
         gramosPerdidos += N(j.filament_used) * G_POR_MM;
+        if (N(j.print_duration) < SEG_CANCELADO_TEMPRANO) fallidosTempranos++;
       }
       if (ok.length) {
         const horas = ok.reduce((s, j) => s + N(j.print_duration), 0) / 3600 / ok.length;
@@ -57,7 +63,10 @@
       resumen: {
         trabajos, horasImpresas: +horasImpresas.toFixed(3), gramosImpresos: Math.round(gramosImpresos),
         horasPerdidas: +horasPerdidas.toFixed(3), gramosPerdidos: Math.round(gramosPerdidos),
-        tasaFalloMaterial: trabajos ? +(fallidos / trabajos).toFixed(4) : 0
+        // "cruda": cuenta todo lo que no terminó. "real": saca los cancelados antes de
+        // los 10 min -- son decisión, no falla. Las dos se muestran, nunca una sola.
+        tasaFalloMaterial: trabajos ? +(fallidos / trabajos).toFixed(4) : 0,
+        tasaFalloReal: trabajos ? +((fallidos - fallidosTempranos) / trabajos).toFixed(4) : 0
       }
     };
   }
@@ -68,12 +77,16 @@
       archivo: p.archivo, veces: N(p.veces), horasReales: N(p.horas_reales), gramosReales: N(p.gramos_reales)
     }));
     const r = datos.resumen || {};
+    // Este formato ya viene resumido -- no trae el detalle por trabajo, así que no se
+    // puede separar "cancelado temprano" de "falla real". Se repite el mismo número en
+    // los dos campos para que el llamador no tenga que distinguir el origen del archivo.
+    const tasa = N(r.tasa_fallo_material);
     return {
       piezas,
       resumen: {
         trabajos: N(r.trabajos), horasImpresas: N(r.horas_impresas), gramosImpresos: N(r.gramos_impresos),
         horasPerdidas: N(r.horas_perdidas), gramosPerdidos: N(r.gramos_perdidos),
-        tasaFalloMaterial: N(r.tasa_fallo_material)
+        tasaFalloMaterial: tasa, tasaFalloReal: tasa
       }
     };
   }
