@@ -36,5 +36,25 @@
       .sort((a, b) => (a.fecha || '') < (b.fecha || '') ? 1 : -1);
   }
 
-  window.Movimientos = { registrar, historialDe };
+  /* Revisión del 3-sep, punto 2: "El descuento de filamento no corre para ningún producto
+   * real" -- 0 de 38 productos tenían un rollo elegido a mano, así que la parte que de
+   * verdad es plata (los gramos que salen del rollo) nunca se descontaba. Si el producto no
+   * tiene `filamentoId`, cae al rollo por defecto de su material: el que se eligió una vez
+   * en Ajustes, o -si hay un solo candidato con saldo- ese mismo, sin pedirle nada a nadie.
+   * La ficha queda para la EXCEPCIÓN (este llavero salió del arcoíris), no para lo normal. */
+  function filamentoPorDefecto(material) {
+    const elegido = DB.params.filamentoPorDefecto && DB.params.filamentoPorDefecto[material];
+    if (elegido && Datos.obtener('filamentos', elegido)) return elegido;
+    const candidatos = Datos.activos('filamentos').filter(f => (f.material || 'PLA') === material && N(f.gramosQuedan) > 0);
+    return candidatos.length === 1 ? candidatos[0].id : null;
+  }
+
+  /** El filamento que hay que descontar por este producto: el suyo si lo tiene, si no el
+   *  por defecto de su material. Puede devolver null (no hay uno solo obvio). */
+  function filamentoDe(prod) {
+    if (prod.filamentoId && Datos.obtener('filamentos', prod.filamentoId)) return prod.filamentoId;
+    return filamentoPorDefecto(prod.material);
+  }
+
+  window.Movimientos = { registrar, historialDe, filamentoPorDefecto, filamentoDe };
 })();

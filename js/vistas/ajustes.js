@@ -1,8 +1,15 @@
 /* Vista: ajustes. Parámetros de costo, márgenes por oficio, respaldos y sincronización. */
 (function () {
+  function opcionesFilamentoPorMaterial(material) {
+    const rollos = Datos.activos('filamentos').filter(f => (f.material || 'PLA') === material)
+      .map(f => ({ v: f.id, t: (f.marca || '') + (f.color ? ' ' + f.color : '') + ' · ' + Math.round(f.gramosQuedan || 0) + ' g' }));
+    return [{ v: '', t: '(automático: el único con saldo, si hay uno solo)' }].concat(rollos);
+  }
+
   function pintar() {
     const p = DB.params || {};
     const m = p.margenes || {};
+    const fpd = p.filamentoPorDefecto || {};
     const amort = Costos.amortizacionHora(p);
     const cfg = Nube.cfg();
     const guardado = (() => { try { return JSON.parse(localStorage.getItem('ayunka2-nube-cfg') || '{}'); } catch (e) { return {}; } })();
@@ -42,6 +49,18 @@
           ${A.campo('a-mbor', 'Bordado', m.bordado, { tipo: 'number', paso: '0.05', unidad: '×' })}
           ${A.campo('a-mcos', 'Costura', m.costura, { tipo: 'number', paso: '0.05', unidad: '×' })}
           ${A.campo('a-m3d', 'Impresión 3D', m['3d'], { tipo: 'number', paso: '0.05', unidad: '×' })}
+        </div>
+      </div>
+
+      <div class="tarjeta"><h2>Rollo por defecto</h2>
+        <p style="font-size:13px;color:var(--pizarra);margin:0 0 12px">
+          Revisión del 3-sep: el gramaje que sale de un rollo real es la parte que de
+          verdad es plata, y hoy casi ningún producto tiene uno elegido a mano en su
+          ficha. Con esto puesto, al vender se descuenta de acá — la ficha del producto
+          sigue siendo para la excepción (este llavero salió del arcoíris).</p>
+        <div class="formulario">
+          ${A.selector('a-fil-pla', 'PLA', fpd.PLA || '', opcionesFilamentoPorMaterial('PLA'))}
+          ${A.selector('a-fil-petg', 'PETG', fpd.PETG || '', opcionesFilamentoPorMaterial('PETG'))}
         </div>
       </div>
 
@@ -136,6 +155,7 @@
       capacidadDiaH: A.num(v('a-cap')) || 13
     });
     p.margenes = { bordado: A.num(v('a-mbor')) || 2.55, costura: A.num(v('a-mcos')) || 2, '3d': A.num(v('a-m3d')) || 3.5 };
+    p.filamentoPorDefecto = { PLA: v('a-fil-pla') || null, PETG: v('a-fil-petg') || null };
     p.negocio = Object.assign(p.negocio || {}, {
       nombre: v('a-nom'), ig: v('a-ig'), telefono: v('a-tel'), email: v('a-mail')
     });

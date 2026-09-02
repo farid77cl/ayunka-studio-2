@@ -35,6 +35,13 @@
     localStorage.setItem(CLAVE_CFG, JSON.stringify({ url, clave, bucket: bucket || 'archivos' }));
   }
 
+  // Revisión del 3-sep, "Un detalle": si la red falla, fetch() tira "Failed to fetch" --
+  // no dice nada. Envuelto para que se entienda qué mirar primero.
+  async function fetchClaro(url, opts) {
+    try { return await fetch(url, opts); }
+    catch (e) { throw new Error('no pude hablar con Supabase — revisa la URL del proyecto o tu conexión'); }
+  }
+
   function credencialesDeAcceso() {
     let n = null;
     try { n = JSON.parse(localStorage.getItem(CLAVE_NUBE) || 'null'); } catch (e) {}
@@ -48,7 +55,7 @@
   async function iniciarSesion(c) {
     const acceso = credencialesDeAcceso();
     if (!acceso) throw new Error('falta el correo y la contraseña de acceso (Ajustes → Sincronización)');
-    const r = await fetch(c.url + '/auth/v1/token?grant_type=password', {
+    const r = await fetchClaro(c.url + '/auth/v1/token?grant_type=password', {
       method: 'POST',
       headers: { apikey: c.clave, 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: acceso.correo, password: acceso.clave })
@@ -62,7 +69,7 @@
   async function renovarSesion(c) {
     if (!sesion || !sesion.refreshToken) return null;
     try {
-      const r = await fetch(c.url + '/auth/v1/token?grant_type=refresh_token', {
+      const r = await fetchClaro(c.url + '/auth/v1/token?grant_type=refresh_token', {
         method: 'POST', headers: { apikey: c.clave, 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh_token: sesion.refreshToken })
       });
@@ -97,7 +104,7 @@
 
     const s = await sesionValida(c);
     const ruta = (carpeta || 'catalogo') + '/' + nombreSeguro(nombreBase) + '.' + ext;
-    const r = await fetch(c.url + '/storage/v1/object/' + c.bucket + '/' + ruta, {
+    const r = await fetchClaro(c.url + '/storage/v1/object/' + c.bucket + '/' + ruta, {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + s.accessToken, apikey: c.clave, 'Content-Type': file.type, 'x-upsert': 'true' },
       body: file

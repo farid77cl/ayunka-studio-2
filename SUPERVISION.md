@@ -656,3 +656,70 @@ No sirve «el código está escrito». Sirve esto, en este orden:
 
 Escribe el paso 4 en `BITACORA.md` con la respuesta textual. Ese es el paso que el 1-sep no
 se hizo, y por eso la base estuvo abierta dos meses.
+
+---
+
+# Revisión del 3-sep · v2.13.0 → v2.15.0
+
+Misma prueba de siempre: copia del disco, navegador de verdad, apretar en vez de leer.
+Las once vistas pintan sin una sola excepción.
+
+## Aprobado
+
+- **Pendientes ya no repite.** De **67 a 29**, 28 filas y 28 productos distintos, cero
+  repetidos. Y aparecieron los **2 botones «Aceptar»** que antes no existían, porque ahora
+  el bloque de precios solo muestra a los que sí tienen sugerido. La cascada funciona: al
+  darle horas a un textil, desaparece de «sin horas» y aparece solo entonces en «falta
+  separar bordado de costura». Es exactamente el comportamiento que se pidió.
+- **La venta vacía no se guarda.** Me equivoqué al reportarlo la primera vez: miré
+  `DB.ventas` en crudo, que conserva la baja lógica como toda esta app. Lo que vale es
+  `Datos.activos('ventas')`, y ahí sigue en 0, y la pantalla dice «Ventas · 0».
+  El aviso es claro y el modal se cierra. Bien resuelto.
+- **Escape y clic fuera cierran los modales.** Los dos, comprobados.
+- **El pedido de LIDCAR ya existe de verdad.** Las dos líneas apuntan a `AY-B2B-002` y
+  `AY-B2B-003`, y `Costos.horasPedido` devuelve **32,45 h** en vez de 0. La cola lo ve.
+- **La ficha de producto tiene lo que faltaba:** Rollo, Costo extra, «Qué es ese extra» y
+  Stock.
+- **Supabase quedó bien escrito.** Inicia sesión con `/auth/v1/token?grant_type=password`,
+  manda `apikey` y el `access_token` como Bearer, renueva con el refresh, y la sesión vive
+  **solo en memoria** — no entra a `localStorage` ni viaja a Firestore. Reusa el correo y la
+  clave de Sincronización. Ajustes tiene por fin URL, clave anónima y bucket. Los rechazos
+  se comprobaron: sin correo dice qué falta y dónde; un `.txt` se rechaza por tipo.
+
+## Dos cosas que hay que arreglar
+
+### 1 · El stock se va a negativo sin decir nada · `js/movimientos.js`
+Vendí 3 unidades de `AY-3D-002`, que tenía stock 0, y quedó en **−3**. `registrar()` suma el
+cambio y no mira el resultado; el movimiento queda anotado como `antes 0 · después −3` y la
+app no dice nada.
+
+Para este negocio, stock 0 es lo normal: casi todo se imprime o se cose contra pedido. Un
+−3 no es un dato, es una pregunta sin respuesta. Dos salidas razonables, elige:
+**(a)** solo descontar stock a los productos que de verdad lo llevan, con una casilla
+«llevo stock de este» en la ficha, y no tocar el resto; o **(b)** dejar el negativo pero
+mostrarlo con su nombre — «3 por producir» — y que aparezca en Pendientes. Lo que no puede
+quedar es un −3 pelado en la ficha.
+
+### 2 · El descuento de filamento no corre para ningún producto real
+El código está bien, pero solo descuenta si `prod.filamentoId` existe, y hoy hay **0 de 38
+productos con rollo asignado — 0 de los 22 que son 3D**. El campo nuevo trae
+«(genérico, según el material)» por defecto, o sea `null`. Resultado: la parte que de verdad
+es plata —los gramos que salen del rollo— **no se descuenta nunca**, y no hay forma de
+notarlo mirando la pantalla.
+
+Y no se arregla pidiéndole a Farid que abra 22 fichas. Hazlo así: si el producto no tiene
+rollo, cae al **rollo por defecto de su material** — el único PLA con saldo, o el que se
+elija una vez en Ajustes. Que la ficha sirva para la excepción (este llavero salió del
+arcoíris), no para lo normal.
+
+## Un detalle
+Cuando la llamada a Supabase falla en la red, el mensaje que llega a la pantalla es
+`Failed to fetch`. Envuélvela y di algo que se entienda: «no pude hablar con Supabase —
+revisa la URL del proyecto o tu conexión».
+
+## Todavía sin probar contra el servidor real
+La subida de fotos no se ha ejecutado nunca contra Supabase: falta que Farid cree el usuario
+en Authentication (el proyecto tiene cero) y pegue la clave en Ajustes. Cuando lo haga, la
+prueba que cierra el tema sigue siendo la del encargo anterior, y va en `BITACORA.md` con la
+respuesta textual: **con la app sin sesión, subir debe fallar con
+`new row violates row-level security policy`**. Si sube, la puerta sigue abierta.

@@ -140,6 +140,10 @@
         ${A.campo('p-precio', 'Precio de venta', p.precio == null ? '' : p.precio,
                   { tipo: 'number', ph: c.sugerido === null ? 'faltan datos para sugerir' : 'sugerido: ' + c.sugerido })}
         ${A.campo('p-stock', 'Stock', p.stock || 0, { tipo: 'number' })}
+        <label class="campo ancho" style="flex-direction:row;align-items:center;gap:8px">
+          <input type="checkbox" id="p-llevastock" ${p.llevaStock ? 'checked' : ''}>
+          <span>Este producto lleva stock <i>la excepción — casi todo acá se hace contra pedido</i></span>
+        </label>
       </div>
       <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--pizarra);margin:16px 0 8px">Dónde está la plata</h3>
       <div class="desglose">${desglose}</div>
@@ -151,10 +155,11 @@
       cuerpo,
       leer: nodo => {
         const v = id => { const e = nodo.querySelector('#' + id); return e ? e.value : undefined; };
+        const chk = id => { const e = nodo.querySelector('#' + id); return !!(e && e.checked); };
         const d = {
           nombre: v('p-nombre'), sku: v('p-sku'), oficio: v('p-oficio'), categoria: v('p-cat'),
           precio: v('p-precio') === '' ? null : A.num(v('p-precio')),
-          stock: A.num(v('p-stock')),
+          stock: A.num(v('p-stock')), llevaStock: chk('p-llevastock'),
           extraCosto: A.num(v('p-extracosto')), extraNota: v('p-extranota')
         };
         if (v('p-gramos') !== undefined) Object.assign(d, {
@@ -228,7 +233,7 @@
     const p = {
       id: Datos.nuevoId('prod'), sku: '', nombre: 'Producto nuevo', categoria: 'sin-categoria',
       oficio: '3d', material: 'PLA', gramos: 0, horas: 0, colores: 1, postMin: 0,
-      precio: null, stock: 0, filamentoId: null, foto: '', descripcion: '',
+      precio: null, stock: 0, llevaStock: false, filamentoId: null, foto: '', descripcion: '',
       extraCosto: 0, extraNota: '', activo: true
     };
     Datos.agregar('productos', p);

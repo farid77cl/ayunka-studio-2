@@ -262,10 +262,18 @@
       if (esVentaNueva) {
         resto.lineas.forEach(l => {
           if (!l.productoId) return;
-          Movimientos.registrar('productos', 'stock', l.productoId, -N(l.cantidad), 'venta');
           const prod = Datos.obtener('productos', l.productoId);
-          if (prod && prod.oficio === '3d' && prod.filamentoId) {
-            Movimientos.registrar('filamentos', 'gramosQuedan', prod.filamentoId,
+          if (!prod) return;
+          // Revisión del 3-sep, punto 1: stock 0 es lo normal acá (casi todo es contra
+          // pedido) -- descontar sin que el producto lleve stock de verdad solo deja un
+          // "-3" sin sentido. Se pide explícito en la ficha (llevaStock), la excepción.
+          if (prod.llevaStock) Movimientos.registrar('productos', 'stock', l.productoId, -N(l.cantidad), 'venta');
+          // El filamento sí se consume siempre, lleve stock o no -- una impresión hecha al
+          // vuelo gasta el mismo material real. Punto 2: si el producto no tiene rollo
+          // elegido a mano, cae al de su material (Movimientos.filamentoDe).
+          if (prod.oficio === '3d') {
+            const filId = Movimientos.filamentoDe(prod);
+            if (filId) Movimientos.registrar('filamentos', 'gramosQuedan', filId,
               -N(prod.gramos) * N(l.cantidad), 'venta de ' + (prod.sku || prod.nombre));
           }
         });

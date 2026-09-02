@@ -4,6 +4,69 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · El stock ya no miente, y el filamento por fin se descuenta · v2.16.0
+
+**Qué cambió.** Cowork revisó v2.13.0→v2.15.0 en un navegador real y aprobó casi todo (el
+detalle real: se había equivocado leyendo `DB.ventas` en crudo en vez de
+`Datos.activos('ventas')` para la venta vacía — quedó bien resuelto). Encontró 2 problemas
+reales de la corrección de stock recién hecha, más un detalle en Supabase.
+
+**1 · El stock ya no se va a negativo sin decir nada.** Vender 3 unidades de un producto con
+stock 0 (lo normal acá — casi todo es contra pedido) lo dejaba en **−3**, un número sin
+sentido en la ficha. Cowork ofreció dos salidas y elegí la (a): nuevo campo `llevaStock`
+(checkbox en la ficha, "la excepción — casi todo acá se hace contra pedido"). El stock
+**solo se descuenta si el producto lo marca**; el resto no se toca, nunca. Elegí esta por
+sobre "mostrar el negativo como *N por producir*" porque evita inventar un concepto nuevo
+(la Cola ya responde "cuánto falta producir" mirando los pedidos abiertos) y porque calza
+con lo que el propio Cowork dijo: la ficha es para la excepción, no para lo normal.
+
+**2 · El filamento por fin se descuenta — para todos los 3D, no solo el 0 que tenía rollo
+puesto a mano.** El descuento estaba bien escrito pero nunca corría: 0 de 38 productos
+(0 de los 22 que son 3D) tenían `filamentoId`. Nuevo `Movimientos.filamentoDe(prod)`: si el
+producto no tiene rollo propio, cae al **rollo por defecto de su material** — el único con
+saldo si hay un solo candidato, o el que se elija una vez en **Ajustes → Rollo por
+defecto** (sección nueva). El filamento se descuenta **siempre** que el producto es 3D,
+lleve stock o no — una impresión real gasta material real, sea o no un llavero que se hizo
+al vuelo.
+
+**El detalle de Supabase:** cuando falla la red, `fetch()` tira `Failed to fetch` a secas.
+`supabase.js` ahora lo envuelve: **"no pude hablar con Supabase — revisa la URL del
+proyecto o tu conexión"**.
+
+**Cómo sé que funciona.** Corrí el código real contra la semilla real, reproduciendo el
+caso exacto que reportó Cowork:
+- Confirmé el escenario real primero: **0 de 22 productos 3D tienen `filamentoId`**, y hay
+  **6 rollos de PLA con saldo** (no 1), así que el auto-pick de "único candidato" no
+  resuelve solo — hace falta que alguien elija uno en Ajustes, tal como predijo la revisión.
+- Vendí 3 unidades de un producto con stock 0 y `llevaStock: false`: el stock **se quedó en
+  0**, no bajó a −3, y no se escribió ningún movimiento de stock para él — **pero el
+  filamento sí se descontó**, cayendo al rollo puesto en `DB.params.filamentoPorDefecto.PLA`.
+- El mismo producto pero con `llevaStock: true` y stock 5: vender 2 sí lo dejó en 3 — la
+  excepción funciona cuando se marca.
+- Ajustes tiene la sección "Rollo por defecto" con los 2 selectores (PLA/PETG); guardarla
+  persiste en `DB.params.filamentoPorDefecto`, y con eso puesto, `Movimientos.filamentoDe()`
+  ya lo usa para cualquier producto sin rollo propio.
+- El formulario de un producto trae la casilla "lleva stock", marcada cuando corresponde.
+- `subirFoto()` con un `fetch` que falla por red (no un status de error, sino que ni
+  responde) ya no propaga "Failed to fetch": propaga el mensaje claro nuevo.
+- 12 + 3 = **15 verificaciones nuevas**, todas en verde. Re-corrí las 14 suites anteriores de
+  la sesión (más de 200 verificaciones): una (`verificar-movimientos-stock`) probaba el
+  descuento de stock sin marcar `llevaStock` — es EXACTAMENTE el comportamiento que este
+  commit cambió a propósito, no una regresión; la corregí para reflejar la regla nueva.
+
+**Lo que NO pude verificar.** Todo lo visual. Y sigue sin poder probarse contra el Supabase
+real (necesita el usuario que solo Farid puede crear).
+
+**Lo que NO quedó.**
+- Nadie ha puesto todavía un rollo por defecto en Ajustes → hasta que Farid (o quien use la
+  app) lo haga, el filamento de los productos sin rollo propio sigue sin descontarse en la
+  práctica, aunque el código ya esté listo para cuando se ponga.
+- Sigue sin haber pantalla para navegar el libro de movimientos completo.
+
+**Versión.** `js/version.js` → `2.16.0`.
+
+---
+
 ## 2026-09-02 · Rollo en la ficha, costo extra, y vender descuenta stock de verdad · v2.15.0
 
 **Qué cambió.** Cierra los 2 arreglos que quedaban de la revisión del 3-sep en
