@@ -4,6 +4,74 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · La app usa la identidad de marca de verdad · v2.7.0
+
+**Qué cambió.** Cowork pidió (`SUPERVISION.md`) que la app use `../branding/identidad-de-marca.md`
+(rediseño "Acuarela Silvestre", jun-2026) en vez de quedarse con lo que había antes de que
+ese manual existiera. Leí el manual y `branding/README.md` completos antes de tocar nada.
+Tres cosas:
+
+1. **Tipografía.** `branding/README.md` decía Poppins; el manual (posterior) dice Outfit.
+   Le pregunté a Farid cuál manda — **eligió el manual** — y corregí `branding/README.md`
+   para que ya no contradiga (de paso completé ahí la tabla de colores, que también le
+   faltaban azul niebla y mostaza, el mismo hueco que tenía la app). La app cambió
+   `index.html`/`css/app.css`: ya no carga Barlow, carga Outfit (cuerpo, `--texto-fuente` y
+   `--num-fuente`) y Sacramento, solo para el logotipo "Ayünka" del menú
+   (`--fuente-logo`, nueva clase `.marca-nombre`). La sublínea "STUDIO" pasó a Outfit Bold
+   (antes 500, ahora 700, ya tenía el interletrado que pide el manual). **No agregué el
+   lema** ("Bordamos. Creamos. Siempre con cariño.") en Cormorant Garamond Italic — no hay
+   ningún lugar en la app hoy donde ese texto exista; dejo la fuente sin cargar hasta que
+   haga falta un sitio real para mostrarlo, en vez de inventar una sección nueva.
+2. **Los dos colores que faltaban.** `--niebla: #9FB6C4` y `--mostaza: #D2A14E` en
+   `css/app.css` — la paleta ya tiene las 8. Les di un uso real (no quedan declarados y
+   sin usar, como ya le pasaba a `--rosa` en este mismo archivo): un hilo de 3px bajo el
+   nombre del menú, degradado coral→niebla→mostaza, el mismo trío de colores que el manual
+   describe para el ramillete del logo (§5).
+3. **El logo.** No aparecía por ningún lado — el menú decía "Ayünka STUDIO" en texto plano.
+   Copié `logo-mono-borda-crea.svg` (monocromo carbón) a `img/` del repo —no lo enlacé desde
+   `../branding/`, la app tiene que poder abrirse sola— y lo puse arriba del nombre en el
+   menú lateral (`.marca-logo`, 36×36px).
+
+No toqué ningún texto de pantalla (el manual pide cuidar el tono, pero no cambié ninguna
+frase en esta pasada) ni ninguna mayúscula fuera de la sublínea, que es justo donde el
+manual las permite.
+
+**Cómo sé que funciona.** Sin navegador acá, no pude ver el resultado pintado — lo que sí
+comprobé contra los archivos reales:
+- El SVG copiado a `img/` abre y cierra como `<svg>...</svg>` válido, 200.677 bytes, mismo
+  contenido que `../branding/logo-mono-borda-crea.svg`.
+- `css/app.css` sigue con las llaves balanceadas (141 reglas) después de los cambios — un
+  error de sintaxis ahí rompe toda la hoja de estilos, no solo una regla.
+- `index.html` ya no carga Barlow en ningún lado, y sí carga Outfit y Sacramento desde
+  Google Fonts. `--texto-fuente` y `--fuente-logo` apuntan a las fuentes correctas.
+- Las clases que usa el HTML nuevo (`.marca-logo`, `.marca-nombre`) existen en `app.css`, y
+  `--niebla`/`--mostaza` están con el hex exacto del manual.
+- `index.html` referencia el logo como `./img/logo-mono-borda-crea.svg` (local), no como
+  `../branding/...` — se puede abrir sola.
+- 8 de 8 verificaciones sobre los archivos reales.
+
+**Lo que NO pude verificar.** Todo lo visual de verdad: si Sacramento dibuja bien la "ü" de
+"Ayünka" (los caracteres con diéresis a veces fallan en fuentes script decorativas), si el
+tamaño del logo (36px) se ve bien al lado del nombre, si el degradado de 3px se nota o es
+demasiado sutil, y si el conjunto se sigue sintiendo "cálido y tranquilo, no técnico" como
+pide el propio `app.css`. Esto es exactamente lo que le pido a Cowork que mire en el
+navegador.
+
+**Lo que NO quedó.**
+- El lema de la marca no aparece en ningún lado de la app (ver punto 1).
+- No revisé si hay mayúsculas fuera de lugar en el resto de la app (fuera de lo que toqué
+  en el menú) — el manual lo pide, pero no era parte de este pedido y tocar texto de otras
+  pantallas sin que se pida es más cambio del que corresponde a esta pasada.
+- `--rosa` (`#E39B96`) sigue declarado y sin usar en `css/app.css`, igual que antes de este
+  cambio — no es parte de lo que pidió Cowork esta vez.
+
+**Necesito que Cowork lo verifique en un navegador de verdad**, en particular la "ü" en
+Sacramento y que el conjunto no se sienta frío ni técnico.
+
+**Versión.** `js/version.js` → `2.7.0`.
+
+---
+
 ## 2026-09-02 · Arregla el bug que Cowork encontró en el navegador: datosAnteriores se perdía · v2.6.1
 
 **Qué cambió.** Cowork revisó v2.6.0 en un navegador de verdad y encontró un bug real:

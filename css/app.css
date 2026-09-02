@@ -22,13 +22,15 @@
 :root {
   color-scheme: light;
 
-  /* marca */
+  /* marca — paleta "Acuarela Silvestre" completa, las 8 de identidad-de-marca.md */
   --crema:   #ECE6DA;
   --carbon:  #2F3A40;
   --coral:   #CB5A52;
   --rosa:    #E39B96;
   --pizarra: #5F7C8E;
   --terra:   #C27A4E;
+  --niebla:  #9FB6C4;
+  --mostaza: #D2A14E;
 
   /* superficies */
   --fondo:   #F7F4EE;
@@ -57,9 +59,13 @@
   --r-campo: 8px;
   --r-pill: 6px;
 
-  --texto-fuente: 'Barlow', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  /* Tipografía de identidad-de-marca.md (redis. "Acuarela Silvestre", jun-2026) — Farid
+     decidió el 2-sep que el manual manda sobre branding/README.md, que decía Poppins. */
+  --texto-fuente: 'Outfit', 'Segoe UI', system-ui, -apple-system, sans-serif;
   /* Solo para cifras: tabular y de ancho fijo. No para títulos ni para el menú. */
-  --num-fuente: 'Barlow', 'Segoe UI', system-ui, sans-serif;
+  --num-fuente: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+  /* Solo para el logotipo "Ayünka" del menú — nunca para títulos ni para el cuerpo. */
+  --fuente-logo: 'Sacramento', cursive;
 }
 
 :root[data-tema="oscuro"] {
@@ -116,10 +122,21 @@ body {
 .marca {
   font-weight: 650; font-size: 21px; letter-spacing: -.2px;
   padding: 0 10px 20px; line-height: 1;
+  display: flex; flex-direction: column; align-items: flex-start;
 }
+.marca-logo { width: 36px; height: 36px; margin-bottom: 8px; }
+.marca-nombre { font-family: var(--fuente-logo); font-size: 32px; font-weight: 400; }
 .marca small {
-  display: block; font-weight: 500; font-size: 11px; letter-spacing: 1.6px;
-  color: var(--coral); margin-top: 5px;
+  display: block; font-family: var(--texto-fuente); font-weight: 700; font-size: 11px;
+  letter-spacing: 1.6px; color: var(--coral); margin-top: 5px;
+}
+/* El ramillete del logo alterna coral, azul y mostaza -- el mismo trío como un hilo
+   chico bajo el nombre, para que las dos tintas de la paleta que faltaban en la app
+   (niebla y mostaza) aparezcan también acá, no solo declaradas. */
+.marca::after {
+  content: ''; display: block; width: 30px; height: 3px; border-radius: 2px;
+  margin: 10px 0 0;
+  background: linear-gradient(90deg, var(--coral), var(--niebla) 55%, var(--mostaza));
 }
 
 .nav {
