@@ -4,6 +4,61 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Historial de la K2: gramos y horas reales, propuestos no aplicados · v2.5.0
+
+**Qué cambió.** Nueva pestaña "Historial K2" (`js/impresora.js` + `js/vistas/impresora.js`,
+especificado por la sesión de Cowork en `SUPERVISION.md`). No es un monitor en vivo: se le
+suelta el historial que la impresora ya guardó —de golpe si está al alcance, o el archivo si
+no— y la app propone actualizar los gramos y las horas de cada producto con los datos reales
+de la propia máquina. Nunca escribe sola: primero muestra la tabla, y solo aplica lo que una
+persona confirma. También compara la tasa de fallas real contra la de Ajustes y ofrece
+ponerla con un click.
+
+**Cómo sé que funciona.** Corrí el código real (`js/impresora.js` y `js/vistas/impresora.js`,
+no una copia) contra `../historial-impresion.json` de verdad y el catálogo real de la
+semilla, simulando el evento real de soltar el archivo (no llamé a las funciones internas a mano):
+- El resumen da **154 trabajos, 159,8 h impresas, 4,0 kg, 593 g perdidos, 12,9% de fallas**
+  — los mismos números que citó Cowork en la especificación, sacados del mismo archivo.
+- **11 productos emparejan por archivo exacto** con el historial — el mismo 11 que dijo
+  Cowork ("de 100 piezas, solo 11 llegaron al catálogo"). Hay un doceavo (`AY-B2B-001`) que
+  empareja **por parecido de nombre**, no por archivo exacto: queda en su propia sección,
+  para revisar antes de aplicar, no junto con los de alta confianza.
+- Los tres productos que Cowork pidió probar se recuperan exactos: **AY-3D-001 → 75,2 g /
+  2,515 h**, **AY-3D-002 → 13,1 g / 0,658 h**, **AY-3D-004 → 63,2 g / 2,21 h** — probado de
+  punta a punta: se les borran los datos, se suelta el historial, se aplica, y quedan
+  exactos, con `origenDatos: "historial-k2"`.
+- Un caso sintético con la forma real de Moonraker (`result.jobs[]`) confirma que agrupa por
+  archivo, promedia solo los trabajos `completed`, y cuenta los `cancelled`/`in_progress`
+  como material perdido, no como datos de la pieza.
+- **El detalle que Cowork avisó que se le había pasado** ("hay que repintar, o los totales
+  no aparecen hasta cambiar de vista") — probado explícitamente: después de aplicar, la
+  pantalla se repinta sola, sin cambiar de pestaña.
+- `usarTasaReal()` pone la tasa real en `DB.params.tasaFalla` sin tocar ningún producto de
+  paso — probado con un antes/después de otro producto.
+
+**Lo que NO pude verificar.** Igual que con Personalizados 3D: sin navegador acá, no vi la
+zona de soltar el archivo funcionando de verdad, ni el botón "Traer de la impresora" contra
+una K2 real (ese camino solo lo puede probar Cowork, que sí llega a la red de la
+impresora — se lo dejo pedido). Tampoco probé qué pasa si el JSON que se suelta no es
+ninguno de los dos formatos: el código avisa "No reconozco este archivo…" pero no lo vi en
+pantalla.
+
+**Lo que NO quedó.**
+- No hay forma de deshacer una aplicación desde la propia pestaña (si algo se aplicó mal,
+  hay que corregirlo a mano en Productos).
+- Los "por parecido" se emparejan por una sola palabra del nombre — funciona para el caso
+  real que hay hoy, pero con un catálogo más grande va a dar falsos positivos. Si eso pasa,
+  hay que endurecer el criterio, no bajarle la exigencia a "por archivo".
+
+**Necesito una decisión tuya (o de Cowork, que habla con la impresora).**
+- Confirmar que "Traer de la impresora" realmente falla como se espera (bloqueo de
+  contenido mixto) cuando la app corre por `https`, y que el mensaje en pantalla es el
+  correcto — no lo puedo ver desde acá.
+
+**Versión.** v2.5.0
+
+---
+
 ## 2026-09-02 · Personalizados 3D: de un preset a un archivo, sin el editor completo · v2.4.0
 
 **Qué cambió.** Se portó el motor de diseño 3D del repo anterior (`d3d-formas.js`,
