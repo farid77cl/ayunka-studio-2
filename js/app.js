@@ -4,6 +4,7 @@
     { id: 'pendientes', txt: 'Pendientes', cuenta: () => Vistas.pendientes.contar() },
     { id: 'productos',  txt: 'Productos',  cuenta: () => Datos.activos('productos').length },
     { id: 'pedidos',    txt: 'Pedidos',    cuenta: () => Datos.activos('pedidos').filter(p => p.estado !== 'entregado').length },
+    { id: 'finanzas',   txt: 'Ventas y gastos', cuenta: null },
     { id: 'cola',       txt: 'Cola',       cuenta: null },
     { id: 'cotizar',    txt: 'Cotizar',    cuenta: null },
     { id: 'disenos3d',  txt: 'Personalizados 3D', cuenta: () => Datos.activos('disenos3d').length },

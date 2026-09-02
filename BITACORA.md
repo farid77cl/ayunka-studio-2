@@ -4,6 +4,69 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Ventas y gastos — el agujero de fondo · v2.9.0 (encargo A)
+
+**Qué cambió.** Nueva pestaña `js/vistas/finanzas.js`, punto A del "Encargo del 2-sep": las
+colecciones `ventas` y `gastos` ya existían en la base pero no tenían pantalla, así que la
+app sabía cuánto costaba producir y cuánto habría que cobrar, pero no cuánto se ganó de
+verdad. Ahora responde **"¿cómo me fue este mes?"** con un selector de mes:
+
+- **Registrar una venta**: cliente, fecha, cómo se pagó, y líneas editables (mismo patrón
+  que los pedidos: producto o línea libre, cantidad, precio). Se puede **cargar desde un
+  pedido abierto** — trae sus líneas y, si se marca la casilla, deja ese pedido como
+  "entregado" al guardar.
+- **Registrar un gasto**: fecha, categoría, monto, nota.
+- **La regla dura, la que no se relaja**: el costo de cada línea (`costoUnitAlVender`) se
+  congela con `Costos.calcular()` **en el momento de la venta** y se guarda tal cual. Si
+  después sube el precio del filamento o cambian los gramos de un producto, la venta ya
+  guardada **no se recalcula** — lo que se ganó en agosto no cambia.
+- El resumen del mes: vendido, costo real de lo vendido, gastos, y lo que quedó
+  (vendido − costo − gastos).
+
+**Cómo sé que funciona.** Corrí el código real contra la semilla real, con `A.preguntar`
+reemplazado por un stub que deja leer/resolver el modal a mano (el mismo límite que ya
+tienen todos los modales de esta app en este entorno: no hay navegador para probar el árbol
+de nodos, así que se prueba la lógica real de leer/guardar, no el dibujo):
+- **El caso del "hecho cuando" del encargo, con el pedido real de LIDCAR** (`ped-2026-001`):
+  lo cargué con "cargar desde un pedido", le puse precio a sus dos líneas (venían en blanco
+  — dato real: **ninguna de las dos líneas de LIDCAR tiene un producto del catálogo
+  vinculado todavía**, así que su costo da $0 hasta que alguien las vincule; lo dejo escrito
+  abajo, no es un error de este código), guardé la venta con la casilla marcada, y **el
+  pedido de LIDCAR pasó a "entregado"**.
+- **La prueba dura de la regla de congelamiento**, con un producto real (`AY-3D-001`, costo
+  real $2.543): armé una venta con una línea de ese producto, guardé, y **después** le subí
+  500 g al producto (el costo actual subió a $11.453) — la venta ya guardada **siguió en
+  $2.543**, sin recalcularse.
+- Una venta libre sin producto (línea de texto a $5.000): el total sale del precio tipeado
+  a mano, y el costo queda en $0 — no inventa un costo para algo que no está en el
+  catálogo.
+- Un gasto real ($12.000, categoría material) quedó guardado con sus datos.
+- El resumen de setiembre-2026 sumó **3 ventas ($73.500 vendido, $2.543 de costo real) y
+  1 gasto ($12.000)**, exactos, calculados por mí desde la base real y comparados contra lo
+  que pintó la pantalla.
+- Una venta puesta a propósito en enero-2026 **no apareció** en el resumen de setiembre, y
+  **sí apareció** al cambiar el selector de mes a enero — el filtro por mes funciona.
+- 27 de 27 verificaciones.
+
+**Lo que NO pude verificar.** Todo lo visual — el modal de "nueva venta" con el selector de
+pedido, el editor de líneas, los botones. Sin navegador acá, se probó la lógica de guardado
+de punta a punta, no el dibujo. Es lo que le pido a Cowork.
+
+**Lo que NO quedó.**
+- **El pedido de LIDCAR no tiene sus líneas vinculadas a productos del catálogo** —son
+  texto libre ("Llavero NFC rectangular…", "Llavero NFC redondo…") sin `productoId`. Hoy,
+  registrar su venta da un costo real de $0 aunque se le ponga precio, porque no hay de
+  dónde sacar el costo. Si esos llaveros ya existen como producto en el catálogo, hay que
+  vincular esas líneas a mano (en Pedidos) para que la venta muestre la ganancia real —
+  esto no es algo que el código pueda inventar.
+- No hay edición ni borrado de una venta o gasto ya guardado desde una lista — se abre el
+  mismo modal y se pisa por encima; no hay "deshacer".
+- No hay gráfico ni comparación mes contra mes, solo el mes elegido. No estaba pedido.
+
+**Versión.** `js/version.js` → `2.9.0`.
+
+---
+
 ## 2026-09-02 · Pantalla «Pendientes» — la primera del menú · v2.8.0
 
 **Qué cambió.** Nueva pestaña `js/vistas/pendientes.js`, primera del menú y pantalla por
