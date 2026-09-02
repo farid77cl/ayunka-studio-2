@@ -4,6 +4,17 @@
 > decisiones de diseño y **por qué** existe cada una. No son preferencias de estilo, son
 > respuestas a errores concretos que costaron datos el mismo día en que se escribió esto.
 
+## Antes de empezar: cómo reportar
+
+Lee **`COMO-REPORTAR.md`**. Ahí está el formato de la bitácora, la regla de que nada está
+hecho hasta que una comprobación que podría haber fallado no falló, y —lo más importante—
+**qué quiere Farid y cómo juzga el trabajo**. Eso último no está en ningún requisito y es lo
+que evita construir la cosa correcta de la manera equivocada.
+
+Cada sesión de trabajo agrega una entrada arriba en **`BITACORA.md`**.
+
+---
+
 ## Qué es esto
 
 Repo **nuevo**, no un rediseño del anterior. `ayunka-studio` (el viejo) sigue existiendo y no
