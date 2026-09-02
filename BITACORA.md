@@ -4,6 +4,79 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · La impresora en vivo: el agente que empuja a Firestore · v2.11.0 (encargo D)
+
+**Qué cambió.** Punto D del "Encargo del 2-sep": hasta ahora la app solo sabía el *pasado*
+de la K2 (Historial K2). Esto agrega el *presente*, con dos piezas:
+
+1. **`../impresora/agente-k2.js`** (fuera de este repo, en `negocio/impresora/` — es un
+   proceso aparte que corre en la red de la impresora, no parte de la app web). Consulta la
+   K2 cada 5 s por el **mismo camino que ya prueba `monitor-k2.ps1` en producción**
+   (Moonraker HTTP, `192.168.100.90:4408`), y empuja el estado a Firestore
+   (`negocios/<espacio>/impresora/k2`) por su API REST, sin SDK ni npm — mismo estilo que
+   ya usa `nube.js` para hablar con Firebase. **Decisión que tomé y dejo escrita:** el
+   `PLAN.md` original pedía `ws://<ip>:9999`, un protocolo que no está documentado en
+   ningún lado de este proyecto ni lo pude probar. Usé el camino que SÍ está probado contra
+   la impresora real en vez de escribir código a ciegas contra uno que no.
+2. **En este repo**: `js/nube.js` agrega `leerImpresoraViva()` (lee ese documento con la
+   sesión ya conectada, nunca escribe desde la app), y `js/vistas/pendientes.js` muestra un
+   aviso cálido —no rojo, misma tarjeta `.aviso` que el resto de la app— cuando la K2 está
+   en pausa: **"La K2 está en pausa — toca meter los chips"**, con el archivo y hace cuánto.
+
+**A propósito NO hice** (lo dejo escrito para que quede la decisión, no solo el hueco):
+mandar comandos a la impresora (pausar/reanudar/cancelar, `PLAN.md` 3.2) — es un riesgo real
+sobre una máquina física que no puedo probar desde acá; y una notificación push de verdad al
+teléfono — necesita elegir un mecanismo (FCM/WhatsApp/SMS) que no me corresponde decidir
+sola. Lo que sí queda: el dato en Firestore, listo para cualquiera de los dos el día que se
+decidan.
+
+**Cómo sé que funciona.** No tengo red hacia la K2 (`192.168.100.90`) ni un proyecto de
+Firebase real desde este entorno, así que no pude probar el agente contra los de verdad.
+Lo que sí hice, de punta a punta, con servidores HTTP locales que imitan la forma EXACTA de
+cada API real (no funciones simuladas — pedidos y respuestas HTTP reales, interceptando
+`fetch` para probar las funciones exportadas de verdad):
+- `consultarK2()` contra un Moonraker falso con la forma real de `monitor-k2.ps1`: toma
+  `virtual_sdcard.layer/layer_count` (no `print_stats.info.current_layer`, que en esta
+  máquina viene `null`), calcula el avance y los minutos igual que el script de PowerShell,
+  y lanza un error real (no se cuelga) cuando no hay nadie respondiendo.
+- `entrarFirebase()` real llama al endpoint real de Identity Toolkit con la `apiKey` en la
+  URL y manda `email`/`password`/`returnSecureToken` como pide la API.
+- `escribirDocumento()` real arma la URL de Firestore con el `projectId` y la ruta exactos,
+  manda `PATCH` (reemplaza el documento entero) con el `idToken` como `Bearer`, y codifica
+  los valores en `fields.*.stringValue/booleanValue/integerValue` tal como exige la REST de
+  Firestore.
+- La codificación de valores (`aValorFirestore`) se probó para entero, decimal, boolean,
+  null y string.
+- `leerCredenciales()` avisa claro si falta el archivo, y lee bien uno válido.
+- 32 de 32 verificaciones del agente.
+- Del lado de la app: con `Nube.encendida()` en falso, no intenta leer nada. Con una sesión
+  simulada y `leerImpresoraViva()` devolviendo `pausado:true`, aparece el aviso con el
+  archivo real y "hace 3 min". Con `pausado:false` no aparece nada. Si `leerImpresoraViva()`
+  falla (sin red), Pendientes no se rompe. 34 de 34 verificaciones de Pendientes (incluye
+  las de antes, todas siguen pasando).
+- Re-corrí las 5 suites anteriores de esta sesión (impresora v2.5–2.6.1, finanzas, catálogo,
+  marca) — 84 verificaciones más, todas siguen en verde.
+
+**Lo que NO pude verificar.** Todo lo que de verdad importa acá: que el agente hable con la
+K2 real, que Firestore reciba y guarde el documento de verdad, y que el aviso aparezca en un
+navegador real cuando la impresora esté realmente en pausa. Es exactamente lo que le pido a
+Cowork o a Farid que confirmen antes de dejar el agente corriendo solo.
+
+**Lo que NO quedó.**
+- Comandos remotos (pausar/reanudar/cancelar) — decisión deliberada, no descuido (ver
+  arriba).
+- Notificación push real al teléfono — necesita una decisión de infraestructura.
+- El agente no se reinicia solo si se cae (por ejemplo, si Windows se reinicia). Igual que
+  `monitor-k2.ps1`, hay que dejarlo corriendo a mano.
+
+**Necesito una decisión tuya (o de Cowork).** Confirmar el camino elegido (Moonraker HTTP en
+vez de `ws://9999`) sirve, y decidir cómo se avisa al teléfono de verdad si con la pestaña
+abierta no alcanza.
+
+**Versión.** `js/version.js` → `2.11.0`.
+
+---
+
 ## 2026-09-02 · Publicar y cerrar la nube — hasta donde llega el código (encargo C)
 
 **Qué cambié.** Nada de código en esta entrada — es un reporte de estado de las 4 partes de

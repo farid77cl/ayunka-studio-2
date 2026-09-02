@@ -37,8 +37,39 @@
     A.$('#contenido').innerHTML = `
       <div class="cabecera"><h1>Pendientes</h1>
         <span class="sub">${total ? total + ' por resolver' : 'nada pendiente'}</span></div>
+      <div id="pend-impresora"></div>
       ${bloques || `<div class="tarjeta"><div class="vacio">
         <b>No hay nada pendiente</b>Todo lo que esta pantalla puede revisar está al día.</div></div>`}`;
+    actualizarImpresoraViva();
+  }
+
+  /* El presente de la K2, no solo su pasado (SUPERVISION.md, encargo del 2-sep, punto D).
+   * impresora/agente-k2.js empuja el estado a Firestore cada pocos segundos; acá solo se
+   * lee, y solo importa un caso: que esté en pausa esperando los chips -- es lo que costó
+   * tiempo el 1-sep. Llega un instante después del resto de la pantalla porque es una
+   * lectura de red; el resto de Pendientes no espera por esto. */
+  function actualizarImpresoraViva() {
+    if (!window.Nube || !Nube.encendida || !Nube.encendida()) return;
+    Nube.leerImpresoraViva().then(estado => {
+      const cont = document.getElementById('pend-impresora');
+      if (!cont) return; // se cambió de pantalla mientras tanto
+      if (estado && estado.alcanzable && estado.pausado) {
+        cont.innerHTML = `<div class="tarjeta aviso">
+          <h2>La K2 está en pausa — toca meter los chips</h2>
+          <p style="font-size:13px;color:var(--pizarra);margin:0">
+            ${A.esc(estado.archivo || '')}${estado.actualizado ? ' · hace ' + haceCuanto(estado.actualizado) : ''}</p>
+        </div>`;
+      } else {
+        cont.innerHTML = '';
+      }
+    }).catch(() => {});
+  }
+
+  function haceCuanto(iso) {
+    const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    if (min < 1) return 'un momento';
+    if (min < 60) return min + ' min';
+    return Math.round(min / 60) + ' h';
   }
 
   function nombreProd(p) { return (p.sku ? A.esc(p.sku) + ' · ' : '') + A.esc(p.nombre); }

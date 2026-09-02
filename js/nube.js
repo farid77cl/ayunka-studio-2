@@ -229,11 +229,26 @@
     }
   }
 
+  /* Lee el estado en vivo que empuja impresora/agente-k2.js (SUPERVISION.md, encargo del
+   * 2-sep, punto D). No es parte de Datos.COLECCIONES -- es un documento aparte que un
+   * proceso externo escribe cada pocos segundos; acá solo se lee, nunca se sube desde la
+   * app. Si no hay sesión conectada o el documento no existe, devuelve null sin avisar
+   * (es "no hay dato en vivo todavía", no un error). */
+  async function leerImpresoraViva() {
+    const c = cfg();
+    if (!c || !st.lista || !st.fs) return null;
+    try {
+      const snap = await st.fs.getDoc(st.fs.doc(raiz(c), 'impresora', 'k2'));
+      return snap.exists() ? snap.data() : null;
+    } catch (e) { return null; }
+  }
+
   window.Nube = {
     cfg, configurado, encendida, guardarCfg, apagar, conectar, guardarPronto,
     estado: () => st.estado, correo: () => st.correo,
     // true si este equipo alguna vez terminó un ciclo de sincronización completo.
     visto: () => !!localStorage.getItem(VISTO),
+    leerImpresoraViva,
     forzarSubida: async () => { const c = cfg(); if (c && st.lista) { await subirTodo(c, 'forzado'); nota('subido a mano'); } }
   };
 })();
