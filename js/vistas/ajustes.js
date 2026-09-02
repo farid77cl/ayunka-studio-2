@@ -76,6 +76,20 @@
           cambiar el archivo no publica nada.</p>
       </div>
 
+      <div class="tarjeta"><h2>Catálogo para publicar</h2>
+        <p style="font-size:13px;color:var(--pizarra);margin:0 0 12px">
+          El precio se pone acá, en Studio, y de acá <b>salen</b> los dos archivos. Nunca se
+          editan a mano — la próxima vez que se regeneren, se pisan enteros.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="Vistas.ajustes.descargarCatalogoCSV()">Descargar CSV (Meta)</button>
+          <button class="btn" onclick="Vistas.ajustes.descargarCatalogoXLSX()">Descargar XLSX (WhatsApp)</button>
+        </div>
+        <p style="font-size:12.5px;color:var(--apagado);margin:10px 0 0">
+          El CSV es para importar de una en business.facebook.com/commerce. El XLSX trae una
+          hoja de instrucciones y sirve para cargar a mano desde el celular. Los productos sin
+          precio salen con ese campo en blanco: no se inventa un precio.</p>
+      </div>
+
       <div class="tarjeta"><h2>Tus datos</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn" onclick="Datos.descargarRespaldo();A.aviso('Respaldo descargado')">Descargar respaldo</button>
@@ -166,6 +180,27 @@
     });
   }
 
+  function descargarCatalogoCSV() {
+    const csv = Catalogo.generarCSV(Datos.activos('productos'));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'catalogo-meta-importar.csv';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    A.aviso('CSV descargado');
+  }
+
+  function descargarCatalogoXLSX() {
+    const cats = (window.Vistas.productos && Vistas.productos.CATS) || {};
+    const xlsx = Catalogo.generarXLSX(Datos.activos('productos'), cats);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([xlsx.datos], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+    a.download = xlsx.nombre;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    A.aviso('XLSX descargado (' + xlsx.filas + ' productos)');
+  }
+
   window.Vistas = window.Vistas || {};
-  Vistas.ajustes = { pintar, guardar, conectar, importar, recargarSemilla };
+  Vistas.ajustes = { pintar, guardar, conectar, importar, recargarSemilla, descargarCatalogoCSV, descargarCatalogoXLSX };
 })();

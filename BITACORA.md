@@ -4,6 +4,62 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Studio como fuente única de precios — exporta CSV y XLSX · v2.10.0 (encargo B)
+
+**Qué cambió.** Punto B del "Encargo del 2-sep": el precio se editaba en tres lados (Studio,
+el CSV de Meta, el XLSX de WhatsApp), justo el desorden que ya pasó una vez. Nuevo
+`js/catalogo.js` (lógica pura) más dos botones en Ajustes → "Catálogo para publicar":
+
+- **CSV para Meta Commerce Manager**, con el formato EXACTO que ya usa
+  `../catalogo/catalogo-meta-importar.csv` — `id,title,description,availability,condition,
+  price,link,image_link,brand`, con BOM al inicio, precio como `"25000 CLP"` y **vacío
+  cuando el producto no tiene precio** (nunca se inventa uno).
+- **XLSX para la planilla de WhatsApp**, escrito a mano sin librería — reutiliza el mismo
+  `zip()`/`crc32()` que `D3D3MF` ya usa para el 3MF (mismo formato de fondo: OOXML es un ZIP
+  de XML). Dos hojas: "Catálogo" (SKU, categoría, producto, descripción, PRECIO (CLP)
+  destacado en amarillo, imagen) y "Instrucciones" (las dos formas de cargarlo, tomadas de
+  `catalogo/README.md`). A propósito **no tiene columna de "cargado"**: si el archivo se
+  regenera entero cada vez, una marca manual ahí se pierde igual — mejor no tentar a
+  editarlo a mano, que es justo lo que este punto quiere evitar.
+
+**Cómo sé que funciona.** Corrí el código real contra los 36 productos reales de la
+semilla, y para el XLSX fui un paso más allá: en vez de solo revisar que el ZIP "se viera
+bien", lo abrí con **SheetJS de verdad** (traído de cdnjs, no simulado) — la misma clase de
+prueba que ya se usó para el 3MF con Three.js real:
+- El CSV generado tiene la cabecera carácter por carácter igual a la real, una fila por
+  cada uno de los 36 productos, el precio de `AY-BOR-001` sale `"25000 CLP"`, el link de
+  Instagram y la marca "Ayünka" están en cada fila.
+- Un producto sin precio (hay 24 en la semilla real) sale con el campo `price` **vacío**,
+  no en cero.
+- Una descripción real con coma (la de `AY-BOR-001`) salió correctamente entre comillas —
+  si no, el CSV se rompe en Excel/Meta.
+- **SheetJS abrió el XLSX de verdad**: ve las dos hojas en el orden correcto, la cabecera
+  de la hoja "Catálogo" es la esperada, cuenta las 36 filas, encuentra `AY-BOR-001` con el
+  precio como **número real 25000** (no texto), y el producto sin precio sale con la celda
+  vacía también ahí. La hoja de instrucciones trae el camino de Meta Commerce Manager y la
+  advertencia de no editar el archivo a mano.
+- 23 de 23 verificaciones.
+
+**Lo que NO pude verificar.** Que Excel o Google Sheets de verdad lo abran sin quejarse
+(SheeetJS es tolerante y puede leer cosas que Excel rechazaría) — es el hueco más
+importante que le pido a Cowork que cierre, abriéndolo en un Excel o Sheets real. Tampoco
+vi el resaltado amarillo de la columna de precio de forma visual, solo confirmé que el
+estilo se aplicó a la celda correcta.
+
+**Lo que NO quedó.**
+- No hay botón para "regenerar y avisar si algo se ve raro" — simplemente genera de nuevo
+  con los datos actuales; si Farid quiere comparar contra la versión anterior, tiene que
+  mirar los dos archivos él mismo.
+- El XLSX no ajusta el ancho de columna a lo que tiene adentro — Excel las va a mostrar
+  angostas hasta que alguien las estire. No estaba pedido y es puramente cosmético.
+- La columna "link" del CSV usa `DB.params.negocio.ig` si parece una URL completa, si no
+  usa el link fijo de Instagram — no lo pude probar con un valor real puesto en Ajustes
+  porque nadie lo ha configurado todavía en la semilla.
+
+**Versión.** `js/version.js` → `2.10.0`.
+
+---
+
 ## 2026-09-02 · Ventas y gastos — el agujero de fondo · v2.9.0 (encargo A)
 
 **Qué cambió.** Nueva pestaña `js/vistas/finanzas.js`, punto A del "Encargo del 2-sep": las
