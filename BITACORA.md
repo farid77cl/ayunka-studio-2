@@ -4,6 +4,55 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Subir fotos a Supabase, ya verificado · v2.12.0 (encargo E)
+
+**Qué cambió.** Termina lo que quedó a medias en el commit de respaldo de más abajo. Punto
+E del "Encargo del 2-sep": Supabase solo existía como campo vacío en `config.js`, sin forma
+de usarlo. Ahora la ficha de un producto (`js/vistas/productos.js`) tiene una sección de
+foto arriba del formulario: vista previa, botón "Subir foto"/"Cambiar foto", y sube el
+archivo de una vez —no espera a que se guarde el resto del formulario, para no perder la
+subida si alguien cancela después—. `js/supabase.js` es la lógica: habla con la REST de
+Storage de Supabase sin SDK (la clave es la "anon key", pública, protegida por Row Level
+Security — ya lo decía el comentario de `config.js`), valida que sea JPEG/PNG/WEBP y de
+menos de 8 MB, y sube a `catalogo/<SKU>.<ext>` — la misma carpeta y convención de nombre
+(SKU en mayúsculas) que ya usan las 36 fotos reales que trae la semilla.
+
+**Cómo sé que funciona.** Corrí el código real, interceptando `fetch` para probar las
+funciones exportadas de verdad (no una reconstrucción a mano de la llamada):
+- `configurado()` da `false` con la config vacía real de hoy, `true` con una completa.
+- Rechaza un PDF ("solo se aceptan fotos JPEG, PNG o WEBP") y una foto de 20 MB ("pesa más
+  de 8 MB") — antes de intentar subir nada.
+- La subida real manda `POST` a la ruta exacta de Storage, con la anon key como `Bearer`,
+  `x-upsert:true` (para poder reemplazar una foto ya subida) y el `Content-Type` real del
+  archivo.
+- La URL pública que devuelve coincide **carácter por carácter** con el formato de las
+  fotos reales que ya existen en la semilla: probé subiendo con el SKU real de
+  `AY-BOR-001` (que ya tenía esa foto puesta a mano) y dio la URL **idéntica** — prueba de
+  que el nombre de archivo es determinístico y compatible con lo que ya hay.
+- Cuando Supabase responde un error (probé un 400 simulado), lo propaga tal cual, con el
+  mensaje real.
+- Integración con `productos.js`: `_subirFoto()` deja `p.foto` con la URL real, repinta la
+  vista previa sin reabrir el modal, y el estado dice "Foto subida". Sin Supabase
+  configurado avisa claro y no rompe nada; con un archivo inválido tampoco deja una
+  excepción sin capturar.
+- `index.html` y `sw.js` cargan y precachean `supabase.js` en el lugar correcto.
+- 21 de 21 verificaciones. Re-corrí las 7 suites anteriores de la sesión (169 verificaciones
+  más) — todas en verde, nada se rompió.
+
+**Lo que NO pude verificar.** Contra un Supabase real: no tengo la anon key ni el proyecto
+real desde este entorno, así que nunca se subió una foto de verdad al bucket. Es lo mismo
+que ya pasó con el agente de la K2 — necesita que alguien con el proyecto real lo pruebe.
+
+**Lo que NO quedó.**
+- No hay forma de borrar una foto ya subida desde la app (solo reemplazarla subiendo otra
+  con el mismo SKU).
+- No se recorta ni redimensiona la imagen antes de subir — sube el archivo tal cual lo
+  eligió, del tamaño que sea (hasta 8 MB).
+
+**Versión.** `js/version.js` → `2.12.0`.
+
+---
+
 ## 2026-09-02 · Subir fotos a Supabase — SIN TERMINAR, respaldo de emergencia (encargo E)
 
 **Qué es esto.** Farid pidió parar para apagar el PC y respaldar. Esto es exactamente eso:

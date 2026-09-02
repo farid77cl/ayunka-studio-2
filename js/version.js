@@ -10,4 +10,4 @@
  * código y no aparecían en pantalla. Con un solo lugar y el número visible abajo a la
  * derecha, eso se detecta en tres segundos.
  */
-self.AYUNKA_VERSION = '2.11.0';
+self.AYUNKA_VERSION = '2.12.0';
