@@ -128,6 +128,24 @@ redescubrirla: costó un día entero.
 
 ---
 
+## Fase 4-bis · Rescatar el diseñador 3D · lo más grande que falta
+
+Los 7 SKUs de «Personalizados 3D» —letra con nombre, tag de mascota, marco de foto, letrero,
+llavero de cubos, topper de lápiz, caja de luz— se hacen con un generador que **ya existe en
+el repo anterior**: `design3d.js`, `d3d-formas.js`, `d3d-fuentes.js`, `d3d-build.js` y
+`d3d-3mf.js`. Los 19 diseños guardados en la semilla salieron de ahí el 12 de agosto.
+
+**Se porta, no se reescribe.** Costó días y funciona. Lo que hay que hacer es engancharlo al
+modelo de datos nuevo (la colección `disenos3d` ya está y con los datos adentro) y a la
+cotización: de un nombre a un STL, y de ahí al costo y al precio sin salir de la app.
+
+Es lo que convierte «personalizado» de un trabajo a mano en un producto que se vende solo.
+
+> **Hecho cuando:** un cliente pide un llavero con un nombre y sale el archivo, el precio y
+> el plazo sin abrir otra herramienta.
+
+---
+
 ## Fase 5 · Que Studio sea la fuente única
 
 Hoy el catálogo y los precios se editan en tres lugares distintos: la app, el CSV de Meta y el

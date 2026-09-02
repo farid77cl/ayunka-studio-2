@@ -37,10 +37,10 @@
 
     if (incompletos) {
       html += `<div class="tarjeta aviso">
-        <b>${incompletos} productos no se pueden costear todavía.</b>
-        A los de 3D les faltan los gramos o las horas de máquina; a los de bordado y costura,
-        las horas de trabajo a mano. Mientras falten, esta app <b>no inventa un precio
-        sugerido</b> — prefiere decir que no sabe.</div>`;
+        <b>${incompletos} productos no se pueden costear todavía</b> — salen con «—» en las
+        columnas de costo y sugerido. A los de 3D les faltan los gramos o las horas de máquina;
+        a los de bordado y costura, las horas de trabajo a mano. Mientras falten, esta app
+        <b>no inventa un precio sugerido</b>: prefiere decir que no sabe.</div>`;
     }
     if (sinPrecio) {
       html += `<div class="tarjeta">
@@ -66,7 +66,7 @@
           <td class="num">${c.completo ? A.plata(c.costo) : '—'}</td>
           <td class="num" style="color:var(--pizarra)">${c.sugerido === null ? '—' : A.plata(c.sugerido)}</td>
           <td class="num"><b>${c.precio === null ? '—' : A.plata(c.precio)}</b></td>
-          <td>${c.alerta ? `<span class="chip ${c.alerta.nivel}">${A.esc(c.alerta.texto)}</span>` : ''}</td>
+          <td>${c.completo && c.alerta ? `<span class="chip ${c.alerta.nivel}">${A.esc(c.alerta.texto)}</span>` : ''}</td>
         </tr>`;
       });
       html += `</tbody></table></div>`;

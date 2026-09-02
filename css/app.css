@@ -1,17 +1,21 @@
 /* Ayünka Studio · sistema visual.
  *
- * La paleta es la de la marca, "Acuarela Silvestre". Lo que se tomó prestado de las
- * herramientas que le gustaron a Farid (tools.kmorra3d.com) NO es el color —copiar su
- * naranja sería cambiar su marca por la de otro— sino cinco técnicas que son las que hacen
- * que una pantalla se lea como un instrumento y no como una planilla:
+ * La paleta es la de la marca, "Acuarela Silvestre": crema, coral, rosa, pizarra, tierra.
+ * Ayünka es bordado y costura hecho a mano — la pantalla tiene que sentirse cálida y
+ * tranquila, no técnica y a gritos.
  *
- *   1. Los números en tipografía condensada, grandes y en el color de marca.
+ * NOTA, porque ya se erró una vez: de tools.kmorra3d.com se tomaron cuatro detalles de
+ * oficio, NO su estética. En un primer intento se copió también su tipografía condensada
+ * en mayúsculas por todas partes y quedó peor: títulos gritando, menú gritando, botones
+ * gritando. Las mayúsculas quedan solo donde son una etiqueta chica, nunca en algo que se
+ * lee como texto. Lo que sí se conserva de ahí:
+ *
+ *   1. Los números alineados y de ancho fijo, para poder compararlos de una columna a otra.
  *   2. Las unidades y el $ DENTRO del campo, y sin las flechitas del input numérico.
- *   3. El total en un panel pegado al costado: nunca se pierde de vista.
- *   4. Un color fijo por categoría de costo, repetido en el punto, la barra y el %.
- *   5. Casi cero sombras: la separación es borde de 1px + un fondo un escalón distinto.
+ *   3. Un color fijo por categoría de costo, repetido en el punto y la barra.
+ *   4. Casi cero sombras: la separación es borde de 1px + un fondo un escalón distinto.
  *
- * Y una sexta que es de ellos y no se copia: cuatro niveles de precio fijos por código.
+ * Y una que es de ellos y no se copia: cuatro niveles de precio fijos por código.
  */
 
 /* ---------- tokens ---------- */
@@ -54,7 +58,8 @@
   --r-pill: 6px;
 
   --texto-fuente: 'Barlow', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --num-fuente: 'Barlow Condensed', 'Segoe UI', system-ui, sans-serif;
+  /* Solo para cifras: tabular y de ancho fijo. No para títulos ni para el menú. */
+  --num-fuente: 'Barlow', 'Segoe UI', system-ui, sans-serif;
 }
 
 :root[data-tema="oscuro"] {
@@ -91,11 +96,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Los números, siempre en la condensada y sin bailar de ancho. */
-.n, .v, .m, td.num, th.num, .total-monto, .dato .v {
-  font-family: var(--num-fuente);
+/* Los números no bailan de ancho: así se comparan de una fila a otra. */
+.v, .m, td.num, .total-monto, .dato .v {
   font-variant-numeric: tabular-nums;
-  letter-spacing: .2px;
+  font-feature-settings: "tnum";
 }
 
 /* ---------- estructura ---------- */
@@ -110,35 +114,36 @@ body {
   position: sticky; top: 0; height: 100vh;
 }
 .marca {
-  font-family: var(--num-fuente);
-  font-weight: 800; font-size: 25px; letter-spacing: .4px;
-  padding: 0 10px 18px; line-height: 1;
+  font-weight: 650; font-size: 21px; letter-spacing: -.2px;
+  padding: 0 10px 20px; line-height: 1;
 }
 .marca small {
-  display: block; font-weight: 600; font-size: 11px; letter-spacing: 2.4px;
-  color: var(--coral); margin-top: 4px;
+  display: block; font-weight: 500; font-size: 11px; letter-spacing: 1.6px;
+  color: var(--coral); margin-top: 5px;
 }
 
 .nav {
   background: none; border: 0; text-align: left; color: var(--suave);
-  font-family: var(--num-fuente); font-size: 15.5px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .6px;
-  padding: 8px 11px; border-radius: var(--r-campo); cursor: pointer;
+  font-family: var(--texto-fuente); font-size: 14.5px; font-weight: 500;
+  padding: 8px 12px; border-radius: var(--r-campo); cursor: pointer;
   display: flex; gap: 9px; align-items: center; transition: .12s;
 }
 .nav:hover { background: var(--panel2); color: var(--texto); }
-.nav.activo { background: var(--coral); color: #fff; }
-.nav .cuenta {
-  margin-left: auto; font-size: 12.5px; font-weight: 600;
-  color: var(--apagado); font-family: var(--num-fuente);
+.nav.activo {
+  background: color-mix(in srgb, var(--coral) 11%, transparent);
+  color: var(--coral); font-weight: 600;
 }
-.nav.activo .cuenta { color: rgba(255,255,255,.8); }
+.nav .cuenta {
+  margin-left: auto; font-size: 12.5px; font-weight: 500;
+  color: var(--apagado); font-variant-numeric: tabular-nums;
+}
+.nav.activo .cuenta { color: color-mix(in srgb, var(--coral) 70%, var(--apagado)); }
 
 .pie-lateral {
   margin-top: auto; padding: 12px 11px 0; font-size: 11.5px; color: var(--apagado);
   line-height: 1.5; border-top: 1px solid var(--borde);
 }
-.pie-lateral b { color: var(--suave); font-family: var(--num-fuente); font-size: 13px; }
+.pie-lateral b { color: var(--suave); font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .tema {
   background: none; border: 1px solid var(--borde); color: var(--suave);
   border-radius: var(--r-pill); padding: 3px 9px; font: inherit; font-size: 11.5px;
@@ -150,8 +155,7 @@ body {
 
 .cabecera { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
 .cabecera h1 {
-  font-family: var(--num-fuente); font-size: 34px; margin: 0; font-weight: 800;
-  text-transform: uppercase; letter-spacing: -.3px; line-height: 1;
+  font-size: 25px; margin: 0; font-weight: 650; letter-spacing: -.3px; line-height: 1.1;
 }
 .cabecera .sub { color: var(--apagado); font-size: 13.5px; }
 .cabecera .acciones { margin-left: auto; display: flex; gap: 8px; align-items: center; }
@@ -162,16 +166,15 @@ body {
   border-radius: var(--r-caja); padding: 18px 20px; margin-bottom: 16px;
 }
 .tarjeta > h2 {
-  font-family: var(--num-fuente); font-size: 15px; text-transform: uppercase;
-  letter-spacing: .8px; color: var(--suave); margin: 0 0 14px; font-weight: 700;
+  font-size: 13px; text-transform: uppercase; letter-spacing: .7px;
+  color: var(--apagado); margin: 0 0 14px; font-weight: 600;
 }
 .tarjeta.aviso { border-color: var(--terra); background: var(--panel2); }
 .tarjeta.aviso b { color: var(--terra); }
 
 /* ---------- botones ---------- */
 .btn {
-  font-family: var(--num-fuente); font-size: 15px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .6px;
+  font-family: var(--texto-fuente); font-size: 14px; font-weight: 600;
   padding: 8px 16px; border-radius: var(--r-campo); cursor: pointer;
   border: 1px solid var(--borde2); background: var(--panel); color: var(--texto);
   transition: .14s;
@@ -188,31 +191,29 @@ body {
 /* ---------- tablas: sin bordes verticales, sin cebra ---------- */
 table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 th {
-  text-align: left; font-family: var(--num-fuente); font-size: 12.5px;
-  text-transform: uppercase; letter-spacing: .7px; color: var(--apagado);
-  font-weight: 700; padding: 0 10px 9px; border-bottom: 1px solid var(--borde);
+  text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .6px;
+  color: var(--apagado); font-weight: 600; padding: 0 10px 9px;
+  border-bottom: 1px solid var(--borde);
 }
 td { padding: 11px 10px; border-bottom: 1px solid var(--borde); vertical-align: middle; }
 tr:last-child td { border-bottom: 0; }
 tbody tr { transition: background .1s; }
 tbody tr:hover { background: var(--panel2); }
 .num { text-align: right; }
-td.num { font-size: 15.5px; font-weight: 600; }
+td.num { font-weight: 600; }
 
 /* ---------- etiquetas ---------- */
 .etiqueta {
-  display: inline-block; font-family: var(--num-fuente); font-size: 12.5px;
-  font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  display: inline-block; font-size: 12.5px; font-weight: 500;
   padding: 2px 9px; border-radius: var(--r-pill);
   background: var(--panel2); color: var(--suave); white-space: nowrap;
-  border: 1px solid var(--borde);
 }
-.etiqueta.bordado { color: var(--c-material); border-color: var(--c-material); }
-.etiqueta.costura { color: var(--c-otros);    border-color: var(--c-otros); }
-.etiqueta.d3      { color: var(--c-luz);      border-color: var(--c-luz); }
+.etiqueta.bordado { background: color-mix(in srgb, var(--c-material) 12%, transparent); color: var(--c-material); }
+.etiqueta.costura { background: color-mix(in srgb, var(--c-otros) 13%, transparent);    color: var(--c-otros); }
+.etiqueta.d3      { background: color-mix(in srgb, var(--c-luz) 14%, transparent);      color: var(--c-luz); }
 
 .chip {
-  font-family: var(--num-fuente); font-size: 12.5px; font-weight: 600;
+  font-size: 12.5px; font-weight: 500;
   padding: 2px 9px; border-radius: var(--r-pill); white-space: nowrap;
 }
 .chip.falta { background: color-mix(in srgb, var(--terra) 14%, transparent); color: var(--terra); }
@@ -230,11 +231,10 @@ td.num { font-size: 15.5px; font-weight: 600; }
   border-radius: var(--r-caja); padding: 14px 16px;
 }
 .dato .k {
-  font-family: var(--num-fuente); font-size: 12px; color: var(--apagado);
-  text-transform: uppercase; letter-spacing: .8px; font-weight: 700;
+  font-size: 12px; color: var(--apagado); letter-spacing: .2px; font-weight: 500;
 }
-.dato .v { font-size: 30px; font-weight: 800; margin-top: 2px; line-height: 1.05; }
-.dato .n { font-size: 12.5px; color: var(--apagado); margin-top: 3px; font-family: var(--texto-fuente); }
+.dato .v { font-size: 25px; font-weight: 650; margin-top: 3px; line-height: 1.1; letter-spacing: -.4px; }
+.dato .n { font-size: 12.5px; color: var(--apagado); margin-top: 3px; }
 .dato.destaca { border-color: var(--coral); }
 .dato.destaca .v { color: var(--coral); }
 
@@ -242,20 +242,16 @@ td.num { font-size: 15.5px; font-weight: 600; }
 .campo { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; position: relative; }
 .campo.ancho { grid-column: 1 / -1; }
 .campo > span {
-  font-family: var(--num-fuente); font-size: 12.5px; color: var(--suave);
-  font-weight: 700; text-transform: uppercase; letter-spacing: .6px;
+  font-size: 12.5px; color: var(--suave); font-weight: 600;
 }
-.campo > span i {
-  font-style: normal; font-weight: 500; color: var(--apagado);
-  margin-left: 7px; text-transform: none; letter-spacing: 0;
-}
+.campo > span i { font-style: normal; font-weight: 400; color: var(--apagado); margin-left: 7px; }
 .campo input, .campo select, .campo textarea {
   font-family: var(--texto-fuente); font-size: 14.5px; font-weight: 500;
   padding: 10px 12px; border: 1px solid var(--borde2);
   border-radius: var(--r-campo); background: var(--panel2); color: var(--texto); width: 100%;
   transition: .12s;
 }
-.campo input[type="number"] { font-family: var(--num-fuente); font-size: 16px; font-weight: 600; }
+.campo input[type="number"] { font-variant-numeric: tabular-nums; font-weight: 600; }
 /* fuera las flechitas: es lo que más huele a planilla */
 .campo input[type="number"] { -moz-appearance: textfield; }
 .campo input::-webkit-outer-spin-button,
@@ -266,12 +262,12 @@ td.num { font-size: 15.5px; font-weight: 600; }
 }
 .campo .unidad {
   position: absolute; right: 12px; bottom: 11px; pointer-events: none;
-  font-family: var(--num-fuente); font-size: 13px; font-weight: 600; color: var(--apagado);
+  font-size: 13px; font-weight: 500; color: var(--apagado);
 }
 .campo.con-signo input { padding-left: 26px; }
 .campo .signo {
   position: absolute; left: 12px; bottom: 11px; pointer-events: none;
-  font-family: var(--num-fuente); font-size: 15px; font-weight: 600; color: var(--apagado);
+  font-size: 14px; font-weight: 500; color: var(--apagado);
 }
 .formulario { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 0 15px; }
 
@@ -287,15 +283,49 @@ td.num { font-size: 15.5px; font-weight: 600; }
   width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px; align-self: center;
 }
 .desglose .fila .n { color: var(--apagado); font-size: 12.5px; font-family: var(--texto-fuente); display: block; }
-.desglose .fila .m { font-weight: 700; font-size: 16px; }
+.desglose .fila .m { font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums; }
 .desglose .total {
   border-top: 2px solid var(--texto); border-bottom: 0;
   margin-top: 6px; padding-top: 11px;
 }
-.desglose .total .m { font-size: 21px; }
+.desglose .total .m { font-size: 19px; font-weight: 700; }
 
 .barra { height: 6px; border-radius: 3px; background: var(--panel2); overflow: hidden; }
 .barra > div { height: 100%; transition: width .5s ease; }
+
+/* ---------- líneas de pedido (editables) ---------- */
+.lineas-pedido { margin: 4px 0 14px; }
+.linea-editable {
+  display: grid; grid-template-columns: 1.6fr 1.1fr 60px 96px 92px 28px;
+  gap: 8px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--borde);
+}
+.linea-editable input, .linea-editable select {
+  font-family: var(--texto-fuente); font-size: 13.5px; font-weight: 500;
+  padding: 7px 9px; border: 1px solid var(--borde2); border-radius: var(--r-campo);
+  background: var(--panel2); color: var(--texto); width: 100%;
+}
+.linea-editable input[type="number"] {
+  font-family: var(--num-fuente); font-weight: 600; text-align: right;
+  -moz-appearance: textfield;
+}
+.linea-editable input::-webkit-outer-spin-button,
+.linea-editable input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.linea-editable input:focus, .linea-editable select:focus {
+  outline: none; border-color: var(--coral);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--coral) 14%, transparent);
+}
+.linea-editable .m { text-align: right; font-weight: 700; font-size: 14.5px; font-family: var(--num-fuente); }
+.linea-editable .quitar {
+  border: none; background: transparent; color: var(--apagado); font-size: 16px;
+  cursor: pointer; padding: 4px; line-height: 1;
+}
+.linea-editable .quitar:hover { color: var(--malo); }
+.lineas-pedido .agregar-linea { margin-top: 8px; }
+.lineas-pedido .vacio-chico { color: var(--apagado); font-size: 13px; padding: 10px 0; }
+@media (max-width: 640px) {
+  .linea-editable { grid-template-columns: 1fr 1fr; }
+  .linea-editable .m { text-align: left; grid-column: 1 / -1; }
+}
 
 /* ---------- panel pegado: el total nunca se pierde de vista ---------- */
 .con-panel { display: grid; grid-template-columns: 1fr 330px; gap: 16px; align-items: start; }
@@ -305,11 +335,10 @@ td.num { font-size: 15.5px; font-weight: 600; }
   border-radius: var(--r-caja); padding: 18px 20px; text-align: center;
 }
 .total-caja .k {
-  font-family: var(--num-fuente); font-size: 12.5px; text-transform: uppercase;
-  letter-spacing: 1px; color: var(--apagado); font-weight: 700;
+  font-size: 12px; letter-spacing: .3px; color: var(--apagado); font-weight: 500;
 }
-.total-monto { font-size: 44px; font-weight: 800; color: var(--coral); line-height: 1.05; margin: 2px 0; }
-.total-caja .n { font-size: 13px; color: var(--apagado); font-family: var(--texto-fuente); }
+.total-monto { font-size: 36px; font-weight: 700; color: var(--coral); line-height: 1.1; margin: 3px 0; letter-spacing: -.6px; }
+.total-caja .n { font-size: 13px; color: var(--apagado); }
 
 /* ---------- modal y avisos ---------- */
 .modal-fondo {
@@ -322,8 +351,7 @@ td.num { font-size: 15.5px; font-weight: 600; }
   box-shadow: 0 20px 60px rgba(20,22,27,.28); max-height: 88vh; overflow: auto;
 }
 .modal h2 {
-  margin: 0 0 14px; font-family: var(--num-fuente); font-size: 25px;
-  font-weight: 800; text-transform: uppercase; letter-spacing: -.2px; line-height: 1.05;
+  margin: 0 0 16px; font-size: 21px; font-weight: 650; letter-spacing: -.3px; line-height: 1.2;
 }
 .modal-cuerpo { font-size: 14.5px; }
 .modal-botones { display: flex; gap: 9px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
@@ -331,7 +359,7 @@ td.num { font-size: 15.5px; font-weight: 600; }
 .aviso {
   position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 14px);
   background: var(--texto); color: var(--fondo); padding: 11px 20px; border-radius: 24px;
-  font-family: var(--num-fuente); font-size: 15px; font-weight: 600; letter-spacing: .3px;
+  font-size: 14px; font-weight: 500;
   opacity: 0; pointer-events: none; transition: .2s; z-index: 95;
 }
 .aviso.visible { opacity: 1; transform: translate(-50%, 0); }
@@ -349,7 +377,7 @@ td.num { font-size: 15.5px; font-weight: 600; }
   padding: 40px 20px; text-align: center; cursor: pointer; transition: .15s;
 }
 .soltar:hover, .soltar.encima { border-color: var(--coral); background: var(--panel2); }
-.soltar .t { font-family: var(--num-fuente); font-size: 20px; font-weight: 700; text-transform: uppercase; }
+.soltar .t { font-size: 16.5px; font-weight: 600; }
 .soltar .s { color: var(--apagado); font-size: 13.5px; margin-top: 3px; }
 
 @media (max-width: 900px) {
@@ -366,7 +394,7 @@ td.num { font-size: 15.5px; font-weight: 600; }
   .marca, .pie-lateral { display: none; }
   .nav { white-space: nowrap; }
   .principal { padding: 18px 15px 60px; }
-  .cabecera h1 { font-size: 27px; }
+  .cabecera h1 { font-size: 22px; }
   .comparacion { grid-template-columns: 1fr; }
-  .dato .v { font-size: 26px; }
+  .dato .v { font-size: 22px; }
 }

@@ -4,6 +4,32 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Se deshace el pase de diseño · v2.3.0
+
+**Qué cambió.** El diseño de v2.2.0 estaba mal: copié la estética de `tools.kmorra3d.com`
+—tipografía condensada en mayúsculas en títulos, menú, botones y etiquetas— cuando Farid me
+mandó ese enlace **para que viera sus herramientas, no su web**. Su palabra: «quedó más fea
+aún». Tenía razón.
+
+Ahora: sin mayúsculas salvo en etiquetas chicas, pesos más bajos, el menú activo con un fondo
+suave en vez de un bloque coral, las etiquetas con relleno tenue en vez de contorno. Se
+conservan los cuatro detalles de oficio que sí servían: números de ancho fijo, unidades y `$`
+dentro del campo, un color por categoría de costo, y casi cero sombras.
+
+**Cómo sé que funciona.** Recorrí las seis pantallas en un navegador de verdad: cero errores.
+La ficha de la Regla de radios muestra el desglose completo con los puntos de color y los
+$1.128 / $90 / $71 / $272 / $400 / $350 / $231 alineados en columna. En la tabla de productos,
+el chip repetido 14 veces seguidas («faltan las horas de trabajo») ya no está: la nota de
+arriba lo dice una vez y las columnas muestran «—».
+
+**Lo que NO quedó.**
+- El panel de total pegado al costado sigue sin usarse (las clases están en el CSS).
+- No se probó en un teléfono de verdad.
+
+**Versión.** v2.3.0
+
+---
+
 ## 2026-09-02 · Nace el repo · v2.2.0
 
 **Qué cambió.** Repo nuevo desde cero, con los datos reales de Ayünka cargados. Ya se puede

@@ -10,6 +10,18 @@
 
 ---
 
+## Este documento manda
+
+Farid lo dijo así: *«deja las instrucciones, tú eres el jefe para VS Code»*. Esto no es una
+sugerencia de estilo — es el encargo. **Sigue lo que dice acá y reporta según lo que dice
+acá.** Si algo de este documento te estorba para hacer bien el trabajo, dilo en la bitácora
+y explica por qué; no lo ignores en silencio.
+
+Y al revés: **cuando Farid pida algo que contradiga esto, gana Farid.** Estas reglas están
+para que no se repitan errores concretos, no para discutirle a quien es dueño del negocio.
+
+---
+
 ## La regla de fondo
 
 **Nada está hecho porque el código lo diga. Está hecho cuando algo que podría haber fallado,
@@ -123,6 +135,37 @@ En orden, con el detalle en `PLAN.md`:
 Y lo que **no** hay que construir, porque ya existe barato o gratis: facturación electrónica,
 inventario de filamento (Spoolman), granja de impresión (Printago). Está razonado en
 `../.planning/QUE-COMPRAR-QUE-CONSTRUIR.md`.
+
+---
+
+## Dos errores de esta sesión, para que no se repitan
+
+Los dejo escritos porque los dos fueron de interpretación, no de código, y esos son los que
+más caro salen.
+
+**1. Le entregué un plan cuando pidió la cosa.** Construí el núcleo comercial y dejé la
+impresora y la cotización desde 3MF como «Fase 3 y 4». Su respuesta fue *«casi solo copiaste
+lo que había»*, y tenía razón: lo distintivo —lo que él pidió que fuera Ayünka Studio— había
+quedado en una lista. **Un plan no es la cosa.** Si una fase larga es inevitable, entrega
+antes el trozo más distintivo, aunque sea chico.
+
+**2. Confundí "mira esta herramienta" con "copia este diseño".** Farid mandó
+`tools.kmorra3d.com` y yo copié su estética —tipografía condensada en mayúsculas por todas
+partes— cuando lo que me estaba mostrando eran **sus herramientas**. Resultado: *«quedó más
+fea aún»*. Dos lecciones:
+
+- **Cuando mande un enlace, pregunta qué le llamó la atención** antes de sacar conclusiones.
+- **Ayünka es bordado y costura hecho a mano.** La pantalla tiene que sentirse cálida y
+  tranquila. Nada de mayúsculas en títulos, menú ni botones: las mayúsculas van solo en
+  etiquetas chicas de una o dos palabras. La paleta es la de la marca y no se cambia por la
+  de otro producto.
+
+**Lo que sí me estaba mostrando**, y que importa: sus generadores paramétricos —llavero con
+nombre, placa de mascota, letrero, marco, imagen a STL— son **exactamente la categoría
+«Personalizados 3D» del catálogo de Ayünka**, que son 7 SKUs. Y su app anterior **ya tenía
+eso**: `design3d.js`, `d3d-formas.js`, `d3d-fuentes.js`, `d3d-build.js`, `d3d-3mf.js`. Los 19
+diseños que están en la semilla salieron de ahí. **Eso se rescata del repo viejo, no se
+escribe de nuevo.** Es la pieza más grande que quedó fuera de esta versión.
 
 ---
 
