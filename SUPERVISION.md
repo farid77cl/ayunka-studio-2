@@ -567,3 +567,92 @@ código. Ojo: rescatar no es reescribir — esos archivos existen y funcionaban.
 Como siempre: entrega, commitea, escribe la entrada en `BITACORA.md` con su «cómo sé que
 funciona», y avísale a Farid. Yo traigo una copia, corro las comprobaciones y dejo el
 resultado acá abajo. No toco el repo.
+
+---
+
+# Supabase · lo que se hizo el 3-sep y lo que falta programar
+
+## Lo que estaba mal, y ya no
+
+El bucket `archivos` del proyecto `ncuvdpydwnepbysadoux` tenía **una sola política**,
+llamada `ayunka archivos`, con comando **ALL** y roles **anon, authenticated**, con
+`USING` y `WITH CHECK` iguales a `bucket_id = 'archivos'`. Traducido: **cualquiera con la
+clave anónima podía subir, pisar y borrar los 145 archivos** — las 36 fotos del catálogo
+entre ellas. Y esa clave es pública por diseño: viaja dentro de la app, a cualquier
+navegador que la abra.
+
+Es el mismo error del 1 de septiembre con Firestore, en otra casa: la puerta estaba abierta
+y nadie lo había mirado desde afuera.
+
+Se reemplazó por cuatro políticas, ejecutadas en el editor SQL del proyecto:
+
+    drop policy if exists "ayunka archivos" on storage.objects;
+    create policy "archivos leer"       ... for select to anon, authenticated using (bucket_id = 'archivos');
+    create policy "archivos subir"      ... for insert to authenticated with check (bucket_id = 'archivos');
+    create policy "archivos reemplazar" ... for update to authenticated using (...) with check (...);
+    create policy "archivos borrar"     ... for delete to authenticated using (bucket_id = 'archivos');
+
+**Comprobado, no supuesto.** `pg_policies` devuelve las cuatro con los roles correctos, y
+las **36 fotos del catálogo siguen respondiendo 200** desde fuera, sin ninguna clave — que
+es lo que necesitan el catálogo de Meta y el de WhatsApp.
+
+Queda pendiente **de Farid**, y no lo hace nadie más: crear el usuario en
+**Authentication → Users → Add user** (hoy el proyecto tiene cero usuarios). Correo y
+contraseña los pone él; acá no se manejan contraseñas.
+
+## Lo que hay que programar · `js/supabase.js` y `js/vistas/ajustes.js`
+
+Con las políticas nuevas, `subirFoto` **ya no puede funcionar** como está: manda
+`Authorization: Bearer <clave anónima>`, y esa clave ahora es el rol `anon`, que perdió el
+permiso de escribir. Hay que iniciar sesión primero y mandar el **token del usuario**.
+
+### 1 · Iniciar sesión antes de subir
+
+    POST {url}/auth/v1/token?grant_type=password
+    apikey: {clave anónima}
+    Content-Type: application/json
+    { "email": correo, "password": clave }
+    → { access_token, refresh_token, expires_in }
+
+Y después, en la subida, cambiar el encabezado:
+
+    Authorization: 'Bearer ' + access_token      // no la clave anónima
+    apikey: clave anónima                         // este sí se sigue mandando
+
+Guarda el `access_token` en memoria con su hora de vencimiento y renueva cuando falte poco
+(`grant_type=refresh_token`). **El `refresh_token` no va a `localStorage`** junto al resto
+de la base: si se sincroniza a Firestore, viaja la sesión completa.
+
+### 2 · Dónde viven la URL y la clave
+Hoy `js/config.js` las tiene **vacías** y **Ajustes no tiene ningún campo para ponerlas**:
+por eso el encargo E está escrito y no funciona en ningún equipo. Sigue el mismo patrón que
+ya usa Firebase en Ajustes — un bloque «Fotos y archivos» con URL, clave anónima y bucket,
+guardado en `localStorage`, fuera de git. La URL es
+`https://ncuvdpydwnepbysadoux.supabase.co` y el bucket es `archivos`.
+
+Reusa el **mismo correo y la misma contraseña** que ya se escriben para la nube: es la misma
+persona y el mismo negocio, y dos pares de credenciales distintos se olvidan.
+
+### 3 · Respeta la convención de nombres que ya existe
+`nombreSeguro` + `catalogo/<SKU>.<ext>` está **bien** y calza exactamente con lo que hay
+subido (`catalogo/AY-3D-001.jpg` … `catalogo/AY-B2B-001.jpg`, 36 de 36 responden 200). No
+la cambies: si cambia, las fotos del catálogo de Meta se rompen todas de una vez.
+
+### 4 · Lo que se perdió del `supa.js` viejo
+El repo anterior tenía `removeUrl(url)` — borrar una foto desde la app, sacando la ruta de
+la URL pública. No se portó. Con las políticas nuevas, borrar exige estar autenticado, que
+es justo lo correcto. Vale la pena rescatarlo cuando haya galería de fotos.
+
+### 5 · Cómo sé que funciona
+No sirve «el código está escrito». Sirve esto, en este orden:
+
+1. Farid crea el usuario en Supabase y lo escribe en Ajustes.
+2. Subir una foto a un producto desde la app y que la URL que devuelve **responda 200**
+   en otro navegador, sin sesión.
+3. Repetir la subida del mismo producto: debe **reemplazar**, no fallar (necesita la
+   política de `update`, por eso está).
+4. Con la app **sin sesión iniciada**, intentar subir: debe fallar con
+   `new row violates row-level security policy`. Si sube, la puerta sigue abierta.
+
+Escribe el paso 4 en `BITACORA.md` con la respuesta textual. Ese es el paso que el 1-sep no
+se hizo, y por eso la base estuvo abierta dos meses.

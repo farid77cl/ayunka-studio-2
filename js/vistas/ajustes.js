@@ -6,6 +6,7 @@
     const amort = Costos.amortizacionHora(p);
     const cfg = Nube.cfg();
     const guardado = (() => { try { return JSON.parse(localStorage.getItem('ayunka2-nube-cfg') || '{}'); } catch (e) { return {}; } })();
+    const sb = (window.Supabase && Supabase.cfg()) || {};
 
     A.$('#contenido').innerHTML = `
       <div class="cabecera"><h1>Ajustes</h1>
@@ -76,6 +77,22 @@
           cambiar el archivo no publica nada.</p>
       </div>
 
+      <div class="tarjeta"><h2>Fotos y archivos (Supabase)</h2>
+        <p style="font-size:13px;color:var(--pizarra);margin:0 0 12px">
+          Usa el mismo correo y contraseña de acceso de la sincronización de arriba — es la
+          misma persona. El bucket ya está cerrado: subir una foto pide sesión iniciada,
+          no alcanza con la clave anónima sola.</p>
+        <div class="formulario">
+          ${A.campo('sb-url', 'URL del proyecto', sb.url || '', { ph: 'https://xxxx.supabase.co' })}
+          ${A.campo('sb-clave', 'Clave anónima (anon key)', sb.clave || '')}
+          ${A.campo('sb-bucket', 'Bucket', sb.bucket || 'archivos')}
+        </div>
+        <button class="btn primario" onclick="Vistas.ajustes.guardarSupabase()">Guardar</button>
+        <p style="font-size:12.5px;color:var(--apagado);margin:10px 0 0">
+          La URL y la clave anónima se guardan solo en este equipo. Sin correo y contraseña
+          puestos arriba, subir una foto va a avisar que falta iniciar sesión.</p>
+      </div>
+
       <div class="tarjeta"><h2>Catálogo para publicar</h2>
         <p style="font-size:13px;color:var(--pizarra);margin:0 0 12px">
           El precio se pone acá, en Studio, y de acá <b>salen</b> los dos archivos. Nunca se
@@ -127,6 +144,14 @@
     pintar();
   }
 
+  function guardarSupabase() {
+    const v = i => { const e = document.getElementById(i); return e ? e.value : ''; };
+    if (!v('sb-url') || !v('sb-clave')) { A.aviso('Pon la URL del proyecto y la clave anónima', 'error'); return; }
+    Supabase.guardarCfg(v('sb-url').trim(), v('sb-clave').trim(), v('sb-bucket').trim() || 'archivos');
+    A.aviso('Configuración de Supabase guardada');
+    pintar();
+  }
+
   function conectar() {
     const v = i => { const e = document.getElementById(i); return e ? e.value : ''; };
     let fb;
@@ -168,7 +193,7 @@
   function recargarSemilla() {
     A.preguntar({
       titulo: '¿Volver al catálogo inicial?',
-      cuerpo: `<p>Reemplaza todo por los 36 productos con SKU, los 6 filamentos y los parámetros
+      cuerpo: `<p>Reemplaza todo por los productos con SKU, los filamentos y los parámetros
         con los que nació esta versión. <b>Se descarga primero un respaldo de lo actual.</b></p>`,
       botones: [{ txt: 'Cancelar', valor: null, clase: 'sutil' }, { txt: 'Volver al inicial', valor: 'ok', clase: 'primario' }]
     }).then(async ({ valor }) => {
@@ -202,5 +227,5 @@
   }
 
   window.Vistas = window.Vistas || {};
-  Vistas.ajustes = { pintar, guardar, conectar, importar, recargarSemilla, descargarCatalogoCSV, descargarCatalogoXLSX };
+  Vistas.ajustes = { pintar, guardar, conectar, importar, recargarSemilla, descargarCatalogoCSV, descargarCatalogoXLSX, guardarSupabase };
 })();

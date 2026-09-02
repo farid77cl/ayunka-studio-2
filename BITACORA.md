@@ -4,6 +4,84 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Supabase con sesión real, no la clave anónima sola · v2.14.0
+
+**Qué cambió.** `SUPERVISION.md` trajo una sección nueva: Cowork encontró que el bucket
+`archivos` tenía **una sola política, ALL, para anon+authenticated** — cualquiera con la
+clave anónima (que viaja dentro de la app, pública por diseño) podía subir, pisar y borrar
+los 145 archivos del bucket, catálogo incluido. Mismo error que Firestore el 1-sep, en otra
+casa. Cowork ya cerró el bucket con 4 políticas (leer sigue público, escribir/reemplazar/
+borrar exige sesión real) y dejó la especificación de qué cambiar en el código — este commit
+la implementa.
+
+Mi `supabase.js` del encargo E (v2.12.0) mandaba la clave anónima como `Bearer`, que es
+justo el agujero que se cerró — con el bucket nuevo, **ya no puede subir nada**. Reescrito:
+
+- **Inicia sesión de verdad** (`POST /auth/v1/token?grant_type=password`, con la clave
+  anónima en el header `apikey`, no como `Bearer`) usando el **mismo correo y contraseña que
+  ya guarda la sincronización** — no se piden ni se guardan de nuevo, es la misma persona.
+- El `access_token` de esa sesión se cachea **en memoria, nunca en localStorage** junto al
+  resto de la base — si viajara ahí, se sincronizaría a Firestore con todo lo demás. Se
+  renueva solo con `refresh_token` antes de vencer, y si el refresh también falla, cae a un
+  login nuevo — nunca se queda sin poder subir por un detalle de sesión.
+- La subida ahora manda `Authorization: Bearer <access_token de la sesión>` **y**
+  `apikey: <clave anónima>` juntos, como pide Supabase.
+- **Ajustes** tiene la sección nueva "Fotos y archivos" (URL, clave anónima, bucket,
+  guardado en `localStorage`, fuera de git) — sin ella el encargo E no podía funcionar en
+  ningún equipo, ya lo había marcado la revisión del 3-sep como el punto 7.
+- La convención de nombres (`nombreSeguro` + `catalogo/<SKU>.<ext>`) **no se tocó** — Cowork
+  confirmó que calza exacto con las 36 fotos ya subidas.
+
+**Cómo sé que funciona.** Corrí el código real interceptando `fetch`, incluyendo el paso del
+tiempo (fuerzo el vencimiento del token a mano para probar la renovación, no espero una
+hora):
+- Sin correo/contraseña guardados, avisa claro que faltan — no intenta nada a ciegas.
+- El login manda la clave anónima en `apikey` (no en `Authorization`) y el correo/clave
+  reales de `ayunka2-nube-cfg` — **la misma clave de `localStorage` que ya usa Nube**, sin
+  campos duplicados.
+- Tras el login, la subida manda `Authorization: Bearer <access_token>` y `apikey`
+  **juntos**.
+- Una segunda subida con el token todavía vigente **no vuelve a autenticar** — reusa la
+  sesión en memoria.
+- Con el token vencido a propósito, renueva con `refresh_token` **en vez de** pedir login de
+  nuevo — y si ese refresh también falla, ahí sí cae a un login nuevo, sin quedarse
+  colgado.
+- Del lado de la app: Ajustes muestra la sección nueva con sus 3 campos, sin duplicar
+  correo/contraseña; `guardarSupabase()` deja `Supabase.configurado()` en `true` y lo que se
+  tipeó sobrevive a un repintado. `Vistas.productos._subirFoto()` (la ficha real de un
+  producto) sigue funcionando de punta a punta con el flujo de sesión nuevo: elige la foto,
+  inicia sesión sola, sube, repinta la vista previa.
+- 19 + 9 = **28 verificaciones nuevas**, todas en verde. Re-corrí las 10 suites anteriores
+  de la sesión (199 verificaciones más): sin cambios, todas siguen en verde.
+
+**Lo que NO pude verificar — y es la parte que de verdad importa.** Cowork fue explícito:
+*"no sirve 'el código está escrito'"*, y pidió 4 pasos, en orden, contra el proyecto real.
+Yo no tengo la consola de Supabase ni un usuario creado ahí, así que **solo llegué hasta
+donde el código se puede probar sin esas credenciales**:
+
+1. Farid crea el usuario en Supabase (Authentication → Users) y lo escribe en Ajustes —
+   **no lo hice, no me corresponde, Cowork ya lo marcó así explícitamente**.
+2. Subir una foto real y que la URL responda 200 desde otro navegador — necesita el
+   usuario del paso 1.
+3. Repetir la subida del mismo producto y que reemplace, no falle — necesita el paso 1.
+4. **Con la app SIN sesión iniciada, intentar subir y que falle con "new row violates
+   row-level security policy"** — este es el que Cowork remarcó como el que no se hizo el
+   1-sep y costó dos meses con la base abierta. No lo pude correr contra el proyecto real.
+   Lo que sí verifiqué: mi código **nunca intenta subir sin sesión** — si no hay
+   correo/contraseña, `subirFoto()` avisa y no manda ninguna petición a Storage. Pero eso no
+   reemplaza probarlo contra el bucket real con la política nueva: es lo que le pido a
+   Cowork que corra y escriba acá con la respuesta textual, tal como pidió.
+
+**Lo que NO quedó.**
+- `removeUrl(url)` (borrar una foto desde la app) — Cowork mismo dijo que vale la pena
+  rescatarlo cuando haya galería de fotos, no ahora.
+- No hay indicador en Ajustes de si la sesión de Supabase está realmente activa en este
+  momento (solo se sabe si falla al intentar subir).
+
+**Versión.** `js/version.js` → `2.14.0`.
+
+---
+
 ## 2026-09-02 · Cuatro de los siete arreglos de la revisión del 3-sep · v2.13.0
 
 **Qué cambió.** `SUPERVISION.md` trajo una auditoría nueva ("Revisión del 3-sep · v2.8.0 →
