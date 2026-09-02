@@ -90,7 +90,7 @@
       </div>`;
     }).join('');
     return (filas || '<div class="vacio-chico">Sin líneas todavía</div>') +
-      `<button type="button" class="btn sutil sm agregar-linea" onclick="Vistas.pedidos._lineaAgregar()">+ Agregar línea</button>`;
+      `<button type="button" class="btn sutil chico agregar-linea" onclick="Vistas.pedidos._lineaAgregar()">+ Agregar línea</button>`;
   }
 
   function calcularEnEdicion() {

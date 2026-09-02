@@ -4,6 +4,61 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-02 · Personalizados 3D: de un preset a un archivo, sin el editor completo · v2.4.0
+
+**Qué cambió.** Se portó el motor de diseño 3D del repo anterior (`d3d-formas.js`,
+`d3d-fuentes.js`, `d3d-build.js`, `d3d-3mf.js` — ni una línea reescrita, es el mismo código
+que ya generó los 19 diseños de la semilla) y se enganchó a una pestaña nueva,
+"Personalizados 3D": elegís uno de los 6 presets (llavero, llavero con imagen, letra con
+nombre, letrero, caja de luz, recuerdo de nacimiento), le cambiás el texto, y "Generar"
+te da las medidas, los avisos y el archivo — STL por color o 3MF multicolor para el CFS.
+Al guardar como producto, los gramos y las horas quedan en 0 a propósito: no se inventan,
+se miden imprimiendo o laminando, igual que en Cotizar.
+
+**Lo que NO es todavía:** el editor completo de `design3d.js` (arrastrar, rotar, agregar
+capas sueltas, subir una imagen y vectorizarla) no se portó — es 1.100 líneas de UI ligada
+a Three.js interactivo, y no tengo cómo probarla sin navegador. Esta pestaña es la mitad
+"de un preset a un archivo", que es la que Farid puede usar hoy sin abrir otra herramienta.
+El preset "Desde cero" se sacó de la lista a propósito: sin el editor, una placa vacía no
+tiene con qué llenarse.
+
+**Cómo sé que funciona.** No hay navegador en este entorno, así que corrí el motor REAL
+—no una copia, no un mock— en Node, con la fuente TTF y Three.js bajados del mismo CDN que
+usa la app:
+- Los 4 módulos portados cargan y registran `D3DFormas`/`D3DFuentes`/`D3DBuild`/`D3D3MF`.
+- Los 6 presets compilan sin excepción y dan medidas reales: el llavero publicitario da
+  65×28×4,2 mm; la letra con nombre, 102×63×40 mm; la caja de luz, 180×90×22 mm.
+- Un nombre con **ñ y tildes** ("Ñañé Muñoz") compila y genera geometría — no es un caso
+  aparte, opentype.js lo resuelve igual que cualquier letra.
+- Exporté un STL binario real del llavero: la cabecera dice "Ayunka Studio - Diseno 3D", el
+  conteo de triángulos del header coincide con los triángulos generados, y el tamaño del
+  archivo es exactamente `84 + 50 × triángulos` bytes — la fórmula del formato STL binario.
+- Exporté un 3MF real: el ZIP empieza con la firma `0x04034b50` (ZIP válido), 1 objeto
+  contenedor, 2 partes de color, 9.852 triángulos.
+- La función que decide qué campos de texto mostrar (`camposTexto`) se probó contra 4
+  presets distintos: detecta las 2 capas del llavero, la letra base + 1 capa de la letra
+  con nombre, cero campos en llavero-foto (es una imagen, no debe pedir texto), y las 3
+  capas de texto del recuerdo sin confundirlas con sus 2 figuras (estrella, luna).
+- De paso encontré y corregí un bug real que arrastré del repo viejo: usé la clase
+  `.btn sm` en el botón de "Agregar línea" de Pedidos (commit `5fb1a57`), y acá la clase
+  chica se llama `.chico`, no `.sm` — quedaba sin el tamaño reducido. Corregido.
+
+**Lo que NO pude verificar.** Todo lo anterior corrió en Node, sin DOM. No vi la pestaña
+en un navegador real: ni el grid de presets, ni que el botón "Descargar" de verdad
+dispare la descarga del navegador, ni cómo se ve en pantalla chica. Es lo primero que
+haría antes de imprimir algo basado en esto.
+
+**Lo que NO quedó.**
+- El editor completo (arrastrar, rotar, capas sueltas, imagen a 3D) — ver arriba.
+- No hay vista previa 3D del diseño antes de descargarlo, solo medidas y avisos en texto.
+- "Llavero con imagen" genera un aro vacío: pide que Farid suba la imagen, y esta versión
+  todavía no tiene el control para subirla (existe en el motor portado, `trazarImagen`,
+  falta engancharlo a un `<input type="file">`).
+
+**Versión.** v2.4.0
+
+---
+
 ## 2026-09-02 · Editar las líneas de un pedido · v2.3.0
 
 **Qué cambió.** En Pedidos, la ficha ya deja agregar, cambiar y quitar líneas — antes solo

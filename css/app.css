@@ -188,6 +188,18 @@ body {
 .btn.sutil:hover { background: var(--panel2); color: var(--texto); border-color: transparent; }
 .btn.chico { padding: 4px 10px; font-size: 13px; }
 
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* ---------- presets de Personalizados 3D ---------- */
+.preset3d {
+  display: flex; flex-direction: column; gap: 4px; text-align: left;
+  padding: 14px 16px; border: 1px solid var(--borde2); border-radius: var(--r-campo);
+  background: var(--panel2); color: var(--texto); cursor: pointer; font-family: var(--texto-fuente);
+}
+.preset3d b { font-size: 14.5px; }
+.preset3d span { font-size: 12.5px; color: var(--apagado); }
+.preset3d:hover { border-color: var(--coral); }
+
 /* ---------- tablas: sin bordes verticales, sin cebra ---------- */
 table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 th {
