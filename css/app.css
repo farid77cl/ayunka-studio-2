@@ -445,6 +445,40 @@ td.num { font-weight: 600; }
 .soltar .t { font-size: 16.5px; font-weight: 600; }
 .soltar .s { color: var(--apagado); font-size: 13.5px; margin-top: 3px; }
 
+/* ---- producción: el riel de fases y las piezas en curso ---- */
+.fases-rail {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px;
+}
+.fase-mini {
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--panel2); border-radius: var(--r-campo); border-top: 3px solid var(--borde2);
+  padding: 8px 10px;
+}
+.fase-mini.compuerta { border-top-color: var(--malo); }
+.fase-mini .n { font-family: var(--mono, monospace); font-size: 11px; font-weight: 700; color: var(--apagado); }
+.fase-mini .q { font-size: 12.5px; font-weight: 500; }
+.fase-mini .d { font-size: 10px; letter-spacing: .05em; text-transform: uppercase; color: var(--apagado); }
+
+.grupo-pieza {
+  font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--apagado);
+  margin: 18px 0 8px;
+}
+.piezas-lista { display: flex; flex-direction: column; gap: 10px; }
+.pieza-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.pieza-nombre { font-weight: 600; font-size: 14.5px; }
+.barra-fases { display: flex; gap: 2px; }
+.barra-fases span { height: 7px; flex: 1; border-radius: 2px; background: var(--panel2); border: 1px solid var(--borde); }
+.barra-fases span.ok { background: var(--pizarra); border-color: var(--pizarra); }
+.barra-fases span.aqui { background: var(--terra); border-color: var(--terra); }
+.barra-fases span.mal { background: var(--malo); border-color: var(--malo); }
+.pieza-pie { font-size: 12px; color: var(--apagado); margin-top: 6px; }
+.pieza-pie b { color: var(--texto); }
+
+.decision-item { display: flex; flex-direction: column; gap: 3px; padding: 10px 0; border-bottom: 1px solid var(--borde); }
+.decision-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.decision-item b { font-size: 14px; }
+.decision-item span { font-size: 13px; color: var(--suave); }
+
 @media (max-width: 900px) {
   .con-panel { grid-template-columns: 1fr; }
   .panel-pegado { position: static; }

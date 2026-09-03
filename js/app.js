@@ -9,6 +9,7 @@
     { id: 'cotizar',    txt: 'Cotizar',    cuenta: null },
     { id: 'disenos3d',  txt: 'Personalizados 3D', cuenta: () => Datos.activos('disenos3d').length },
     { id: 'impresora',  txt: 'Historial K2', cuenta: null },
+    { id: 'produccion', txt: 'Producción',  cuenta: null },
     { id: 'clientes',   txt: 'Clientes',   cuenta: () => Datos.activos('clientes').length },
     { id: 'filamentos', txt: 'Filamentos', cuenta: () => Datos.activos('filamentos').length },
     { id: 'ajustes',    txt: 'Ajustes',    cuenta: null }

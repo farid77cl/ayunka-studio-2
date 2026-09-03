@@ -24,8 +24,9 @@ const BASE = [
   './js/vistas/pendientes.js',
   './js/vistas/productos.js', './js/vistas/filamentos.js', './js/vistas/clientes.js',
   './js/vistas/pedidos.js', './js/vistas/finanzas.js', './js/vistas/cola.js', './js/vistas/cotizar.js',
-  './js/vistas/disenos3d.js', './js/vistas/impresora.js', './js/vistas/ajustes.js',
-  './datos/semilla.json',
+  './js/vistas/disenos3d.js', './js/vistas/impresora.js', './js/vistas/produccion.js',
+  './js/vistas/ajustes.js',
+  './datos/semilla.json', './datos/produccion.json',
   './manifest.webmanifest'
 ];
 

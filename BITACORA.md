@@ -4,6 +4,40 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-03 · Pantalla «Producción»: dónde va cada placa NFC · v2.19.0
+
+**Qué cambió.** Farid compartió un tablero de estado (RUDY, Briones, LIDCAR — nueve fases,
+dos compuertas) armado a mano por otra sesión, y pidió que quedara **dentro de la app, con
+datos de verdad, y que se actualizara sola.** Nueva pestaña «Producción»
+(`js/vistas/produccion.js`) que lee `datos/produccion.json` — un archivo aparte de
+`db.js`/Firestore, porque lo escribe la skill `llavero-nfc-desde-3mf` desde el repo, no
+Farid desde la app. La skill quedó instruida (sección «Guardar») para actualizarlo cada vez
+que una pieza cambia de fase, no solo al cerrar el día — así el tablero deja de depender de
+que alguien lo escriba a mano.
+
+**Cómo sé que funciona.** Sin navegador propio en este entorno, pero **sí Edge instalado** —
+lo usé headless (`msedge --headless=new --dump-dom`) contra el `index.html` real, dos veces:
+- Primera pasada: el tablero cargó, las 7 piezas y sus 3 grupos (RUDY, Briones, LIDCAR)
+  aparecieron con el texto real del JSON, sin ningún mensaje de error. Pero al contar las
+  clases de la barra segmentada encontré un bug real: **51 casillas esperadas en azul
+  ("ok") salían solo 49**, y "tu turno" (naranja) salía 5 veces en vez de 3 — las dos
+  piezas de LIDCAR, ya entregadas (`estado:"hecho"`), pintaban su último tramo como "en
+  curso" en vez de "cerrado".
+- Corregido (`n === p.fase` ahora mira `p.estado` antes de decidir el color), corrí la
+  misma prueba de nuevo: **51 ok, 3 aqui, 1 mal, 8 vacías = 63 casillas, exacto contra las
+  7 piezas × 9 fases a mano.**
+- Confirmé además que la vista por defecto (`index.html` sin hash) sigue cargando con las
+  11 pestañas del menú, «Producción» incluida — el cambio en `app.js`/`index.html` no
+  rompió nada más.
+
+**Lo que NO quedé.** No hay forma de editar una pieza desde la pantalla — es de solo
+lectura, a propósito: quien escribe el estado es la skill, no un formulario. Si algún día
+hace falta editar desde el celular, es una decisión aparte (medio pedidos.js, medio esto).
+
+**Versión.** v2.19.0
+
+---
+
 ## 2026-09-02 · Personalizados 3D expone lo que el motor ya sabía hacer · v2.18.0
 
 **Qué cambió.** `SUPERVISION.md` trajo una auditoría grande: Farid preguntó *«en el llavero

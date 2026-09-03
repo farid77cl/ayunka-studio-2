@@ -1,0 +1,94 @@
+{
+  "actualizado": "2026-09-03",
+  "proceso": [
+    { "n": 1, "q": "Preguntar", "dueno": "los dos" },
+    { "n": 2, "q": "Sacar el vector", "dueno": "Claude" },
+    { "n": 3, "q": "Encajar", "dueno": "Claude" },
+    { "n": 4, "q": "Arreglar trazos", "dueno": "Claude" },
+    { "n": 5, "q": "Armar el 3MF", "dueno": "Claude" },
+    { "n": 6, "q": "Revisar el 3MF", "dueno": "compuerta", "compuerta": true },
+    { "n": 7, "q": "Cortar", "dueno": "Farid" },
+    { "n": 8, "q": "Revisar el G-code", "dueno": "compuerta", "compuerta": true },
+    { "n": 9, "q": "Imprimir una", "dueno": "Farid" }
+  ],
+  "notaProceso": "Las dos compuertas no se saltan. La 6 mide el archivo ya escrito; la 8 mira el bolsillo del chip capa por capa en el G-code.",
+  "piezas": [
+    {
+      "grupo": "RUDY Automotriz · encargo nuevo",
+      "nombre": "RUDY Automotriz rectangular 1 - plana v2",
+      "fase": 9,
+      "estado": "turno",
+      "nota": "Te toca: imprimirla. Mira la cara, el canto del reborde morado y que el chip entre en la pausa."
+    },
+    {
+      "grupo": "Automotriz Briones · la tanda salió sin filo",
+      "nombre": "Automotriz Briones rectangular 20 - plana v1",
+      "fase": 9,
+      "estado": "problema",
+      "alerta": true,
+      "nota": "Impresa, y salió mal. Es la del 3-sep, la de la foto. Queda congelada hasta saber por qué — no se reimprime así."
+    },
+    {
+      "grupo": "Automotriz Briones · la tanda salió sin filo",
+      "nombre": "Automotriz Briones rectangular 1 - plana v1",
+      "fase": 7,
+      "estado": "turno",
+      "nota": "Te toca: cortarla. Es la prueba barata — el archivo de 20 con 19 instancias menos. Pasó la compuerta del 3MF, 12 de 12."
+    },
+    {
+      "grupo": "Automotriz Briones · la tanda salió sin filo",
+      "nombre": "Automotriz Briones rectangular 1 - relieve v2",
+      "fase": 7,
+      "estado": "turno",
+      "nota": "Te toca: cortarla junto a la anterior. Las dos en la misma bandeja, media hora, y se comparan contra la foto."
+    },
+    {
+      "grupo": "Automotriz Briones · la tanda salió sin filo",
+      "nombre": "Automotriz Briones rectangular 20 - relieve v2",
+      "fase": 6,
+      "estado": "espera",
+      "nota": "En espera. Solo tiene sentido cortarla si la prueba en relieve gana."
+    },
+    {
+      "grupo": "LIDCAR · entregado, y ahora la vara de comparación",
+      "nombre": "LIDCAR rectangular 20 - plana v4 · 15 - plana v4",
+      "fase": 9,
+      "estado": "hecho",
+      "nota": "Hechas. Las 50 placas del encargo. Esta es la referencia sana contra la que se mide todo lo demás."
+    },
+    {
+      "grupo": "LIDCAR · entregado, y ahora la vara de comparación",
+      "nombre": "LIDCAR redondo 15 - plana v5 · 5 - plana v5",
+      "fase": 9,
+      "estado": "hecho",
+      "nota": "Hechas. Los 20 llaveros redondos, cortados y con su G-code guardado."
+    }
+  ],
+  "abierto": {
+    "titulo": "Por qué el logo de Briones salió sin filo",
+    "texto": "Se midieron nueve cosas sobre el archivo y todas dan igual o mejor que LIDCAR, que sí salió bien. El defecto no está en el 3MF.",
+    "medidas": [
+      { "que": "Trazo más fino", "briones": "0,883 mm", "lidcar": "≥ 0,64" },
+      { "que": "Micro-huecos", "briones": "0", "lidcar": "0" },
+      { "que": "Claves del perfil", "briones": "idénticas", "lidcar": "498" },
+      { "que": "Gap infill, capa 1", "briones": "2,53 %", "lidcar": "2,95 %" },
+      { "que": "Sin cubrir, capa 1", "briones": "14,17 %", "lidcar": "13,89 %" },
+      { "que": "Arte contra arte", "briones": "0,0000 mm²", "lidcar": "—" }
+    ],
+    "pie": "La prueba que falta ya está armada: las dos placas de una unidad, juntas en una bandeja. El detalle completo está en .planning/DEFINICION-BRIONES.md."
+  },
+  "decisiones": [
+    {
+      "titulo": "Briones: ¿plana o relieve?",
+      "texto": "La plana lleva chip NFC. La de relieve saca más filo porque el borde lo da el canto de la pieza, pero pierde el chip. La prueba de media hora decide."
+    },
+    {
+      "titulo": "RUDY: ¿cuántas placas?",
+      "texto": "El tope por bandeja es 20. Una vez que apruebes la de prueba, armo la tanda con la cantidad que pida el cliente."
+    },
+    {
+      "titulo": "RUDY: el subrayado, ¿0,64 o 1,0 mm?",
+      "texto": "Quedó en 0,64, que es el mínimo de la regla. Después de lo de Briones desconfío de ese mínimo; subirlo casi no se nota y da holgura."
+    }
+  ]
+}
