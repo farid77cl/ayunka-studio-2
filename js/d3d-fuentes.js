@@ -4,13 +4,26 @@
    cursivas (que es lo que pide un nombre en un letrero) y la ñ y los acentos salen
    bien, que en Chile no es opcional.
 
-   Los TTF se guardan en IndexedDB la primera vez. Sin eso, al quedarse sin internet
-   la app deja de poder escribir texto, y el texto es casi todo el producto.        */
+   Los TTF se guardan en IndexedDB la primera vez, así el segundo llavero no vuelve a
+   leer el archivo. Pero el caché no es lo que hace que esto funcione sin internet:
+   eso lo hace `js/vendor/`, abajo.                                                 */
 (function () {
   'use strict';
 
-  const CDN = 'https://cdn.jsdelivr.net/gh/google/fonts@main/';
-  const OPENTYPE = 'https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js';
+  /* Los TTF y opentype.js viven DENTRO del repo, en `js/vendor/`. No es una manía de
+     orden: hasta la v2.19 venían de `cdn.jsdelivr.net` en cada arranque, y como
+     `sw.js` salta a propósito todo lo que no es del mismo origen, no había forma de
+     cachearlos. Los TTF sí quedaban en IndexedDB, pero opentype.js —el que los
+     interpreta— se pedía siempre a la red. Medido el 8-sep con los CDN inalcanzables:
+     «Generar» fallaba y el aviso era la URL pelada. Encima `google/fonts@main` es una
+     rama que se mueve; el día que Google renombre un archivo, esa tipografía queda en
+     404 sin que nadie lo note.
+
+     Se mantiene la estructura de carpetas de google/fonts (`ofl/…`, `apache/…`) para
+     que cada fuente conserve su licencia al lado, y para poder actualizar una copiando
+     el archivo encima. Detalle en `js/vendor/README.md`. */
+  const BASE = './js/vendor/fuentes/';
+  const OPENTYPE = './js/vendor/opentype.min.js';
 
   // Todas OFL/Apache: se pueden usar en productos que se venden.
   const FUENTES = [
@@ -56,7 +69,20 @@
 
   /* ---------- carga ---------- */
   function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error(src)); document.head.appendChild(s); }); }
-  async function ensureOpentype() { if (!window.opentype) await loadScript(OPENTYPE); if (!window.opentype) throw new Error('No se pudo cargar el lector de fuentes'); return window.opentype; }
+  /* El mensaje importa tanto como el arreglo: hasta la v2.19 esto rechazaba con la URL
+     pelada, y en pantalla se leía «No se pudo generar.
+     https://cdn.jsdelivr.net/npm/opentype.js@…» — que no le dice a nadie qué hacer. */
+  async function ensureOpentype() {
+    if (!window.opentype) {
+      try { await loadScript(OPENTYPE); }
+      catch (e) {
+        throw new Error('No pude cargar el lector de fuentes (' + OPENTYPE + '). Recarga la ' +
+          'página; si sigue igual, ese archivo no llegó al sitio.');
+      }
+    }
+    if (!window.opentype) throw new Error('No se pudo cargar el lector de fuentes');
+    return window.opentype;
+  }
 
   const cache = {};
   function def(id) { return FUENTES.find(f => f.id === id) || FUENTES.find(f => f.id === POR_DEFECTO); }
@@ -67,8 +93,8 @@
     const ot = await ensureOpentype();
     let buf = await guardado(id);
     if (!buf) {
-      const r = await fetch(CDN + def(id).file);
-      if (!r.ok) throw new Error('No se pudo descargar la fuente ' + def(id).label);
+      const r = await fetch(BASE + def(id).file);
+      if (!r.ok) throw new Error('No encontré la tipografía ' + def(id).label + ' en ' + BASE + def(id).file);
       buf = await r.arrayBuffer();
       guardar(id, buf);
     }
@@ -158,5 +184,9 @@
     return g;
   }
 
-  window.D3DFuentes = { lista, grupos, cargar, cargada, contornos, POR_DEFECTO, FUENTES };
+  /* BASE sale afuera para que la vista no vuelva a escribir la ruta por su cuenta:
+     hasta la v2.19 `disenos3d.js` tenía su propia copia de la URL del CDN, y eso es
+     exactamente el defecto de «la paleta en seis lugares» que el repo nuevo vino a
+     evitar. Un solo dueño de la ruta. */
+  window.D3DFuentes = { lista, grupos, cargar, cargada, contornos, POR_DEFECTO, FUENTES, BASE };
 })();

@@ -1,0 +1,8 @@
+# Lo de `js/vendor/` se copia tal cual y no se toca: son archivos de otros.
+#
+# Git ya reconoce los TTF como binarios por su contenido, pero dejarlo escrito quita
+# cualquier margen de duda en un checkout de Windows con `core.autocrlf` activado — una
+# tipografía con los fines de línea convertidos no falla al descargarse: falla al
+# interpretarse, mucho después, y sin decir por qué.
+*.ttf binary
+js/vendor/*.min.js -text

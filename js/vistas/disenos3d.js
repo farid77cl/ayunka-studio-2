@@ -20,9 +20,12 @@
     if (cargandoThree) return cargandoThree;
     cargandoThree = new Promise((res, rej) => {
       const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+      // r128 desde el repo, no desde cdnjs: exportar un STL o un 3MF no puede depender
+      // de que haya internet. Es el mismo build, three@0.128.0. Ver js/vendor/README.md.
+      s.src = './js/vendor/three.min.js';
       s.onload = res;
-      s.onerror = () => rej(new Error('No se pudo cargar el motor 3D (revisa la conexión)'));
+      s.onerror = () => rej(new Error('No pude cargar el motor 3D (js/vendor/three.min.js). ' +
+        'Recarga la página; si sigue igual, ese archivo no llegó al sitio.'));
       document.head.appendChild(s);
     });
     return cargandoThree;
@@ -189,8 +192,9 @@
   function inyectarFuentesCSS() {
     if (fuentesCSSInyectadas) return;
     fuentesCSSInyectadas = true;
-    const CDN = 'https://cdn.jsdelivr.net/gh/google/fonts@main/';
-    const reglas = D3DFuentes.FUENTES.map(f => `@font-face{font-family:'d3d-${f.id}';src:url('${CDN}${f.file}');font-display:swap;}`).join('');
+    // La ruta la manda D3DFuentes, que es quien tiene los archivos. Acá había una copia
+    // de la URL del CDN: dos dueños de lo mismo, que se separan sin que nada avise.
+    const reglas = D3DFuentes.FUENTES.map(f => `@font-face{font-family:'d3d-${f.id}';src:url('${D3DFuentes.BASE}${f.file}');font-display:swap;}`).join('');
     const style = document.createElement('style');
     style.textContent = reglas;
     document.head.appendChild(style);

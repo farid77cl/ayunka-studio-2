@@ -965,3 +965,55 @@ es lo que hace que se doble o no), los **35 mm** de la letra (lo que decide si s
 la **holgura de 0,3** en la caja de luz (si la tira LED entra), la **posición de la argolla**
 (si el texto queda descentrado). Si hay que elegir qué exponer primero, es eso: **una medida
 por preset, la que rompe la pieza**, antes que veinte controles genéricos.
+
+---
+
+# Revisión del 8-sep · v2.18.0 y v2.19.0 · las dos que no tenían revisión
+
+Corrida sobre un clon de `origin/main` (`5e22f5b`), servido por `http`, en **Chromium de
+verdad**: apretando, no leyendo. El detalle completo, con las tablas, está en
+`../negocio/.planning/REVISION-STUDIO-2-2026-09-08.md`.
+
+## Aprobado
+
+- **Las 12 vistas pintan y ninguna lanza una excepción de JavaScript.**
+- **v2.19 · Producción.** Conté las casillas por su clase en el DOM: **51 `ok` · 3 `aqui` ·
+  1 `mal`**, más 8 vacías = las 63 de 7 piezas × 9 fases. El arreglo de que una pieza `hecho`
+  no pinte su último tramo como «en curso» está en pie.
+- **v2.18 · Personalizados 3D.** Las **39 figuras** dibujan su SVG real, agrupadas; ancho,
+  alto y grosor editables; **15 campos**; los textos rotulados por su nombre («Marca o texto
+  principal», «Teléfono o segunda línea») y no por su propio valor; todo lo secundario detrás
+  de un solo `<details>`.
+- **Pendientes no repite:** 30 = 28 filas de productos distintos + 2 bloques que no son tabla.
+
+## Los cinco hallazgos
+
+### 1 · Personalizados 3D no funcionaba sin internet — **RESUELTO en v2.20.0**
+opentype.js y three.js se pedían a un CDN en cada arranque y `sw.js` los saltaba por ser de
+otro origen; el aviso en pantalla era la URL pelada. Los dos motores y las 14 tipografías
+quedaron en `js/vendor/`. Detalle y comprobaciones en `BITACORA.md`.
+
+### 2 · La tasa de fallas sigue en 10% · decisión de Farid
+`datos/semilla.json` trae `params.tasaFalla: 0.1` y Ajustes muestra «0,10 = 10%». Lo medido
+es **24,1% en crudo** y **16,1%** sin los 16 cancelados antes de los 10 minutos. La pantalla
+muestra las dos y nadie eligió, así que **todo el 3D se cotiza ~7% barato**. Un clic.
+
+### 3 · El descuento de filamento y el stock siguen apagados · un clic
+**0 de 38 productos con `filamentoId`**, **0 con `llevaStock`**, `movimientos` en **0**. El
+mecanismo está probado desde la v2.16; falta elegir el rollo por defecto en Ajustes.
+
+### 4 · 26 de 38 productos sin precio
+15 de bordado, 11 de 3D, y **solo 2** se cierran hoy con el botón «Aceptar». Los 15 textiles
+esperan cronometrar uno de cada tipo; los 9 de 3D pueden salir de Historial K2 sin medir nada.
+
+### 5 · Cotizar solo acepta un 3MF
+No se puede cotizar a mano y no sale ningún documento para el cliente. `cotizaciones` está
+declarada (`js/db.js:17`) con **0 fichas**, y `abonoPct`, `validezCotizacionDias` e `iva`
+están en la semilla y **nadie los lee**. Es el punto 3 de «lo que nunca llegó a este repo» y
+sigue igual.
+
+## Lo que no se pudo probar desde acá
+
+Todo lo visual; «Traer de la impresora» (hace falta la K2 en la misma red); Supabase contra
+el servidor real (falta pegar la clave en Ajustes); y subir un archivo con un clic de un
+mouse de verdad.

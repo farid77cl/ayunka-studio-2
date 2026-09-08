@@ -7,6 +7,10 @@
  *     en la siguiente recarga, siempre, sin depender de que alguien se acuerde de subir
  *     un número. Esto es lo que falló el 1-sep-2026 y costó medio día.
  *   - Las IMÁGENES y fuentes van por CACHÉ primero: no cambian y son lo pesado.
+ *   - `js/vendor/` (opentype.js, three.js y los TTF) también va por CACHÉ primero: son
+ *     versiones fijas de 774 KB + 3,9 MB, y pedirlas por red en cada recarga es regalar
+ *     datos del teléfono. Si alguna se cambia, se sube la versión en js/version.js y el
+ *     caché entero se renombra, así que no queda pegada.
  *
  * El nombre del caché sale de js/version.js, que es el único lugar donde vive la versión.
  */
@@ -27,7 +31,12 @@ const BASE = [
   './js/vistas/disenos3d.js', './js/vistas/impresora.js', './js/vistas/produccion.js',
   './js/vistas/ajustes.js',
   './datos/semilla.json', './datos/produccion.json',
-  './manifest.webmanifest'
+  './manifest.webmanifest',
+  /* Los dos motores de Personalizados 3D. Van acá, precargados en la instalación, porque
+     sin ellos no se puede generar ni exportar NADA: hasta la v2.19 venían de dos CDN y
+     este mismo service worker los saltaba por ser de otro origen. Los TTF NO van en esta
+     lista a propósito —son 3,9 MB— y se cachean solos la primera vez que se usa cada uno. */
+  './js/vendor/opentype.min.js', './js/vendor/three.min.js'
 ];
 
 self.addEventListener('install', e => {
@@ -47,13 +56,14 @@ self.addEventListener('activate', e => {
 });
 
 const ES_IMAGEN = /\.(png|jpe?g|gif|svg|webp|ico|woff2?|ttf)$/i;
+const ES_VENDOR = /\/js\/vendor\//;
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET') return;
   if (url.origin !== location.origin) return;   // Firebase, Supabase y fuentes: directo
 
-  if (ES_IMAGEN.test(url.pathname)) {
+  if (ES_IMAGEN.test(url.pathname) || ES_VENDOR.test(url.pathname)) {
     // caché primero
     e.respondWith(
       caches.match(e.request).then(r => r || fetch(e.request).then(resp => {

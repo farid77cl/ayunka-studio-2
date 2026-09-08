@@ -4,6 +4,77 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-08 · Personalizados 3D deja de necesitar internet · v2.20.0
+
+**Qué cambió.** Hasta la v2.19, armar un llavero necesitaba que **dos CDN respondieran**:
+opentype.js (jsdelivr) para leer las tipografías y three.js (cdnjs) para exportar. Los TTF sí
+se guardaban en IndexedDB, pero el lector que los interpreta se pedía a la red **en cada
+arranque**, y `sw.js` salta a propósito todo lo que no es del mismo origen. Sin internet —o
+con jsdelivr caído, o bloqueado en una red ajena— «Generar» fallaba, y lo que se leía en
+pantalla era esto, textual:
+
+    No se pudo generar. https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js
+
+Una URL pelada no le dice a nadie qué hacer. **Ahora las dos librerías y las 14 tipografías
+viven en el repo** (`js/vendor/`, 4,7 MB con sus licencias), el service worker las precarga y
+los mensajes de error dicen qué pasó y qué hacer. De paso se fue una **rama que se mueve**:
+las tipografías venían de `google/fonts@main`, así que un renombre de Google dejaba una en
+404 sin que nadie lo notara hasta querer usarla.
+
+**Cómo sé que funciona.** Este entorno **no sale** a jsdelivr ni a cdnjs (`403` del proxy),
+así que es exactamente el escenario «sin internet», sin tener que simularlo. En Chromium,
+sobre la app real:
+
+- Escribí `LIDCAR` y el teléfono en el preset «Llavero publicitario» y apreté Generar:
+  **listo en 106 ms**, pieza real de **65 × 28 × 4,2 mm, 1 pieza, 2 colores**. Antes, con
+  esta misma red, fallaba.
+- **Descargué el 3MF de verdad: `llavero-publicitario.3mf`, 755.103 bytes.** Eso solo puede
+  salir si three.js cargó, así que prueba los dos motores de una.
+- `D3DFuentes.cargar('greatvibes')` y `('pacifico')` cargan desde el repo: `cargada()` da
+  `true` para las dos.
+- **Un solo pedido a otro dominio queda en toda la app**, y es la hoja de estilos de Google
+  Fonts para la tipografía *de la pantalla* (Outfit y Sacramento), no para las piezas.
+- Las tres de «antes de dar por cerrada una fase»: recargué **dos veces** y el pie dice
+  **v2.20.0** las dos; el caché del service worker se llama `ayunka-2.20.0` y trae
+  **`/js/vendor/opentype.min.js` y `/js/vendor/three.min.js`** entre sus 37 entradas.
+- **Cortando la red por completo**, `opentype.min.js` sigue respondiendo **200 con sus
+  171.001 bytes** desde el caché. Y una tipografía ya usada también: Pacifico, **329.380
+  bytes**, en otra pestaña con los `.ttf` abortados.
+- Recorrí las 12 vistas: ninguna lanza una excepción de JavaScript.
+
+**Cambié una decisión del `README.md`, y va dicho.** La regla 6 es «el código va por red
+primero». `js/vendor/` queda como **excepción, por caché primero**: son versiones fijas de
+774 KB + 3,9 MB y pedirlas en cada recarga es regalar datos del teléfono. El riesgo que la
+regla 6 evita —quedarse pegado en código viejo— no aplica igual acá: si alguna vez se
+reemplaza una de estas librerías se sube `js/version.js`, y el nombre del caché sale de ahí,
+así que el caché entero se renombra. Quedó escrito en el README y en `js/vendor/README.md`.
+
+**De paso, una copia que sobraba.** `js/vistas/disenos3d.js` tenía **su propia** constante
+con la URL del CDN de las tipografías, además de la de `js/d3d-fuentes.js`. Dos dueños de la
+misma ruta, que se separan sin que nada avise — el mismo defecto de «la paleta en seis
+lugares» que este repo vino a evitar. Ahora la ruta la manda `D3DFuentes.BASE` y la vista la
+lee de ahí.
+
+**Lo que NO quedó.**
+- **La tipografía de la pantalla sigue viniendo de Google Fonts** (Outfit y Sacramento, en
+  `index.html`). Sin internet la app se ve con la tipografía del sistema, pero funciona
+  entera. No la traje al repo a propósito: **la decisión de marca sigue abierta** —
+  `branding/README.md` dice Poppins y `branding/identidad-de-marca.md` dice Outfit— y no
+  quiero congelar megabytes de una tipografía que puede cambiar la semana que viene.
+- **Los TTF no se precargan**, son 3,9 MB. Se cachean solos la primera vez que se usa cada
+  uno; la primera vez que se usa una tipografía nueva sí hace falta que el sitio esté
+  alcanzable.
+- No toqué el motor ni agregué nada a Personalizados 3D: esto es solo de dónde salen los
+  bytes. Los tres recortes de la v2.18 (cuántas copias caben en la bandeja, ver la pieza
+  girando, el volumen en vivo) siguen pendientes.
+- La app **no tiene `<link rel="icon">`** en `index.html`, así que el navegador pide
+  `/favicon.ico` y se lleva un 404 en cada visita. Los iconos existen (`img/icono-192.png`).
+  Es cosmético y no lo metí en este cambio.
+
+**Versión.** `js/version.js` → `2.20.0`.
+
+---
+
 ## 2026-09-03 · Pantalla «Producción»: dónde va cada placa NFC · v2.19.0
 
 **Qué cambió.** Farid compartió un tablero de estado (RUDY, Briones, LIDCAR — nueve fases,

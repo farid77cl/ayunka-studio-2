@@ -57,6 +57,12 @@ la copia solo si no hay internet. Así un arreglo llega en la siguiente recarga,
 La versión vive en **un solo lugar** (`js/version.js`) y se muestra abajo a la izquierda, para
 que se sepa en tres segundos cuál se está corriendo.
 
+**La excepción, desde la v2.20.0: `js/vendor/`.** Las dos librerías de Personalizados 3D y
+las 14 tipografías van por **caché primero**, como las imágenes. Son versiones fijas: cambian
+cuando alguien las reemplaza a mano, y ese día se sube el número de versión y el caché entero
+se renombra. Pedir 774 KB por red en cada recarga era regalar datos del teléfono a cambio de
+nada. Por qué están en el repo y no en un CDN: `js/vendor/README.md`.
+
 ### 7. Un cálculo incompleto dice que no sabe
 
 Un producto de bordado sin horas de trabajo no vale $385: es que no se sabe cuánto vale. La
