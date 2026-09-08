@@ -84,7 +84,10 @@
     let db = Datos.leerDisco();
     if (!db) {
       db = await Datos.cargarSemilla();
-      A.aviso('Catálogo inicial cargado: 36 productos reales');
+      // El número se cuenta, no se escribe: decía «36 productos reales» y la semilla trae 38.
+      // Es chico, pero es la app diciéndole a Farid un número que no es el que tiene.
+      const n = (db.productos || []).filter(p => p.activo !== false).length;
+      A.aviso('Catálogo inicial cargado: ' + n + ' productos reales');
     }
     Object.keys(DB).forEach(k => delete DB[k]);
     Object.assign(DB, db);

@@ -55,6 +55,12 @@ misma ruta, que se separan sin que nada avise — el mismo defecto de «la palet
 lugares» que este repo vino a evitar. Ahora la ruta la manda `D3DFuentes.BASE` y la vista la
 lee de ahí.
 
+**Y un número escrito a mano que no era.** Al cargar el catálogo inicial, el aviso decía
+«Catálogo inicial cargado: **36** productos reales» y la semilla trae **38** — el 36 estaba
+escrito dentro de `js/app.js`. Ahora se cuenta (`db.productos` activos), así que el aviso y
+el número del menú dicen lo mismo. Comprobado: **38 y 38**. Chico, pero es la app diciendo
+un número que no es el que tiene, y eso acá no se deja pasar.
+
 **Lo que NO quedó.**
 - **La tipografía de la pantalla sigue viniendo de Google Fonts** (Outfit y Sacramento, en
   `index.html`). Sin internet la app se ve con la tipografía del sistema, pero funciona
@@ -71,7 +77,7 @@ lee de ahí.
   `/favicon.ico` y se lleva un 404 en cada visita. Los iconos existen (`img/icono-192.png`).
   Es cosmético y no lo metí en este cambio.
 
-**Versión.** `js/version.js` → `2.20.0`.
+**Versión.** `js/version.js` → `2.20.0` (los motores) y `2.20.1` (el número del aviso).
 
 ---
 
