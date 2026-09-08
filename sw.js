@@ -30,7 +30,7 @@ const BASE = [
   './js/vistas/pedidos.js', './js/vistas/finanzas.js', './js/vistas/cola.js', './js/vistas/cotizar.js',
   './js/vistas/disenos3d.js', './js/vistas/impresora.js', './js/vistas/produccion.js',
   './js/vistas/ajustes.js',
-  './datos/semilla.json', './datos/produccion.json',
+  './datos/semilla.json', './datos/produccion.json', './datos/historial-k2.json',
   './manifest.webmanifest',
   /* Los dos motores de Personalizados 3D. Van acá, precargados en la instalación, porque
      sin ellos no se puede generar ni exportar NADA: hasta la v2.19 venían de dos CDN y

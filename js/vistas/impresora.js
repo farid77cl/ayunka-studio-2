@@ -5,7 +5,15 @@
 (function () {
   let propuestas = [];
   let resumen = null;
+  let deLaApp = false;          // el resumen que se está viendo salió del archivo que trae la app
+  let fechaApp = '';            // hasta cuándo llega ese archivo, leída del propio archivo
   const CLAVE_IP = 'ayunka2-imp-ip';
+  /* El historial bajado de Moonraker el 2-sep viene DENTRO de la app (38 KB). Antes esta
+     pantalla arrancaba vacía y los 199 trabajos medidos —los que rellenan los gramos y las
+     horas de los productos 3D sin datos— dependían de que alguien encontrara un archivo en
+     una carpeta del PC. Se carga solo, y se dice de dónde salió y hasta cuándo llega, para
+     que nadie lo confunda con el estado de ahora. */
+  const HISTORIAL_APP = './datos/historial-k2.json';
 
   // Revisión del 3-sep: en https, fetch('http://...') no rechaza -- se cuelga para
   // siempre, y el catch de traerDeIp() nunca corre. Farid apretó el botón y no pasó nada
@@ -50,6 +58,29 @@
     ['dragenter', 'dragover'].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.add('encima'); }));
     ['dragleave', 'drop'].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.remove('encima'); }));
     zona.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) cargarArchivo(f); });
+
+    // Sin esto la pantalla queda vacía hasta que alguien busque un archivo. Con esto se
+    // abre mostrando los 199 trabajos que ya están medidos.
+    traerDeLaApp();
+  }
+
+  async function traerDeLaApp() {
+    A.$('#imp-resultado').innerHTML = `<div class="tarjeta"><div class="vacio">Leyendo el historial que trae la app…</div></div>`;
+    try {
+      const r = await fetch(HISTORIAL_APP);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const datos = await r.json();
+      // La fecha sale del propio archivo (`bajado`), no escrita a mano: si algún día se
+      // reemplaza por uno más nuevo, el aviso se actualiza solo.
+      fechaApp = (datos.bajado || '').slice(0, 10);
+      deLaApp = true;
+      procesar(datos);
+    } catch (e) {
+      deLaApp = false;
+      A.$('#imp-resultado').innerHTML = `<div class="tarjeta aviso">
+        <b>No pude leer el historial que trae la app</b> (<code>${A.esc(HISTORIAL_APP)}</code>: ${A.esc(e.message || String(e))}).
+        Suelta el archivo del historial acá arriba, o tráelo de la impresora.</div>`;
+    }
   }
 
   async function traerDeIp() {
@@ -74,6 +105,7 @@
     try {
       const r = await fetch('http://' + ip + '/server/history/list?limit=500', { signal: control.signal });
       if (!r.ok) throw new Error('la impresora respondió ' + r.status);
+      deLaApp = false;   // esto sí viene de la impresora, ahora
       procesar(await r.json());
     } catch (e) {
       const esCorte = e.name === 'AbortError';
@@ -88,6 +120,7 @@
   }
 
   function cargarArchivo(file) {
+    deLaApp = false;   // el archivo lo trajo una persona, no la app
     A.$('#imp-resultado').innerHTML = `<div class="tarjeta"><div class="vacio">Leyendo ${A.esc(file.name)}…</div></div>`;
     const fr = new FileReader();
     fr.onload = () => {
@@ -124,6 +157,11 @@
     const sinDueno = propuestas.filter(p => !p.productoId);
 
     A.$('#imp-resultado').innerHTML = `
+      ${deLaApp ? `<div class="tarjeta aviso" style="margin-bottom:10px">
+        <b>Este es el historial que viene con la app</b>, bajado de la K2${fechaApp ? ' el ' + A.esc(fechaApp) : ''}.
+        Sirve para rellenar los gramos y las horas que faltan, pero <b>no es el estado de
+        ahora</b>: lo que la impresora hizo después no está acá. Para lo último, tráelo de la
+        impresora o suelta el archivo nuevo.</div>` : ''}
       <div class="tarjeta"><h2>Lo que dice el historial</h2>
         <div class="rejilla">
           <div class="dato"><div class="k">Trabajos</div><div class="v">${r.trabajos}</div></div>

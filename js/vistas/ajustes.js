@@ -82,9 +82,16 @@
           ${A.campo('n-clave', 'Contraseña de acceso', guardado.clave || '', { tipo: 'password' })}
           ${A.campo('n-espacio', 'Espacio', guardado.espacio || (window.AYUNKA_CFG || {}).espacio || 'ayunka')}
         </div>
-        <label class="campo ancho"><span>Configuración de Firebase <i>pega el objeto firebaseConfig</i></span>
-          <textarea id="n-fb" rows="4" placeholder='{ "apiKey": "…", "projectId": "…", "appId": "…" }'>${
-            A.esc(guardado.firebase ? JSON.stringify(guardado.firebase) : JSON.stringify((window.AYUNKA_CFG || {}).firebase || {}))}</textarea></label>
+        <!-- El objeto de Firebase ya viene puesto en js/config.js desde la v2.21.0, así que
+             lo normal es escribir el correo y la contraseña y apretar Conectar. Queda a la
+             mano, plegado, para el día que haya que apuntar a otro proyecto. El campo sigue
+             existiendo en el DOM con el <details> cerrado, que es de donde lo lee conectar(). -->
+        <details>
+          <summary style="cursor:pointer;font-size:13px;color:var(--apagado)">El proyecto de Firebase ya está puesto — ábrelo solo si hay que cambiarlo</summary>
+          <label class="campo ancho"><span>Configuración de Firebase <i>el objeto firebaseConfig</i></span>
+            <textarea id="n-fb" rows="4" placeholder='{ "apiKey": "…", "projectId": "…", "appId": "…" }'>${
+              A.esc(guardado.firebase ? JSON.stringify(guardado.firebase) : JSON.stringify((window.AYUNKA_CFG || {}).firebase || {}))}</textarea></label>
+        </details>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn primario" onclick="Vistas.ajustes.conectar()">Conectar</button>
           <button class="btn" onclick="Nube.forzarSubida().then(()=>A.aviso('Subido'))">Subir ahora</button>

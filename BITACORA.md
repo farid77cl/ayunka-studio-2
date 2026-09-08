@@ -4,6 +4,85 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-08 · La app queda configurada: nube, fotos e historial de la K2 · v2.21.0
+
+**Qué cambió.** Studio estaba escrito y funcionando, pero **apagado**: `js/config.js` tenía
+`firebase.apiKey: ''` y `supabase: { url:'', clave:'' }`, así que para sincronizar entre el
+PC y el teléfono, o para subir una foto, había que pegar a mano el objeto `firebaseConfig` y
+la clave de Supabase en Ajustes. La regla del proyecto es explícita: *«nunca más pedirle a
+Farid que copie y pegue JSON o tokens — se equivoca al pegar y se pierde el tiempo»*. Ahora:
+
+1. **Firebase y Supabase vienen puestos** en `js/config.js`. En Ajustes queda solo el correo
+   y la contraseña de acceso, que son suyos y no pueden vivir en el repo. El campo del
+   `firebaseConfig` sigue existiendo, plegado en un `<details>`, para el día que haya que
+   apuntar a otro proyecto.
+2. **`firestore.rules` decía `CAMBIAR@ejemplo.com`.** Publicar ese archivo tal cual habría
+   cerrado la base para todos, Farid incluido. Ahora trae
+   `farid+ayunka-acceso@gmail.com`, la cuenta real.
+3. **Se le quitó `email_verified == true` a la regla**, y esto importa: la cuenta se creó a
+   mano en la consola y una cuenta creada así **no queda verificada**. Con esa condición, las
+   reglas habrían rechazado a la única persona que tiene que entrar, y el síntoma sería un
+   «permission-denied» sin explicación. El correo solo alcanza: esa cuenta ya existe (nadie
+   más puede registrarla) y el proveedor anónimo está inhabilitado desde el 1-sep.
+4. **Historial K2 se abre ya cargado.** El historial bajado de Moonraker (199 trabajos, 38 KB)
+   viene dentro de la app en `datos/historial-k2.json` y se lee al entrar a la pestaña. Antes
+   la pantalla arrancaba vacía y los números medidos dependían de que alguien encontrara un
+   archivo en una carpeta del PC.
+5. **Con un aviso que dice qué es**: «este es el historial que viene con la app, bajado de la
+   K2 el 2026-09-02 — no es el estado de ahora». La fecha sale del propio archivo (`bajado`),
+   no escrita a mano. Traerlo de la impresora o soltar un archivo nuevo lo reemplaza y el
+   aviso desaparece.
+6. **Los iconos estaban en `img/` y nadie los enlazaba**: el navegador pedía `/favicon.ico`,
+   se llevaba un 404 en cada visita y la pestaña salía sin marca. Un `<link rel="icon">`.
+
+**Cómo sé que funciona.**
+- **La clave anónima de Supabase se comprobó en la propia base ANTES de escribirla en el
+  repo.** Con el rol `anon`, insertar en el bucket `archivos` responde textualmente
+  `new row violates row-level security policy for table "objects"` — la frase exacta que
+  `SUPERVISION.md` pedía como prueba de que la puerta está cerrada. Las cuatro políticas del
+  bucket: LEER para `anon` y `authenticated` (que es lo que hace que la URL de una foto sirva
+  en WhatsApp y en el catálogo de Meta), y SUBIR, REEMPLAZAR y BORRAR **solo** para
+  `authenticated`. Subir sigue exigiendo el correo y la contraseña.
+- En el navegador, al arrancar: `Supabase.configurado()` da **true** con
+  `https://ncuvdpydwnepbysadoux.supabase.co · bucket archivos`, y **`Nube.configurado()` da
+  false** — o sea la sincronización NO se enciende sola por tener el proyecto puesto, sigue
+  esperando el correo y la contraseña. El bloque «La nube» de Pendientes sigue ahí, correcto.
+- Ajustes abre con la URL, la clave y el bucket ya escritos, y con el `firebaseConfig`
+  prellenado adentro del `<details>`.
+- Historial K2 pasó de **243 a 1.807 caracteres** en pantalla: 199 trabajos, 297,7 h, 6,5 kg,
+  797 g perdidos, las dos tasas con sus dos botones, y las piezas emparejadas.
+- Recorrí las 12 vistas: ninguna lanza una excepción de JavaScript. Ya no hay ningún 404.
+
+**Un número de la revisión del 8-sep que quedó mal, y lo corrijo acá.** Dije que «los 9
+productos 3D sin gramos ni horas pueden salir de Historial K2 sin medir nada». **Es falso, y
+ahora se ve en pantalla**: de esos 9, el historial solo alcanza a **AY-B2B-001**, y por
+parecido de nombre (`llaveros cute.stl`, 6 g y 0,605 h), no por origen exacto — o sea hay que
+revisarlo antes de aplicarlo. Los otros 8 no están en el historial con un nombre que calce:
+esos sí hay que medirlos o enlazarlos a mano. Las 9 que el historial empareja por nombre
+exacto **ya tienen esos mismos datos**, y el botón lo dice: «Aplicar las 9 (9 sin cambios)».
+
+**Lo que NO quedó.**
+- **Publicar las reglas de Firestore.** No se puede desde el código y no se puede desde acá:
+  este entorno no sale a `firestore.googleapis.com`. Hay que subirlas en la consola y después
+  correr el `curl` del README, que tiene que dar **403**. Mientras no se publiquen, la
+  sincronización de esta app puede fallar con «permission-denied» aunque el correo y la
+  contraseña estén bien — las reglas publicadas el 1-sep se escribieron para la ruta
+  `studios/…` de la app anterior, y esta escribe en `negocios/{espacio}`.
+- **Subir una foto de verdad contra Supabase** tampoco se pudo probar desde acá, por lo
+  mismo. La prueba que cierra el tema sigue siendo la del encargo E, y ahora solo necesita
+  el correo y la contraseña puestos.
+- **La tasa de fallas sigue en 10%.** La pantalla ya muestra 24,1% y 16,1% con sus dos
+  botones desde que se abre, sin buscar ningún archivo, pero **elegir es de Farid**: cambia
+  el costo de todo el 3D. No se toca por código.
+- **El rollo por defecto sigue sin elegir.** Igual: un clic en Ajustes, y Pendientes lo dice.
+- No se aplicó ninguna de las dos propuestas «parecidas» del historial. Están marcadas para
+  revisar una por una a propósito, y decidir si `llaveros cute.stl` es ese producto no es una
+  decisión de código.
+
+**Versión.** `js/version.js` → `2.21.0`.
+
+---
+
 ## 2026-09-08 · Personalizados 3D deja de necesitar internet · v2.20.0
 
 **Qué cambió.** Hasta la v2.19, armar un llavero necesitaba que **dos CDN respondieran**:

@@ -127,17 +127,28 @@ Cualquier hosting estático sirve. Con GitHub Pages basta con activar Pages sobr
 
 ### Sincronización
 
-1. En Firebase: crear el proyecto, activar Firestore y **Authentication → correo/contraseña**.
-2. Crear un usuario de acceso (no el Gmail personal).
-3. Poner ese correo en `firestore.rules` y **publicar las reglas en la consola**.
-   Cambiar el archivo **no publica nada**.
-4. Comprobar desde afuera que quedó cerrado:
-   ```bash
-   curl "https://firestore.googleapis.com/v1/projects/TU-PROYECTO/databases/(default)/documents/negocios/ayunka"
-   ```
-   Tiene que responder **403**.
-5. En Ajustes de la app: pegar el `firebaseConfig`, el correo y la contraseña. Se guardan
-   **solo en ese equipo**, nunca en git.
+**Desde la v2.21.0 el proyecto ya viene configurado** en `js/config.js` (Firebase
+`ayunka-studio` y Supabase `ayunka`, los dos con valores públicos). En Ajustes solo hay que
+escribir **el correo y la contraseña de acceso** y apretar Conectar; se guardan **solo en ese
+equipo**, nunca en git. Ya no hay que pegar ningún JSON.
+
+**Lo único que falta y no se puede hacer desde el código: publicar las reglas.**
+`firestore.rules` ya trae el correo correcto, pero **cambiar el archivo no publica nada** —
+hay que subirlas en la consola (Firestore → Reglas → Publicar) o con
+`firebase deploy --only firestore:rules`. Ojo: las reglas publicadas el 1-sep se escribieron
+para la ruta `studios/…` de la app anterior, y esta escribe en `negocios/{espacio}`.
+
+Y comprobarlo desde afuera, que es lo único que vale:
+
+```bash
+curl "https://firestore.googleapis.com/v1/projects/ayunka-studio/databases/(default)/documents/negocios/ayunka"
+```
+
+Tiene que responder **403**. Si responde 200, está abierta.
+
+Para montar esto en otro proyecto: crear el proyecto en Firebase, activar Firestore y
+**Authentication → correo/contraseña**, crear un usuario de acceso que no sea el Gmail
+personal, poner ese correo en `firestore.rules`, publicarlas, y cambiar `js/config.js`.
 
 ---
 

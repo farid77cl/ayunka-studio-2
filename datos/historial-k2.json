@@ -1,0 +1,1401 @@
+{
+ "origen": "Moonraker K2 192.168.100.90:4408",
+ "bajado": "2026-09-02T13:21:10",
+ "result": {
+  "jobs": [
+   {
+    "filename": "LIDCAR 70x35.3mf_PLA_4h54m53s.gcode",
+    "status": "completed",
+    "print_duration": 15764.26,
+    "filament_used": 31778.1,
+    "end_time": 1788296291.065635
+   },
+   {
+    "filename": "Automotriz Briones prueba relieve.3mf_PLA_30m37s.gcode",
+    "status": "cancelled",
+    "print_duration": 1435.32,
+    "filament_used": 2285.2,
+    "end_time": 1788270128.433092
+   },
+   {
+    "filename": "Automotriz Briones prueba relieve.3mf_PLA_30m37s.gcode",
+    "status": "cancelled",
+    "print_duration": 686.12,
+    "filament_used": 1347.1,
+    "end_time": 1788268429.7374716
+   },
+   {
+    "filename": "LIDCAR rectangular.3mf_PLA_7h26m9s.gcode",
+    "status": "completed",
+    "print_duration": 23651.57,
+    "filament_used": 45179.5,
+    "end_time": 1788206173.5919619
+   },
+   {
+    "filename": "LIDCAR rectangular.3mf_PLA_5h35m24s.gcode",
+    "status": "completed",
+    "print_duration": 17803.17,
+    "filament_used": 34307.2,
+    "end_time": 1788131358.6191566
+   },
+   {
+    "filename": "LIDCAR redondo.3mf_PLA_11h11m48s.gcode",
+    "status": "completed",
+    "print_duration": 34759.47,
+    "filament_used": 31540.3,
+    "end_time": 1787966961.614184
+   },
+   {
+    "filename": "LIDCAR redondo.3mf_PLA_10h42m25s.gcode",
+    "status": "completed",
+    "print_duration": 33053.0,
+    "filament_used": 30940.3,
+    "end_time": 1787873611.3655553
+   },
+   {
+    "filename": "LIDCAR redondo.3mf_PLA_6h48m3s.gcode",
+    "status": "completed",
+    "print_duration": 22764.84,
+    "filament_used": 24708.4,
+    "end_time": 1787788046.3834023
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_40m53s.gcode",
+    "status": "completed",
+    "print_duration": 2597.78,
+    "filament_used": 4548.4,
+    "end_time": 1787764553.390908
+   },
+   {
+    "filename": "Backpack NFC Side No Zipper.stl_PLA_1h48m23s.gcode",
+    "status": "completed",
+    "print_duration": 6387.02,
+    "filament_used": 11574.1,
+    "end_time": 1787761247.426918
+   },
+   {
+    "filename": "automotirz briones negro.3mf_PLA_1h21m14s.gcode",
+    "status": "completed",
+    "print_duration": 4750.41,
+    "filament_used": 6507.7,
+    "end_time": 1787754549.9712331
+   },
+   {
+    "filename": "automotirz briones negro.3mf_PLA_1h21m14s.gcode",
+    "status": "cancelled",
+    "print_duration": 4496.06,
+    "filament_used": 5869.1,
+    "end_time": 1787749174.7422824
+   },
+   {
+    "filename": "Elite Cars.3mf_PLA_6h2m54s.gcode",
+    "status": "completed",
+    "print_duration": 20463.63,
+    "filament_used": 22476.6,
+    "end_time": 1787688974.2436876
+   },
+   {
+    "filename": "automotiz briones blanco.3mf_PLA_1h20m27s.gcode",
+    "status": "completed",
+    "print_duration": 4910.4,
+    "filament_used": 6535.0,
+    "end_time": 1787667984.63049
+   },
+   {
+    "filename": "Elite Cars.3mf_PLA_6h49m26s.gcode",
+    "status": "completed",
+    "print_duration": 24862.21,
+    "filament_used": 48629.6,
+    "end_time": 1787602436.7980525
+   },
+   {
+    "filename": "Elite Cars.3mf_PLA_4h55m27s.gcode",
+    "status": "completed",
+    "print_duration": 18086.5,
+    "filament_used": 35147.6,
+    "end_time": 1787430516.7990282
+   },
+   {
+    "filename": "Elite Cars.3mf_PLA_6h49m26s.gcode",
+    "status": "completed",
+    "print_duration": 22628.64,
+    "filament_used": 48629.6,
+    "end_time": 1787276563.1622722
+   },
+   {
+    "filename": "Elite Cars.3mf_PLA_4h51m45s.gcode",
+    "status": "completed",
+    "print_duration": 18819.74,
+    "filament_used": 34964.3,
+    "end_time": 1787252326.290639
+   },
+   {
+    "filename": "Elite Cars.3mf_PLA_6h7m9s.gcode",
+    "status": "completed",
+    "print_duration": 22397.16,
+    "filament_used": 43903.9,
+    "end_time": 1787174962.9355397
+   },
+   {
+    "filename": "Cuerpo18_PLA_2m5s.gcode",
+    "status": "completed",
+    "print_duration": 230.52,
+    "filament_used": 188.5,
+    "end_time": 1787148114.4736218
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_3h44m48s.gcode",
+    "status": "completed",
+    "print_duration": 13678.0,
+    "filament_used": 13707.0,
+    "end_time": 1787082935.1140373
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_10h27m33s.gcode",
+    "status": "cancelled",
+    "print_duration": 29053.61,
+    "filament_used": 30866.0,
+    "end_time": 1787068185.4363222
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_6h20m48s.gcode",
+    "status": "cancelled",
+    "print_duration": 11697.49,
+    "filament_used": 17526.9,
+    "end_time": 1786985529.381879
+   },
+   {
+    "filename": "Autos leon.3mf_PLA_3h9m14s.gcode",
+    "status": "completed",
+    "print_duration": 10635.21,
+    "filament_used": 23791.3,
+    "end_time": 1786724396.3728273
+   },
+   {
+    "filename": "Backpack NFC Side No Zipper.stl_PLA_1h28m34s.gcode",
+    "status": "completed",
+    "print_duration": 5515.27,
+    "filament_used": 11030.5,
+    "end_time": 1786658932.7243748
+   },
+   {
+    "filename": "Autos leon.3mf_PLA_6h30m32s.gcode",
+    "status": "completed",
+    "print_duration": 23742.06,
+    "filament_used": 48395.3,
+    "end_time": 1786649977.4093585
+   },
+   {
+    "filename": "pivot v4-SOLID-2_PLA_14m41s.gcode",
+    "status": "completed",
+    "print_duration": 1025.5,
+    "filament_used": 1415.7,
+    "end_time": 1786570712.886393
+   },
+   {
+    "filename": "pivot v4-SOLID-2_PLA_14m41s.gcode",
+    "status": "completed",
+    "print_duration": 1036.7,
+    "filament_used": 1342.8,
+    "end_time": 1786569151.6979296
+   },
+   {
+    "filename": "Assembly_PLA_1h19m9s.gcode",
+    "status": "cancelled",
+    "print_duration": 4939.12,
+    "filament_used": 7169.4,
+    "end_time": 1786567848.0505476
+   },
+   {
+    "filename": "Super Fyyran.stl_PLA_1h26m15s.gcode",
+    "status": "completed",
+    "print_duration": 5469.56,
+    "filament_used": 14995.6,
+    "end_time": 1786558715.1815562
+   },
+   {
+    "filename": "Yarn Spinner Base.stl_PLA_3h58m24s.gcode",
+    "status": "completed",
+    "print_duration": 12667.69,
+    "filament_used": 30875.5,
+    "end_time": 1786552894.669248
+   },
+   {
+    "filename": "right_PLA_1h44m13s.gcode",
+    "status": "completed",
+    "print_duration": 6414.27,
+    "filament_used": 17195.1,
+    "end_time": 1786466569.5948126
+   },
+   {
+    "filename": "Autos leon.3mf_PLA_3h11m35s.gcode",
+    "status": "completed",
+    "print_duration": 11749.85,
+    "filament_used": 23905.6,
+    "end_time": 1786459546.0076625
+   },
+   {
+    "filename": "Autos leon.3mf_PLA_6h30m36s.gcode",
+    "status": "completed",
+    "print_duration": 21458.98,
+    "filament_used": 48439.9,
+    "end_time": 1786393278.477362
+   },
+   {
+    "filename": "Creeper Head.stl_PLA_58m48s.gcode",
+    "status": "completed",
+    "print_duration": 3794.82,
+    "filament_used": 5496.4,
+    "end_time": 1786143685.4385417
+   },
+   {
+    "filename": ".Creeper_gcode.3mf/Creeper_gcode_plate_1.gcode",
+    "status": "completed",
+    "print_duration": 3173.01,
+    "filament_used": 4004.3,
+    "end_time": 1786138824.5746403
+   },
+   {
+    "filename": "小章鱼伸缩.stl_PLA_3h42m3s.gcode",
+    "status": "completed",
+    "print_duration": 13530.22,
+    "filament_used": 16435.7,
+    "end_time": 1786123898.9814937
+   },
+   {
+    "filename": "小章鱼伸缩.stl_PLA_3h42m3s.gcode",
+    "status": "cancelled",
+    "print_duration": 233.24,
+    "filament_used": 490.4,
+    "end_time": 1786110013.8630362
+   },
+   {
+    "filename": "Minecraft Sonic - Leg V2.stl_PLA_13m53s.gcode",
+    "status": "completed",
+    "print_duration": 936.28,
+    "filament_used": 1036.7,
+    "end_time": 1786055835.839127
+   },
+   {
+    "filename": "Minecraft Sonic - Arm V2.stl_PLA_1h13m50s.gcode",
+    "status": "completed",
+    "print_duration": 4760.0,
+    "filament_used": 3787.3,
+    "end_time": 1786054608.545581
+   },
+   {
+    "filename": "Minecraft Sonic - Hair Simple.stl_PLA_47m1s.gcode",
+    "status": "completed",
+    "print_duration": 3015.27,
+    "filament_used": 5467.6,
+    "end_time": 1786049258.8012922
+   },
+   {
+    "filename": "Elastic Threading Tool 6mm.stl_PLA_24m29s.gcode",
+    "status": "completed",
+    "print_duration": 1639.2,
+    "filament_used": 2460.6,
+    "end_time": 1786045755.4509273
+   },
+   {
+    "filename": "Elastic Threading Tool 25mm.stl_PLA_1h13m32s.gcode",
+    "status": "completed",
+    "print_duration": 4563.65,
+    "filament_used": 11314.9,
+    "end_time": 1786043751.3895636
+   },
+   {
+    "filename": "Elastic Threading Tool 12mm.stl_PLA_43m45s.gcode",
+    "status": "completed",
+    "print_duration": 2770.42,
+    "filament_used": 5767.1,
+    "end_time": 1786038590.930367
+   },
+   {
+    "filename": "ufic-angled-honeycomb.stl_PLA_3h2m4s.gcode",
+    "status": "completed",
+    "print_duration": 11128.03,
+    "filament_used": 21231.7,
+    "end_time": 1786034952.783715
+   },
+   {
+    "filename": "Minecraft Sonic - Joint.stl_PLA_2m29s.gcode",
+    "status": "completed",
+    "print_duration": 269.27,
+    "filament_used": 228.1,
+    "end_time": 1785966725.7164853
+   },
+   {
+    "filename": "Minecraft Sonic - Hair Simple.stl_PLA_47m1s.gcode",
+    "status": "completed",
+    "print_duration": 3061.95,
+    "filament_used": 5679.3,
+    "end_time": 1785965134.0037477
+   },
+   {
+    "filename": "Minecraft Sonic - Black.stl_PLA_16m9s.gcode",
+    "status": "completed",
+    "print_duration": 1122.75,
+    "filament_used": 1097.1,
+    "end_time": 1785961674.127423
+   },
+   {
+    "filename": "Minecraft Sonic - Arm V2.stl_PLA_11m6s.gcode",
+    "status": "completed",
+    "print_duration": 804.35,
+    "filament_used": 1175.7,
+    "end_time": 1785960309.047848
+   },
+   {
+    "filename": "Minecraft Sonic - Boot.stl_PLA_11m8s.gcode",
+    "status": "completed",
+    "print_duration": 973.23,
+    "filament_used": 1677.1,
+    "end_time": 1785959235.8591132
+   },
+   {
+    "filename": "black_PLA_3h1m54s.gcode",
+    "status": "klippy_shutdown",
+    "print_duration": 6740.77,
+    "filament_used": 10182.5,
+    "end_time": 1785957131.0012693
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_29m32s.gcode",
+    "status": "completed",
+    "print_duration": 2060.63,
+    "filament_used": 3925.9,
+    "end_time": 1785947761.886326
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_29m1s.gcode",
+    "status": "completed",
+    "print_duration": 2007.22,
+    "filament_used": 3733.4,
+    "end_time": 1785945289.3795733
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_28m2s.gcode",
+    "status": "completed",
+    "print_duration": 1969.92,
+    "filament_used": 3841.6,
+    "end_time": 1785942127.271119
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_28m36s.gcode",
+    "status": "completed",
+    "print_duration": 1941.03,
+    "filament_used": 3568.6,
+    "end_time": 1785939710.459872
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_51m49s.gcode",
+    "status": "cancelled",
+    "print_duration": 253.09,
+    "filament_used": 400.2,
+    "end_time": 1785937125.064764
+   },
+   {
+    "filename": "black_PLA_2h50m28s.gcode",
+    "status": "completed",
+    "print_duration": 10511.82,
+    "filament_used": 18629.2,
+    "end_time": 1785883503.3863258
+   },
+   {
+    "filename": "badztbot.stl_PLA_4h23m20s.gcode",
+    "status": "completed",
+    "print_duration": 15344.14,
+    "filament_used": 34039.9,
+    "end_time": 1785872648.2877545
+   },
+   {
+    "filename": "black_PLA_2h10m36s.gcode",
+    "status": "completed",
+    "print_duration": 7946.29,
+    "filament_used": 10811.7,
+    "end_time": 1785856673.9239151
+   },
+   {
+    "filename": "Body24_PLA_1h27m8s.gcode",
+    "status": "completed",
+    "print_duration": 5356.24,
+    "filament_used": 15676.9,
+    "end_time": 1785784211.4536653
+   },
+   {
+    "filename": "b8_PLA_3h23m18s.gcode",
+    "status": "completed",
+    "print_duration": 12399.12,
+    "filament_used": 21289.9,
+    "end_time": 1785778592.196486
+   },
+   {
+    "filename": "output_1_PLA_50m33s.gcode",
+    "status": "completed",
+    "print_duration": 2816.99,
+    "filament_used": 2454.2,
+    "end_time": 1785697881.5417275
+   },
+   {
+    "filename": "output_1_PLA_50m33s.gcode",
+    "status": "cancelled",
+    "print_duration": 1857.91,
+    "filament_used": 1528.5,
+    "end_time": 1785694743.0426645
+   },
+   {
+    "filename": "output_1_PLA_50m33s.gcode",
+    "status": "cancelled",
+    "print_duration": 0,
+    "filament_used": -6.0,
+    "end_time": 1785691394.1562524
+   },
+   {
+    "filename": "bottomforkeychain.stl_PLA_4h14m49s.gcode",
+    "status": "completed",
+    "print_duration": 15731.14,
+    "filament_used": 34128.8,
+    "end_time": 1785532680.0620153
+   },
+   {
+    "filename": "hellokittybot.stl_PLA_2h46m8s.gcode",
+    "status": "completed",
+    "print_duration": 10088.66,
+    "filament_used": 17697.5,
+    "end_time": 1785516582.818084
+   },
+   {
+    "filename": "017.按压器-猫爪03-up.stl_1_PLA_12m32s.gcode",
+    "status": "completed",
+    "print_duration": 941.32,
+    "filament_used": 1210.0,
+    "end_time": 1785448720.7426527
+   },
+   {
+    "filename": "017.按压器-猫爪03-up.stl_1_PLA_45m36s.gcode",
+    "status": "cancelled",
+    "print_duration": 2911.83,
+    "filament_used": 3898.1,
+    "end_time": 1785447455.6751835
+   },
+   {
+    "filename": "017.按压器-猫爪03-body-钥匙孔.stl_PLA_38m7s.gcode",
+    "status": "completed",
+    "print_duration": 2452.05,
+    "filament_used": 5922.5,
+    "end_time": 1785442989.4169226
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_1h15m56s.gcode",
+    "status": "completed",
+    "print_duration": 4771.44,
+    "filament_used": 9888.3,
+    "end_time": 1785440086.745127
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_1h15m56s.gcode",
+    "status": "cancelled",
+    "print_duration": 1819.44,
+    "filament_used": 3156.7,
+    "end_time": 1785434798.7685478
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_27m29s.gcode",
+    "status": "completed",
+    "print_duration": 1847.17,
+    "filament_used": 3475.0,
+    "end_time": 1785424057.4132519
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_32m36s.gcode",
+    "status": "cancelled",
+    "print_duration": 1327.41,
+    "filament_used": 2589.8,
+    "end_time": 1785421895.6389573
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_26m19s.gcode",
+    "status": "cancelled",
+    "print_duration": 1676.18,
+    "filament_used": 3571.2,
+    "end_time": 1785419173.889754
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_4h27m21s.gcode",
+    "status": "completed",
+    "print_duration": 15321.76,
+    "filament_used": 27332.9,
+    "end_time": 1785373232.277262
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_54m36s.gcode",
+    "status": "completed",
+    "print_duration": 3236.98,
+    "filament_used": 5160.5,
+    "end_time": 1785356535.0647595
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_50m27s.gcode",
+    "status": "completed",
+    "print_duration": 2993.43,
+    "filament_used": 4169.4,
+    "end_time": 1785351831.0498717
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_30m52s.gcode",
+    "status": "completed",
+    "print_duration": 1870.2,
+    "filament_used": 3136.4,
+    "end_time": 1785348384.0029864
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_26m33s.gcode",
+    "status": "completed",
+    "print_duration": 1630.93,
+    "filament_used": 2847.7,
+    "end_time": 1785343625.9200554
+   },
+   {
+    "filename": "Star Wars - Main Theme.stl_PLA_34m26s.gcode",
+    "status": "completed",
+    "print_duration": 2179.07,
+    "filament_used": 4781.4,
+    "end_time": 1785341583.036021
+   },
+   {
+    "filename": "Star Wars - Main Theme.stl_PLA_32m48s.gcode",
+    "status": "completed",
+    "print_duration": 2079.8,
+    "filament_used": 4634.1,
+    "end_time": 1785338706.8574548
+   },
+   {
+    "filename": "handle_PLA_31m24s.gcode",
+    "status": "completed",
+    "print_duration": 2019.45,
+    "filament_used": 6436.8,
+    "end_time": 1785336095.3839016
+   },
+   {
+    "filename": "cover_R_PLA_7m6s.gcode",
+    "status": "completed",
+    "print_duration": 565.63,
+    "filament_used": 558.3,
+    "end_time": 1785333718.552304
+   },
+   {
+    "filename": "cover_R_PLA_7m6s.gcode",
+    "status": "completed",
+    "print_duration": 575.67,
+    "filament_used": 596.2,
+    "end_time": 1785332734.5284033
+   },
+   {
+    "filename": ".YB2-DotBand-180_gcode.3mf/YB2-DotBand-180_gcode_plate_1.gcode",
+    "status": "completed",
+    "print_duration": 16694.68,
+    "filament_used": 58569.0,
+    "end_time": 1785271140.333775
+   },
+   {
+    "filename": ".Porta+rocchetti+cucito_gcode.3mf/Porta+rocchetti+cucito_gcode_plate_1.gcode",
+    "status": "cancelled",
+    "print_duration": 2762.33,
+    "filament_used": 5149.6,
+    "end_time": 1785252813.2510076
+   },
+   {
+    "filename": ".Porta+rocchetti+cucito_gcode.3mf/Porta+rocchetti+cucito_gcode_plate_1.gcode",
+    "status": "cancelled",
+    "print_duration": 2802.71,
+    "filament_used": 5226.9,
+    "end_time": 1785249742.161268
+   },
+   {
+    "filename": ".Porta+rocchetti+cucito_gcode.3mf/Porta+rocchetti+cucito_gcode_plate_1.gcode",
+    "status": "cancelled",
+    "print_duration": 145.57,
+    "filament_used": 251.2,
+    "end_time": 1785246509.24074
+   },
+   {
+    "filename": "thread-hol.gcode",
+    "status": "completed",
+    "print_duration": 13681.92,
+    "filament_used": 29855.0,
+    "end_time": 1785193856.5476356
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_2h21m21s.gcode",
+    "status": "completed",
+    "print_duration": 8752.72,
+    "filament_used": 16259.0,
+    "end_time": 1785179564.8819187
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_27m20s.gcode",
+    "status": "completed",
+    "print_duration": 1835.73,
+    "filament_used": 3296.8,
+    "end_time": 1785166292.0116673
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_27m20s.gcode",
+    "status": "cancelled",
+    "print_duration": 341.72,
+    "filament_used": 509.4,
+    "end_time": 1785163997.3009675
+   },
+   {
+    "filename": "chocobot.stl_PLA_26m59s.gcode",
+    "status": "completed",
+    "print_duration": 1718.69,
+    "filament_used": 2866.7,
+    "end_time": 1785163265.945934
+   },
+   {
+    "filename": "black_PLA_33m51s.gcode",
+    "status": "completed",
+    "print_duration": 2224.53,
+    "filament_used": 3679.3,
+    "end_time": 1785161154.54188
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_30m42s.gcode",
+    "status": "cancelled",
+    "print_duration": 341.45,
+    "filament_used": 490.9,
+    "end_time": 1785158356.7225344
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_33m44s.gcode",
+    "status": "completed",
+    "print_duration": 2092.07,
+    "filament_used": 3533.0,
+    "end_time": 1784912588.388821
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_1h6m38s.gcode",
+    "status": "cancelled",
+    "print_duration": 616.63,
+    "filament_used": 667.0,
+    "end_time": 1784909604.0303311
+   },
+   {
+    "filename": "pompombot.stl_PLA_26m0s.gcode",
+    "status": "completed",
+    "print_duration": 1700.85,
+    "filament_used": 2964.3,
+    "end_time": 1784908458.1563988
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_54m4s.gcode",
+    "status": "cancelled",
+    "print_duration": 2660.76,
+    "filament_used": 2995.4,
+    "end_time": 1784906439.1649675
+   },
+   {
+    "filename": "badztbot.stl_PLA_25m58s.gcode",
+    "status": "completed",
+    "print_duration": 1712.95,
+    "filament_used": 2780.7,
+    "end_time": 1784902461.0837698
+   },
+   {
+    "filename": "mymelodybot.stl_PLA_25m39s.gcode",
+    "status": "completed",
+    "print_duration": 1685.32,
+    "filament_used": 2743.1,
+    "end_time": 1784900165.2970905
+   },
+   {
+    "filename": "black_PLA_23m18s.gcode",
+    "status": "completed",
+    "print_duration": 1434.53,
+    "filament_used": 2516.2,
+    "end_time": 1784841429.7191615
+   },
+   {
+    "filename": "black_PLA_43m39s.gcode",
+    "status": "cancelled",
+    "print_duration": 2167.68,
+    "filament_used": 2958.5,
+    "end_time": 1784839536.6069446
+   },
+   {
+    "filename": "black_PLA_43m2s.gcode",
+    "status": "cancelled",
+    "print_duration": 2288.35,
+    "filament_used": 3132.4,
+    "end_time": 1784836535.5457838
+   },
+   {
+    "filename": "black_PLA_42m41s.gcode",
+    "status": "cancelled",
+    "print_duration": 2319.48,
+    "filament_used": 3102.6,
+    "end_time": 1784833588.5082982
+   },
+   {
+    "filename": "PLATE_BACK_PLA_35m2s.gcode",
+    "status": "completed",
+    "print_duration": 2227.42,
+    "filament_used": 8380.1,
+    "end_time": 1784830712.19741
+   },
+   {
+    "filename": ".FrameStudio Project (1)_gcode.3mf/FrameStudio Project (1)_gcode_plate_1.gcode",
+    "status": "completed",
+    "print_duration": 1663.05,
+    "filament_used": 4514.0,
+    "end_time": 1784827962.1297872
+   },
+   {
+    "filename": ".FrameStudio Project (1)_gcode.3mf/FrameStudio Project (1)_gcode_plate_1.gcode",
+    "status": "cancelled",
+    "print_duration": 0,
+    "filament_used": -3.0,
+    "end_time": 1784825859.9703994
+   },
+   {
+    "filename": "Cube_PLA_2h2m15s.gcode",
+    "status": "completed",
+    "print_duration": 7490.84,
+    "filament_used": 17897.8,
+    "end_time": 1784824750.7648752
+   },
+   {
+    "filename": "PLATE_FRONT_PLA_29m2s.gcode",
+    "status": "completed",
+    "print_duration": 1866.95,
+    "filament_used": 4604.7,
+    "end_time": 1784816543.8547602
+   },
+   {
+    "filename": "PLATE_BACK_PLA_30m14s.gcode",
+    "status": "completed",
+    "print_duration": 1953.7,
+    "filament_used": 6515.8,
+    "end_time": 1784814044.1437159
+   },
+   {
+    "filename": "base_20.stl_PLA_4h42m19s.gcode",
+    "status": "completed",
+    "print_duration": 15935.11,
+    "filament_used": 12093.8,
+    "end_time": 1784762857.7076216
+   },
+   {
+    "filename": "base_20.stl_PLA_4h42m19s.gcode",
+    "status": "cancelled",
+    "print_duration": 0,
+    "filament_used": -6.0,
+    "end_time": 1784746432.8343813
+   },
+   {
+    "filename": "cremaa 3.0.stl_PLA_58m4s.gcode",
+    "status": "completed",
+    "print_duration": 3652.38,
+    "filament_used": 3578.7,
+    "end_time": 1784745820.1058795
+   },
+   {
+    "filename": "Creador de LightBox.3mf_PLA_3h40m19s.gcode",
+    "status": "completed",
+    "print_duration": 13249.51,
+    "filament_used": 53904.8,
+    "end_time": 1784741529.9230635
+   },
+   {
+    "filename": ".Overhang test_07201821.3mf/Overhang test_07201821_plate_1.gcode",
+    "status": "completed",
+    "print_duration": 1914.0,
+    "filament_used": 1565.6,
+    "end_time": 1784573963.7845044
+   },
+   {
+    "filename": "Creador de LightBox.3mf_PLA_2h34m49s.gcode",
+    "status": "completed",
+    "print_duration": 9353.5,
+    "filament_used": 18338.8,
+    "end_time": 1784570767.178365
+   },
+   {
+    "filename": "Object_1_PLA_3h7m49s.gcode",
+    "status": "cancelled",
+    "print_duration": 11296.54,
+    "filament_used": 43312.4,
+    "end_time": 1784310314.6469607
+   },
+   {
+    "filename": ".Sensory Egg Twist Fidget Toy_07161659.3mf/Sensory Egg Twist Fidget Toy_07161659_plate_1.gcode",
+    "status": "completed",
+    "print_duration": 20122.72,
+    "filament_used": 26657.1,
+    "end_time": 1784241719.176598
+   },
+   {
+    "filename": "Expositor llaveros multimastil base.stl_PLA_1h58m51s.gcode",
+    "status": "completed",
+    "print_duration": 7294.52,
+    "filament_used": 17409.9,
+    "end_time": 1784220779.8726335
+   },
+   {
+    "filename": "Parametric_Model_Maker_1_PLA_5h19m27s.gcode",
+    "status": "completed",
+    "print_duration": 16403.44,
+    "filament_used": 57281.1,
+    "end_time": 1784154183.3457341
+   },
+   {
+    "filename": "Parametric_Model_Maker_1_PLA_1h38m27s.gcode",
+    "status": "completed",
+    "print_duration": 6078.8,
+    "filament_used": 16894.0,
+    "end_time": 1784137350.9603884
+   },
+   {
+    "filename": "15x4 Shelves.stl_2_PLA_4h1m58s.gcode",
+    "status": "completed",
+    "print_duration": 14686.01,
+    "filament_used": 58273.7,
+    "end_time": 1784059988.135048
+   },
+   {
+    "filename": "Parametric_Model_Maker_1_PLA_1h8m37s.gcode",
+    "status": "completed",
+    "print_duration": 5387.74,
+    "filament_used": 11011.1,
+    "end_time": 1784043268.2550182
+   },
+   {
+    "filename": "SpikySensoryBall1.stl_PLA_2h4m55s.gcode",
+    "status": "completed",
+    "print_duration": 7713.4,
+    "filament_used": 12852.8,
+    "end_time": 1783978572.7255182
+   },
+   {
+    "filename": "bobbin-box-1x10-pcs-24x14mm.stl_PLA_2h7m0s.gcode",
+    "status": "completed",
+    "print_duration": 7747.89,
+    "filament_used": 30382.1,
+    "end_time": 1783970526.6348288
+   },
+   {
+    "filename": "‬Zipper Jig_PLA_1h29m34s.gcode",
+    "status": "completed",
+    "print_duration": 5171.71,
+    "filament_used": 16307.8,
+    "end_time": 1783955223.9773386
+   },
+   {
+    "filename": "frog_cap.stl_PLA_4h2m48s.gcode",
+    "status": "completed",
+    "print_duration": 14419.34,
+    "filament_used": 20133.8,
+    "end_time": 1783707874.4104574
+   },
+   {
+    "filename": "pot base.stl_A_PLA_54m58s.gcode",
+    "status": "completed",
+    "print_duration": 3428.56,
+    "filament_used": 2945.5,
+    "end_time": 1783693124.2286825
+   },
+   {
+    "filename": "1v2_deckel.stp_PLA_31m42s.gcode",
+    "status": "completed",
+    "print_duration": 2052.7,
+    "filament_used": 1035.2,
+    "end_time": 1783634967.7969897
+   },
+   {
+    "filename": "flor v1.stl_PLA_44m32s.gcode",
+    "status": "cancelled",
+    "print_duration": 1822.97,
+    "filament_used": 2318.3,
+    "end_time": 1783632603.5520458
+   },
+   {
+    "filename": "WasabiClicker_top_PLA_20m41s.gcode",
+    "status": "completed",
+    "print_duration": 1507.96,
+    "filament_used": 1972.0,
+    "end_time": 1783630010.8362
+   },
+   {
+    "filename": ".Clicker Wasabi, Clicky Keychain NoStress Toy_06070149.3mf/Clicker Wasabi, Clicky Keychain NoStress Toy_06070149_plate_1.gcode",
+    "status": "completed",
+    "print_duration": 2132.6,
+    "filament_used": 5116.7,
+    "end_time": 1783627816.451395
+   },
+   {
+    "filename": "flor 2 v1.stl_PLA_44m14s.gcode",
+    "status": "cancelled",
+    "print_duration": 1140.34,
+    "filament_used": 1524.4,
+    "end_time": 1783624996.1667736
+   },
+   {
+    "filename": "flor 2 v1.stl_PLA_2h53m52s.gcode",
+    "status": "cancelled",
+    "print_duration": 894.69,
+    "filament_used": 1374.9,
+    "end_time": 1783623164.842479
+   },
+   {
+    "filename": "Lower_PLA_2h14m21s.gcode",
+    "status": "completed",
+    "print_duration": 7247.14,
+    "filament_used": 33158.5,
+    "end_time": 1783621761.8870144
+   },
+   {
+    "filename": "Body3_PLA_37m8s.gcode",
+    "status": "completed",
+    "print_duration": 2378.39,
+    "filament_used": 7906.6,
+    "end_time": 1783614180.8669255
+   },
+   {
+    "filename": "Body3_PLA_37m8s.gcode",
+    "status": "cancelled",
+    "print_duration": 189.07,
+    "filament_used": 317.6,
+    "end_time": 1783611466.3645892
+   },
+   {
+    "filename": ".ShelfMini_gcode.3mf/ShelfMini_gcode_plate_3.gcode",
+    "status": "completed",
+    "print_duration": 2356.39,
+    "filament_used": 7844.9,
+    "end_time": 1783610727.3364842
+   },
+   {
+    "filename": "llaveros cute.stl_9_PLA_34m17s.gcode",
+    "status": "completed",
+    "print_duration": 2179.44,
+    "filament_used": 2006.0,
+    "end_time": 1783607821.8173323
+   },
+   {
+    "filename": "1v2_deckel.stp_PLA_31m42s.gcode",
+    "status": "cancelled",
+    "print_duration": 696.83,
+    "filament_used": 470.0,
+    "end_time": 1783604411.5563748
+   },
+   {
+    "filename": "写真ブース.stl_PLA_1h18m10s.gcode",
+    "status": "completed",
+    "print_duration": 4896.0,
+    "filament_used": 5018.4,
+    "end_time": 1783548854.8899446
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_1h8m49s.gcode",
+    "status": "completed",
+    "print_duration": 4249.31,
+    "filament_used": 5152.5,
+    "end_time": 1783543143.1564276
+   },
+   {
+    "filename": "Creador de LightBox.3mf_PLA_2h43m39s.gcode",
+    "status": "completed",
+    "print_duration": 10068.37,
+    "filament_used": 12019.6,
+    "end_time": 1783537979.308457
+   },
+   {
+    "filename": "bottom.stl_PLA_31m46s.gcode",
+    "status": "completed",
+    "print_duration": 2016.53,
+    "filament_used": 3030.7,
+    "end_time": 1783527485.8587735
+   },
+   {
+    "filename": "black_PLA_44m26s.gcode",
+    "status": "completed",
+    "print_duration": 2753.95,
+    "filament_used": 4043.5,
+    "end_time": 1783524672.8963363
+   },
+   {
+    "filename": "MX-key-replacement-keycap+base-draft1-edited.stl_B_PLA_56m22s.gcode",
+    "status": "completed",
+    "print_duration": 3599.88,
+    "filament_used": 3834.5,
+    "end_time": 1783521485.4445984
+   },
+   {
+    "filename": "Creador de LightBox.3mf_PLA_3h43m22s.gcode",
+    "status": "completed",
+    "print_duration": 13691.69,
+    "filament_used": 32926.0,
+    "end_time": 1783466461.1429412
+   },
+   {
+    "filename": "Parametric_Model_Maker_1_PLA_28m7s.gcode",
+    "status": "completed",
+    "print_duration": 1828.24,
+    "filament_used": 2018.3,
+    "end_time": 1783452010.2229931
+   },
+   {
+    "filename": "Parametric_Model_Maker_1_PLA_13m9s.gcode",
+    "status": "completed",
+    "print_duration": 928.94,
+    "filament_used": 1943.7,
+    "end_time": 1783449733.7299325
+   },
+   {
+    "filename": "phone stand enlarged.stl_PLA_1h36m31s.gcode",
+    "status": "completed",
+    "print_duration": 5931.69,
+    "filament_used": 13923.0,
+    "end_time": 1783448396.5502105
+   },
+   {
+    "filename": "MX-key-replacement-keycap+base-draft1-edited.stl_B_PLA_14m22s.gcode",
+    "status": "completed",
+    "print_duration": 991.68,
+    "filament_used": 842.6,
+    "end_time": 1783441816.0738533
+   },
+   {
+    "filename": "MX-key-replacement-keycap+base-draft1-edited.stl_B_PLA_6m59s.gcode",
+    "status": "completed",
+    "print_duration": 549.41,
+    "filament_used": 447.6,
+    "end_time": 1783440374.4971607
+   },
+   {
+    "filename": "model_c414441277c98d8b22dacf4ae5308ee6.stl_PLA_1h28m37s.gcode",
+    "status": "cancelled",
+    "print_duration": 122.54,
+    "filament_used": 135.0,
+    "end_time": 1783439454.865484
+   },
+   {
+    "filename": "Dummy key switch (Tactile feel) 20260321.stl_PLA_10m40s.gcode",
+    "status": "completed",
+    "print_duration": 768.62,
+    "filament_used": 606.3,
+    "end_time": 1783438732.9825554
+   },
+   {
+    "filename": "Parametric_Model_Maker_1_PLA_30m41s.gcode",
+    "status": "completed",
+    "print_duration": 1976.2,
+    "filament_used": 3733.0,
+    "end_time": 1783437472.731031
+   },
+   {
+    "filename": "Clicker - Part 2 (4).stl_PLA_24m32s.gcode",
+    "status": "completed",
+    "print_duration": 1637.62,
+    "filament_used": 2014.9,
+    "end_time": 1783434887.3247073
+   },
+   {
+    "filename": "Clicker - Part 2 (4).stl_PLA_15m10s.gcode",
+    "status": "cancelled",
+    "print_duration": 0,
+    "filament_used": -3.0,
+    "end_time": 1783431784.4357061
+   },
+   {
+    "filename": "Ayunka LightBox.3mf_PLA_3h12m5s.gcode",
+    "status": "completed",
+    "print_duration": 11670.67,
+    "filament_used": 40419.6,
+    "end_time": 1783377807.9814107
+   },
+   {
+    "filename": "Parametric_Model_Maker_1_PLA_1h59m24s.gcode",
+    "status": "completed",
+    "print_duration": 7215.92,
+    "filament_used": 14779.6,
+    "end_time": 1783365248.8209183
+   },
+   {
+    "filename": "thread holder .gcode",
+    "status": "completed",
+    "print_duration": 6304.26,
+    "filament_used": 14007.6,
+    "end_time": 1783357124.0236518
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_46m50s.gcode",
+    "status": "completed",
+    "print_duration": 2905.83,
+    "filament_used": 3554.0,
+    "end_time": 1783349647.1413355
+   },
+   {
+    "filename": "Ayunka LightBox.3mf_PLA_39m19s.gcode",
+    "status": "completed",
+    "print_duration": 2540.43,
+    "filament_used": 4396.8,
+    "end_time": 1783278780.2906613
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_33m40s.gcode",
+    "status": "completed",
+    "print_duration": 2306.53,
+    "filament_used": 3011.0,
+    "end_time": 1783274902.577157
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_33m38s.gcode",
+    "status": "completed",
+    "print_duration": 2159.06,
+    "filament_used": 3011.0,
+    "end_time": 1783270190.5845084
+   },
+   {
+    "filename": "temperature_tower_PLA_1h19m8s.gcode",
+    "status": "cancelled",
+    "print_duration": 1470.43,
+    "filament_used": 1685.6,
+    "end_time": 1783113742.6511106
+   },
+   {
+    "filename": "single_color_PLA_3h4m.gcode",
+    "status": "completed",
+    "print_duration": 13814.53,
+    "filament_used": 24805.0,
+    "end_time": 1783024328.9681215
+   },
+   {
+    "filename": "4color-3DBench_PLA_32m.gcode",
+    "status": "cancelled",
+    "print_duration": 1905.43,
+    "filament_used": 4291.5,
+    "end_time": 1577840556.4078438
+   },
+   {
+    "filename": "4color-3DBench_PLA_32m.gcode",
+    "status": "cancelled",
+    "print_duration": 745.34,
+    "filament_used": 1964.8,
+    "end_time": 1577888926.499358
+   },
+   {
+    "filename": "3DBench_PLA_22m.gcode",
+    "status": "cancelled",
+    "print_duration": 418.5,
+    "filament_used": 1370.6,
+    "end_time": 1782253001.6343172
+   },
+   {
+    "filename": "3DBench_PLA_22m.gcode",
+    "status": "cancelled",
+    "print_duration": 855.98,
+    "filament_used": 2559.4,
+    "end_time": 1782251724.0022488
+   },
+   {
+    "filename": "3DBench_PLA_22m.gcode",
+    "status": "completed",
+    "print_duration": 1447.22,
+    "filament_used": 3767.8,
+    "end_time": 1782231803.7000437
+   },
+   {
+    "filename": "3DBench_PLA_22m.gcode",
+    "status": "klippy_shutdown",
+    "print_duration": 4.01,
+    "filament_used": 30.0,
+    "end_time": 1782227076.6385744
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_29m31s.gcode",
+    "status": "cancelled",
+    "print_duration": 0,
+    "filament_used": -42.0,
+    "end_time": 1782226480.4388614
+   },
+   {
+    "filename": "Borrador de llavero.3mf_PLA_29m31s.gcode",
+    "status": "cancelled",
+    "print_duration": 0,
+    "filament_used": -19.0,
+    "end_time": 1782222586.7064257
+   },
+   {
+    "filename": "thread holder.gcode",
+    "status": "cancelled",
+    "print_duration": 5125.37,
+    "filament_used": 13421.1,
+    "end_time": 1782220637.1186035
+   },
+   {
+    "filename": "BobbinBoxV1.stl_PLA_2h8m11s.gcode",
+    "status": "completed",
+    "print_duration": 7954.8,
+    "filament_used": 21208.8,
+    "end_time": 1782152977.3421915
+   },
+   {
+    "filename": "Clamp Contact_PLA_2h14m3s.gcode",
+    "status": "completed",
+    "print_duration": 7699.28,
+    "filament_used": 14075.2,
+    "end_time": 1782144392.2090213
+   },
+   {
+    "filename": "Base_PLA_5h0m37s.gcode",
+    "status": "completed",
+    "print_duration": 17534.53,
+    "filament_used": 44937.6,
+    "end_time": 1782081208.437842
+   },
+   {
+    "filename": ".two piece Back Scratcher with middle brace support_06211523.3mf/two piece Back Scratcher with middle brace support_06211523_plate_1.gcode",
+    "status": "cancelled",
+    "print_duration": 5741.25,
+    "filament_used": 11225.1,
+    "end_time": 1782061636.2730186
+   },
+   {
+    "filename": "4color-3DBench_PLA_32m.gcode",
+    "status": "completed",
+    "print_duration": 2145.67,
+    "filament_used": 5474.5,
+    "end_time": 1781986359.801986
+   },
+   {
+    "filename": "hello kitty two color .step_PLA_5h48m56s.gcode",
+    "status": "completed",
+    "print_duration": 19452.16,
+    "filament_used": 75079.3,
+    "end_time": 1781916580.8244245
+   },
+   {
+    "filename": "Zipper Tool.stl_PLA_38m13s.gcode",
+    "status": "completed",
+    "print_duration": 2370.28,
+    "filament_used": 4411.8,
+    "end_time": 1781878101.5377908
+   },
+   {
+    "filename": "Pièce1.STL_PLA_5h51m46s.gcode",
+    "status": "completed",
+    "print_duration": 21415.55,
+    "filament_used": 53339.8,
+    "end_time": 1781821802.0229192
+   },
+   {
+    "filename": "bac-30cm.STL_PLA_3h15m4s.gcode",
+    "status": "completed",
+    "print_duration": 10051.43,
+    "filament_used": 40861.4,
+    "end_time": 1781799779.580607
+   },
+   {
+    "filename": "top.STL_PLA_27m29s.gcode",
+    "status": "completed",
+    "print_duration": 1644.86,
+    "filament_used": 6060.4,
+    "end_time": 1781788927.627254
+   },
+   {
+    "filename": "temperature_tower_PLA_1h19m10s.gcode",
+    "status": "completed",
+    "print_duration": 5106.97,
+    "filament_used": 5443.8,
+    "end_time": 1781786744.536608
+   },
+   {
+    "filename": "tray_W60_D50_H80.3mf_PLA_1h13m55s.gcode",
+    "status": "completed",
+    "print_duration": 4083.69,
+    "filament_used": 14797.7,
+    "end_time": 1781738141.1352658
+   },
+   {
+    "filename": "modelmaker.stl_PLA_17m42s.gcode",
+    "status": "completed",
+    "print_duration": 1327.53,
+    "filament_used": 1936.6,
+    "end_time": 1781733636.347252
+   },
+   {
+    "filename": "Regla de curva.stl_PLA_35m44s.gcode",
+    "status": "completed",
+    "print_duration": 2180.2,
+    "filament_used": 8397.0,
+    "end_time": 1781730210.2373223
+   },
+   {
+    "filename": "poop R.stl_PLA-CF_4h47m12s.gcode",
+    "status": "cancelled",
+    "print_duration": 90.92,
+    "filament_used": 195.0,
+    "end_time": 1781726711.35686
+   },
+   {
+    "filename": "COSO__PLA_39m14s.gcode",
+    "status": "completed",
+    "print_duration": 2511.13,
+    "filament_used": 10438.3,
+    "end_time": 1781724068.9711823
+   },
+   {
+    "filename": ".Filament Spool Meter_06171721.3mf/Filament Spool Meter_06171721_plate_1.gcode",
+    "status": "completed",
+    "print_duration": 3256.35,
+    "filament_used": 8499.7,
+    "end_time": 1781720534.4207995
+   },
+   {
+    "filename": "poop_chute.stl_PLA_10h48m36s.gcode",
+    "status": "cancelled",
+    "print_duration": 15746.52,
+    "filament_used": 61102.9,
+    "end_time": 1781716578.688323
+   },
+   {
+    "filename": "4color-3DBench_PLA_32m.gcode",
+    "status": "cancelled",
+    "print_duration": 2063.61,
+    "filament_used": 4936.9,
+    "end_time": 1781697256.4006262
+   },
+   {
+    "filename": "REGLA RADIOS AYUNKA (2).stl_PLA_2h41m34s.gcode",
+    "status": "completed",
+    "print_duration": 9053.46,
+    "filament_used": 25246.1,
+    "end_time": 1781656301.3626494
+   },
+   {
+    "filename": "7e3ec953404d18caf27f4aacda8ee329.stl_PLA_2h13m8s.gcode",
+    "status": "completed",
+    "print_duration": 8519.07,
+    "filament_used": 18221.2,
+    "end_time": 1781644093.2886934
+   },
+   {
+    "filename": "spatula_PLA_34m53s.gcode",
+    "status": "completed",
+    "print_duration": 2222.97,
+    "filament_used": 6294.8,
+    "end_time": 1781633372.1506217
+   },
+   {
+    "filename": "3DBench_PLA_22m.gcode",
+    "status": "completed",
+    "print_duration": 2390.78,
+    "filament_used": 3767.8,
+    "end_time": 1781629588.163424
+   }
+  ]
+ }
+}

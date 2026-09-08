@@ -8,18 +8,32 @@ rules_version = '2';
 // estaba cerrada, y llevaba semanas abierta a cualquiera porque nadie las publicó.
 //
 // Cómo comprobarlo de verdad, desde afuera:
-//   curl "https://firestore.googleapis.com/v1/projects/TU-PROYECTO/databases/(default)/documents/negocios/ayunka"
+//   curl "https://firestore.googleapis.com/v1/projects/ayunka-studio/databases/(default)/documents/negocios/ayunka"
 // Tiene que responder 403. Si responde 200, está abierta.
+//
+// Y ojo con el revés: la app escribe en `negocios/{espacio}` (hoy `negocios/ayunka`), no en
+// `studios/…` como la versión anterior. Las reglas publicadas el 1-sep se escribieron para
+// la ruta vieja. Mientras estas no se publiquen, la sincronización de esta app puede fallar
+// con «permission-denied» aunque el correo y la contraseña estén bien.
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
     // Solo la cuenta de acceso de la app. Ese correo se crea en
     // Authentication → Users y no es el Gmail personal.
+    //
+    // El correo decía "CAMBIAR@ejemplo.com" hasta el 8-sep-2026. Publicar el archivo así
+    // habría cerrado la base para todos, Farid incluido.
+    //
+    // NO se pide `email_verified`, a propósito: la cuenta se creó a mano en la consola y
+    // una cuenta creada así NO queda verificada. Con esa condición, las reglas rechazarían
+    // a la única persona que tiene que entrar, y el síntoma sería un «permission-denied»
+    // sin explicación — el mismo tipo de falla muda que ya costó medio día. El correo solo
+    // alcanza porque esa cuenta ya existe (nadie más puede registrarla) y el proveedor
+    // anónimo está inhabilitado desde el 1-sep.
     function esDeAyunka() {
       return request.auth != null
-          && request.auth.token.email == "CAMBIAR@ejemplo.com"
-          && request.auth.token.email_verified == true;
+          && request.auth.token.email == "farid+ayunka-acceso@gmail.com";
     }
 
     match /negocios/{negocio} {
