@@ -22,10 +22,17 @@
   };
 
   let avisoTimer;
+  /* El mensaje que aparece abajo y se va solo. Su clase es `toast`, NO `aviso`, y eso
+     importa: hasta la v2.21.0 se llamaba `.aviso`, el mismo nombre que usan las 19 tarjetas
+     de advertencia en línea (`class="tarjeta aviso"`). Como `.aviso` del CSS trae
+     `position:fixed; opacity:0`, y `.tarjeta.aviso` solo cambiaba el color del borde, TODAS
+     esas tarjetas quedaban invisibles: existían en el DOM y no se veían en pantalla. Entre
+     ellas, justo el aviso que explica por qué «Traer de la impresora» no puede funcionar en
+     https — o sea, el arreglo del botón mudo era mudo también. */
   function aviso(msg, tipo) {
-    let e = $('#aviso');
-    if (!e) { e = document.createElement('div'); e.id = 'aviso'; document.body.appendChild(e); }
-    e.className = 'aviso visible ' + (tipo || '');
+    let e = $('#toast');
+    if (!e) { e = document.createElement('div'); e.id = 'toast'; document.body.appendChild(e); }
+    e.className = 'toast visible ' + (tipo || '');
     e.textContent = msg;
     clearTimeout(avisoTimer);
     avisoTimer = setTimeout(() => e.classList.remove('visible'), 4200);

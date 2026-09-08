@@ -1017,3 +1017,34 @@ sigue igual.
 Todo lo visual; «Traer de la impresora» (hace falta la K2 en la misma red); Supabase contra
 el servidor real (falta pegar la clave en Ajustes); y subir un archivo con un clic de un
 mouse de verdad.
+
+---
+
+# Hallazgo 6 del 8-sep · las 19 tarjetas de aviso eran invisibles · resuelto en v2.22.0
+
+Apareció al mirar una captura, no el DOM, y es el más grave del día.
+
+`css/app.css` tenía **dos cosas distintas con el mismo nombre**: `.tarjeta.aviso` (línea 189),
+la tarjeta de advertencia en línea, que solo declaraba `border-color` y `background`; y
+`.aviso` (línea 424), el mensajito flotante, con `position: fixed; opacity: 0;
+pointer-events: none`. `.tarjeta.aviso` gana en especificidad **solo para lo que declara**, así
+que el `opacity: 0` seguía aplicándose. Medido en el navegador antes del arreglo:
+
+    opacity "0" · position "fixed" · pointerEvents "none" · visible false
+
+**Entre esas 19 estaba el aviso del botón mudo**, el de la v2.17.0 que explica que una página
+`https` no puede llamar al `http` de la K2. En `farid77cl.github.io` apretar «Traer de la
+impresora» seguía sin mostrar nada. El arreglo del botón mudo era mudo.
+
+Arreglado renombrando el flotante a `.toast` / `#toast` (`css/app.css` y `js/ui.js`); la
+función sigue siendo `A.aviso()`. Comprobado: las 6 tarjetas que aparecen en el uso normal
+quedaron con `opacity: 1` y `position: static`, y el flotante sigue apareciendo a los 400 ms
+y yéndose solo a los 4,5 s. Tres de esas 6 **nadie las había visto nunca**: «25 productos no
+se pueden costear todavía» (Productos), «9 productos 3D no tienen horas» (Cola) y «por qué el
+logo de Briones salió sin filo» (Producción).
+
+**Y corrige un reporte mío del mismo día:** dije que cuando «Generar» falla la falla es
+«visible — eso está bien». Leí `innerText`, no la pantalla. No era visible.
+
+**La lección, que vale más que el arreglo:** leer el DOM no es mirar la pantalla. Para lo que
+tiene que verse, hay que medir el estilo calculado o mirar la captura.

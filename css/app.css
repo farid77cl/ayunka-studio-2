@@ -421,14 +421,19 @@ td.num { font-weight: 600; }
 .modal-cuerpo { font-size: 14.5px; }
 .modal-botones { display: flex; gap: 9px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
 
-.aviso {
+/* El mensaje flotante que se va solo. Se llamaba `.aviso` hasta la v2.21.0, el mismo nombre
+   que usan las tarjetas de advertencia en línea (`.tarjeta.aviso`, más arriba). Como acá va
+   `position:fixed; opacity:0` y allá solo se cambiaba el borde, las 19 tarjetas de aviso de
+   la app quedaban INVISIBLES — incluido el aviso que explica por qué «Traer de la impresora»
+   no puede funcionar en https. Dos cosas distintas no pueden llamarse igual. */
+.toast {
   position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 14px);
   background: var(--texto); color: var(--fondo); padding: 11px 20px; border-radius: 24px;
   font-size: 14px; font-weight: 500;
   opacity: 0; pointer-events: none; transition: .2s; z-index: 95;
 }
-.aviso.visible { opacity: 1; transform: translate(-50%, 0); }
-.aviso.error { background: var(--malo); color: #fff; }
+.toast.visible { opacity: 1; transform: translate(-50%, 0); }
+.toast.error { background: var(--malo); color: #fff; }
 
 .comparacion { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
 .comparacion > div { border: 1px solid var(--borde); border-radius: var(--r-caja); padding: 14px 16px; }

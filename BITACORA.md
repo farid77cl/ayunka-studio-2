@@ -4,6 +4,62 @@ Lo más nuevo arriba. Formato y reglas en `COMO-REPORTAR.md`.
 
 ---
 
+## 2026-09-08 · Los avisos de la app eran invisibles · v2.22.0
+
+**Esto es lo más grave que encontré hoy, y llevaba puesto desde el principio.** Las
+**19 tarjetas de advertencia** de la app —las que se escriben `class="tarjeta aviso"`— tenían
+`opacity: 0` y `position: fixed`. **Existían en el DOM y no se veían en pantalla.** Ninguna.
+
+**Por qué.** En `css/app.css` había dos cosas distintas con el mismo nombre:
+
+- `.tarjeta.aviso` (línea 189), la tarjeta de advertencia en línea, que solo definía
+  `border-color` y `background`;
+- `.aviso` (línea 424), el mensajito flotante que aparece abajo y se va solo, con
+  `position: fixed; opacity: 0; pointer-events: none`.
+
+`.tarjeta.aviso` gana en especificidad **solo para lo que declara**. Todo lo demás —el
+`opacity: 0` y el `position: fixed`— seguía aplicándose. Resultado medido en el navegador,
+antes del arreglo:
+
+    opacity "0" · position "fixed" · pointerEvents "none" · visible false
+
+**Y lo peor de todo: entre esas 19 estaba el aviso del botón mudo.** El de v2.17.0 que
+explica que «esta página va por https, el navegador bloquea la llamada al http de la K2».
+Farid apretó «Traer de la impresora», no pasó nada, se arregló con un aviso claro… **y ese
+aviso también era invisible**. En `farid77cl.github.io` —que es https— apretar ese botón
+seguía sin mostrar absolutamente nada. El arreglo del botón mudo era mudo.
+
+**Y me equivoqué al reportarlo hace unas horas.** En la entrada de la v2.20.0 escribí que
+cuando «Generar» falla la falla es «visible — eso está bien, el `catch` funciona». **No lo
+era**: leí el texto del DOM con `innerText`, no la pantalla. El mensaje estaba ahí y no se
+veía. Corregido en esa entrada.
+
+**El arreglo.** El flotante pasó a llamarse `.toast` (y su id, `#toast`), en `css/app.css` y
+en `js/ui.js`. La función sigue siendo `A.aviso()`, que es como la llama toda la app. Dos
+cosas distintas no pueden llamarse igual: eso es lo que se arregló, no el síntoma.
+
+**Cómo sé que funciona.** Recorrí las 12 vistas contando las tarjetas y midiendo su estilo
+real:
+- **6 tarjetas de aviso aparecen hoy en el uso normal, y las 6 quedaron visibles**
+  (`opacity: 1`, `position: static`, alto > 0). Ninguna invisible. Y hay tres que **nadie
+  había visto nunca**: «25 productos no se pueden costear todavía» en Productos, «9 productos
+  3D no tienen horas de máquina cargadas» en Cola, y «por qué el logo de Briones salió sin
+  filo» en Producción.
+- El aviso del historial que trae la app pasó de `opacity 0 / fixed / invisible` a
+  `opacity 1 / static / 994 × 108 px en el flujo de la página`.
+- **El flotante sigue funcionando igual**: a los 400 ms está en `opacity 1`, a 26 px del
+  borde de abajo, y a los 4,5 s vuelve a 0 solo.
+- No queda ningún elemento con la clase `aviso` que no sea una tarjeta: 0.
+- Las 12 vistas siguen pintando sin una excepción de JavaScript.
+
+**Lo que NO quedó.** Las otras 13 tarjetas de aviso viven en caminos que no se pueden
+disparar sin la K2, sin un archivo roto o sin un error de red — están escritas con la misma
+clase, así que el arreglo las cubre, pero no las vi con mis ojos una por una.
+
+**Versión.** `js/version.js` → `2.22.0`.
+
+---
+
 ## 2026-09-08 · La app queda configurada: nube, fotos e historial de la K2 · v2.21.0
 
 **Qué cambió.** Studio estaba escrito y funcionando, pero **apagado**: `js/config.js` tenía
@@ -89,12 +145,18 @@ exacto **ya tienen esos mismos datos**, y el botón lo dice: «Aplicar las 9 (9 
 opentype.js (jsdelivr) para leer las tipografías y three.js (cdnjs) para exportar. Los TTF sí
 se guardaban en IndexedDB, pero el lector que los interpreta se pedía a la red **en cada
 arranque**, y `sw.js` salta a propósito todo lo que no es del mismo origen. Sin internet —o
-con jsdelivr caído, o bloqueado en una red ajena— «Generar» fallaba, y lo que se leía en
-pantalla era esto, textual:
+con jsdelivr caído, o bloqueado en una red ajena— «Generar» fallaba, y el mensaje que dejaba
+era esto, textual:
 
     No se pudo generar. https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js
 
-Una URL pelada no le dice a nadie qué hacer. **Ahora las dos librerías y las 14 tipografías
+Una URL pelada no le dice a nadie qué hacer.
+
+> **Corrección, unas horas después (v2.22.0).** Acá escribí que ese mensaje «se leía en
+> pantalla» y que la falla era visible. **No lo era**: lo leí del DOM con `innerText`, no de
+> la pantalla. Esa tarjeta usa `class="tarjeta aviso"`, y el CSS la tenía con `opacity: 0` y
+> `position: fixed` — igual que las otras 18 tarjetas de aviso de la app. Estaba en el DOM y
+> no se veía. Arreglado en la v2.22.0; el detalle, en su entrada, más arriba. **Ahora las dos librerías y las 14 tipografías
 viven en el repo** (`js/vendor/`, 4,7 MB con sus licencias), el service worker las precarga y
 los mensajes de error dicen qué pasó y qué hacer. De paso se fue una **rama que se mueve**:
 las tipografías venían de `google/fonts@main`, así que un renombre de Google dejaba una en
