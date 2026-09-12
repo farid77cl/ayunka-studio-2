@@ -513,7 +513,35 @@
           Con más de 1 copia, la posición es una grilla conservadora que evita la esquina de
           la torre de purga -- <b>ábrela en Creality Print y revísala antes de cortar</b>,
           esto no reemplaza mirarla.</p>
+        <div class="tarjeta" style="margin-top:12px">
+          <h2>Verificar el G-code ya cortado</h2>
+          <p style="font-size:12.5px;color:var(--apagado);margin:0 0 10px">
+            Después de cortarlo en Creality Print, sube el .gcode acá. Esto NO reemplaza mirar
+            el dibujo de las capas -- solo confirma lo que se puede leer del texto.</p>
+          <input type="file" id="d3d-gcode-archivo" accept=".gcode" hidden>
+          <button class="btn" onclick="document.getElementById('d3d-gcode-archivo').click()">Elegir G-code</button>
+          <div id="d3d-gcode-resultado"></div>
+        </div>
       </div>`;
+    const gcodeInput = document.getElementById('d3d-gcode-archivo');
+    if (gcodeInput) gcodeInput.onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      const texto = await f.text();
+      // El centro NO se pasa a mano: Creality Print pone la pieza donde quiera en la
+      // bandeja, así que la posición local del diseño (proyecto.nfc.x/y) casi nunca
+      // coincide con la posición real en el G-code. VerificadorGcode la detecta sola
+      // desde el piso del bolsillo (ver el comentario de centroDePieza).
+      const bolsillo = compilado.solidos.find(s => s.negativo);
+      const opts = bolsillo ? { zBolsilloDesde: bolsillo.z0, zBolsilloHasta: bolsillo.z0 + bolsillo.alt } : {};
+      const r = VerificadorGcode.verificar(texto, opts);
+      const ubicacion = r.detalles.centro
+        ? `Pieza ubicada en X=${r.detalles.centro.x.toFixed(1)}, Y=${r.detalles.centro.y.toFixed(1)}` +
+          (r.detalles.deObjetoAislado === false ? ' (sin EXCLUDE_OBJECT en el archivo -- pudo mezclarse con la torre de purga, revisa a mano si hay dudas).' : '.')
+        : '';
+      A.$('#d3d-gcode-resultado').innerHTML = r.ok
+        ? `<div class="tarjeta" style="border-color:var(--ok);margin-top:10px"><b style="color:var(--ok)">Pasa la compuerta 7.</b> Perfil: ${A.esc(r.detalles.perfil || '—')}. ${A.esc(ubicacion)}</div>`
+        : `<div class="tarjeta aviso" style="margin-top:10px"><b>${r.hallazgos.length} problema(s):</b><ul style="margin:6px 0 0;padding-left:18px">${r.hallazgos.map(h => `<li style="font-size:13px">${A.esc(h)}</li>`).join('')}</ul>${ubicacion ? `<p style="font-size:12px;color:var(--apagado);margin:8px 0 0">${A.esc(ubicacion)}</p>` : ''}</div>`;
+    };
   }
 
   function descargarBlob(datos, nombre) {
