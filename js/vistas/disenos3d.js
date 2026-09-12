@@ -65,7 +65,34 @@
             <b>${A.esc(p.label)}</b><span>${A.esc(p.desc)}</span></button>`).join('')}
         </div>
       </div>
+      <div class="tarjeta">${htmlGuardados()}</div>
       <div id="d3d-resultado"></div>`;
+  }
+
+  function htmlGuardados() {
+    const guardados = Datos.activos('disenos3d').slice()
+      .sort((a, b) => (a.modificado || a.creado || '') < (b.modificado || b.creado || '') ? 1 : -1).slice(0, 8);
+    if (!guardados.length) return '<h2>Diseños guardados</h2><p style="font-size:13px;color:var(--apagado);margin:0">Ninguno todavía.</p>';
+    return `<h2>Diseños guardados · usar como plantilla</h2>
+      <table><thead><tr><th>Nombre</th><th></th></tr></thead><tbody>
+        ${guardados.map(d => `<tr><td>${A.esc(d.nombre)}</td>
+          <td><button class="btn chico" onclick="Vistas.disenos3d.abrirGuardado('${A.esc(d.id)}')">Abrir</button></td></tr>`).join('')}
+      </tbody></table>`;
+  }
+
+  // Trae un diseño guardado como PLANTILLA para uno nuevo -- nunca pisa el original al
+  // guardar, porque le asigna un id nuevo antes de tocar nada. Si se quisiera editar el
+  // mismo registro en el sitio, es una decisión de producto aparte (¿qué pasa si ese
+  // diseño ya se vendió?).
+  function abrirGuardado(id) {
+    const original = Datos.obtener('disenos3d', id);
+    if (!original) return;
+    proyecto = JSON.parse(JSON.stringify(original));
+    proyecto.id = Datos.nuevoId('d3d');
+    proyecto.nombre = original.nombre + ' (copia)';
+    compilado = null; imagenOriginal = null;
+    controlesImagen = { umbral: 0.5, invertir: false, detalle: 0.6, soloMayor: true };
+    pintarForm();
   }
 
   function elegir(id) {
@@ -555,7 +582,7 @@
 
   window.Vistas = window.Vistas || {};
   Vistas.disenos3d = {
-    pintar, elegir, generar, descargar, guardar,
+    pintar, elegir, abrirGuardado, generar, descargar, guardar,
     elegirForma, elegirFuente, cambiarModo, cambiarProf, cambiarArgolla, cambiarMontaje, cambiarNfc,
     // Getters de solo lectura, para poder verificar el estado real sin exponerlo a que
     // alguien lo pise por accidente desde afuera (igual que Supabase._sesionActual).
