@@ -245,7 +245,7 @@
     const hoy = new Date().toISOString().slice(0, 10);
     return `<div class="tarjeta"><h2>Cotizaciones recientes</h2>
       <table><thead><tr><th>Cliente</th><th>Archivo</th><th class="num">Piezas</th>
-        <th class="num">Total</th><th>Válida hasta</th><th></th></tr></thead><tbody>
+        <th class="num">Total</th><th>Válida hasta</th><th></th><th></th></tr></thead><tbody>
         ${cots.map(c => {
           const cliente = Datos.obtener('clientes', c.clienteId);
           const vencida = c.validoHasta && c.validoHasta < hoy;
@@ -256,6 +256,7 @@
             <td class="num"><b>${A.plata(c.total)}</b></td>
             <td>${A.fecha(c.validoHasta)}${vencida ? ' <span class="chip falta">vencida</span>' : ''}</td>
             <td><button class="btn chico" onclick="Vistas.cotizar.verCotizacion('${A.esc(c.id)}')">Ver documento</button></td>
+            <td>${c.pedidoId ? '<span class="chip ok">ya es pedido</span>' : `<button class="btn chico" onclick="Vistas.cotizar.convertirEnPedido('${A.esc(c.id)}')">Convertir en pedido</button>`}</td>
           </tr>`;
         }).join('')}
       </tbody></table></div>`;
@@ -322,6 +323,24 @@
     w.document.close();
   }
 
+  function convertirEnPedido(id) {
+    const cot = Datos.obtener('cotizaciones', id);
+    if (!cot) { A.aviso('Esa cotización ya no existe', 'error'); return; }
+    if (cot.pedidoId) { A.aviso('Ya tiene un pedido: ' + cot.pedidoId, 'error'); return; }
+    const p = Datos.agregar('pedidos', {
+      clienteId: cot.clienteId, fecha: new Date().toISOString().slice(0, 10), entrega: cot.entrega,
+      estado: 'confirmado', abono: 0, notas: 'Desde cotización de ' + A.fecha(cot.fecha) + ' (' + (cot.archivoOrigen || '') + ').',
+      lineas: [{ productoId: null, descripcion: (cot.archivoOrigen || 'Pieza personalizada').replace(/\.(gcode\.)?3mf$/i, ''),
+                 cantidad: cot.cantidad, precioUnit: cot.precioUnit }],
+      activo: true
+    });
+    cot.pedidoId = p.id;
+    cot.estado = 'aceptada';
+    Datos.guardar('cotización convertida en pedido');
+    A.aviso('Pedido creado para ' + (Datos.obtener('clientes', cot.clienteId) || {}).nombre);
+    pintar();
+  }
+
   window.Vistas = window.Vistas || {};
-  Vistas.cotizar = { pintar, calcular, guardar, guardarCotizacion, verCotizacion };
+  Vistas.cotizar = { pintar, calcular, guardar, guardarCotizacion, verCotizacion, convertirEnPedido };
 })();
