@@ -21,6 +21,36 @@
     return [{ v: '', t: '(genérico, según el material)' }].concat(rollos);
   }
 
+  // CSV mínimo, a mano -- ninguna librería nueva, mismo criterio que el ZIP/3MF de
+  // d3d-3mf.js. Columnas de Meta Commerce (business.facebook.com): id, title,
+  // description, availability, condition, price, link, image_link, brand. Subirlo a
+  // Meta de verdad es un trámite de Meta, no de este código.
+  function csvCelda(v) {
+    const s = String(v == null ? '' : v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  function exportarCatalogoMeta() {
+    const productos = Datos.activos('productos').filter(p => typeof p.precio === 'number');
+    if (!productos.length) { A.aviso('No hay productos con precio para exportar', 'error'); return; }
+    const columnas = ['id', 'title', 'description', 'availability', 'condition', 'price', 'link', 'image_link', 'brand'];
+    const filas = [columnas.join(',')];
+    productos.forEach(p => {
+      filas.push([
+        csvCelda(p.sku || p.id), csvCelda(p.nombre), csvCelda(p.descripcion || ''),
+        'in stock', 'new', csvCelda(Math.round(p.precio) + ' CLP'),
+        csvCelda('https://wa.me/56985421490?text=' + encodeURIComponent('Hola! Me interesa: ' + p.nombre)),
+        csvCelda(p.foto || ''), 'Ayünka'
+      ].join(','));
+    });
+    const blob = new Blob([filas.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'catalogo-meta-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    A.aviso(productos.length + ' productos exportados. Falta subirlo a Meta Commerce Manager a mano.');
+  }
+
   let filtro = '';
 
   function pintar() {
@@ -40,6 +70,7 @@
         <span class="sub">${ps.length} de ${Datos.activos('productos').length}</span>
         <div class="acciones">
           <input id="buscar" class="btn" style="min-width:200px" placeholder="Buscar…" value="${A.esc(filtro)}">
+          <button class="btn" onclick="Vistas.productos.exportarCatalogoMeta()">Exportar catálogo (Meta)</button>
           <button class="btn primario" onclick="Vistas.productos.nuevo()">Nuevo producto</button>
         </div>
       </div>`;
@@ -243,5 +274,5 @@
   }
 
   window.Vistas = window.Vistas || {};
-  Vistas.productos = { pintar, abrir, nuevo, CATS, _subirFoto };
+  Vistas.productos = { pintar, abrir, nuevo, exportarCatalogoMeta, CATS, _subirFoto };
 })();
