@@ -5,6 +5,7 @@
 (function () {
   let propuestas = [];
   let resumen = null;
+  let piezasOriginales = []; // el array de piezas tal como vino del archivo, para poder re-emparejar sin volver a leerlo
   let deLaApp = false;          // el resumen que se está viendo salió del archivo que trae la app
   let fechaApp = '';            // hasta cuándo llega ese archivo, leída del propio archivo
   const CLAVE_IP = 'ayunka2-imp-ip';
@@ -142,6 +143,7 @@
       return;
     }
     resumen = n.resumen;
+    piezasOriginales = n.piezas;
     propuestas = Impresora.emparejar(n.piezas, Datos.activos('productos'));
     pintarResultado();
   }
@@ -199,9 +201,16 @@
       </div>` : ''}
 
       ${sinDueno.length ? `<div class="tarjeta"><h2>Sin producto en el catálogo · ${sinDueno.length}</h2>
-        <p style="font-size:13px;color:var(--apagado);margin:0">
+        <p style="font-size:13px;color:var(--apagado);margin:0 0 10px">
           Salieron de la K2 pero no calzan con ningún producto activo — puede ser una prueba,
           un trabajo de un cliente, o un producto que todavía no está cargado.</p>
+        <table><thead><tr><th>Archivo</th><th class="num">Veces</th><th class="num">Gramos</th><th class="num">Horas</th><th></th></tr></thead><tbody>
+          ${sinDueno.map(p => `<tr>
+            <td>${A.esc(p.archivo)}</td><td class="num">${p.veces}</td>
+            <td class="num">${p.gramosReales}</td><td class="num">${p.horasReales}</td>
+            <td><button class="btn chico" onclick="Vistas.impresora.crearDesdeHuerfano('${A.esc(p.archivo)}')">Crear producto</button></td>
+          </tr>`).join('')}
+        </tbody></table>
       </div>` : ''}`;
   }
 
@@ -262,6 +271,28 @@
     aplicar(propuestas.filter(p => p.productoId && p.origenDatos === origen));
   }
 
+  // Convierte una pieza huérfana en un producto real, con los gramos y horas que ya
+  // salieron medidos de la K2 -- mismo patrón que Vistas.cotizar.guardar() al guardar
+  // un producto desde un 3MF cotizado.
+  function crearDesdeHuerfano(archivo) {
+    const prop = propuestas.find(p => p.archivo === archivo && !p.productoId);
+    if (!prop) return;
+    const nombre = archivo.replace(/\.(gcode|stl|3mf|step|stp)$/i, '').replace(/_/g, ' ');
+    const p = Datos.agregar('productos', {
+      sku: '', nombre, categoria: 'sin-categoria', oficio: '3d', material: 'PLA',
+      gramos: prop.gramosReales, horas: prop.horasReales,
+      colores: 1, postMin: 0, precio: null, stock: 0, filamentoId: null, foto: '',
+      descripcion: 'Creado desde Historial K2 (' + prop.veces + ' impresión(es) registradas).',
+      archivoOrigen: prop.archivo, extraCosto: 0, extraNota: '', activo: true
+    });
+    p.precio = Costos.calcular(p).sugerido;
+    Datos.guardar('producto creado desde Historial K2');
+    A.aviso('Creado: ' + nombre + ' — revísale la categoría y el precio en Productos');
+    // Recalcula las propuestas para que este archivo pase de "sin dueño" a "se completa".
+    propuestas = Impresora.emparejar(piezasOriginales, Datos.activos('productos'));
+    pintarResultado();
+  }
+
   function aplicar(lista) {
     if (!lista.length) return;
     let n = 0;
@@ -307,5 +338,5 @@
   }
 
   window.Vistas = window.Vistas || {};
-  Vistas.impresora = { pintar, traerDeIp, aplicarUna, aplicarTodas, usarTasa };
+  Vistas.impresora = { pintar, traerDeIp, aplicarUna, aplicarTodas, usarTasa, crearDesdeHuerfano };
 })();
