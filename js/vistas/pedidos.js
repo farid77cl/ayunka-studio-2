@@ -97,7 +97,11 @@
   function calcularEnEdicion() {
     const abonoEl = document.getElementById('pd-abono');
     const abono = abonoEl ? A.num(abonoEl.value) : 0;
-    return Costos.calcularPedido({ lineas: lineasEditando, abono });
+    const c = Costos.calcularPedido({ lineas: lineasEditando, abono });
+    const envioEl = document.getElementById('pd-envio');
+    const envio = envioEl ? A.num(envioEl.value) : 0;
+    if (c.total !== null && envio) { c.total += envio; c.saldo += envio; }
+    return c;
   }
 
   function htmlTotales() {
@@ -107,8 +111,11 @@
     // un tiempo. Se puede aplazar (una línea con descripción libre es válida), pero ahora
     // se ve.
     const sinVincular = lineasEditando.filter(l => !l.productoId && (l.descripcion || '').trim()).length;
+    const envioEl = document.getElementById('pd-envio');
+    const envio = envioEl ? A.num(envioEl.value) : 0;
     return `<div class="desglose">
       <div class="fila total"><div class="c"><b>Total</b></div><div class="m">${c.total === null ? 'faltan precios' : A.plata(c.total)}</div></div>
+      ${envio ? `<div class="fila"><div class="c">Envío</div><div class="m">${A.plata(envio)}</div></div>` : ''}
       <div class="fila"><div class="c">Costo de producción</div><div class="m" style="color:var(--apagado)">${A.plata(c.costo)}</div></div>
       <div class="fila"><div class="c">Utilidad</div><div class="m" style="color:${(c.utilidad || 0) > 0 ? 'var(--ok)' : 'var(--coral)'}">${c.utilidad === null ? '—' : A.plata(c.utilidad)}</div></div>
       <div class="fila"><div class="c">Saldo por cobrar</div><div class="m">${c.saldo === null ? '—' : A.plata(c.saldo)}</div></div>
@@ -171,6 +178,9 @@
           ${A.campo('pd-fecha', 'Fecha del pedido', p.fecha, { tipo: 'date' })}
           ${A.campo('pd-entrega', 'Entrega comprometida', p.entrega, { tipo: 'date' })}
           ${A.campo('pd-abono', 'Abono recibido', p.abono || 0, { tipo: 'number', signo: '$' })}
+          ${A.campo('pd-direccion', 'Dirección de entrega', p.direccion || '', { ancho: true })}
+          ${A.campo('pd-peso', 'Peso del paquete', p.pesoKg || '', { tipo: 'number', paso: '0.1', unidad: 'kg' })}
+          ${A.campo('pd-envio', 'Costo de envío', p.costoEnvio || 0, { tipo: 'number', signo: '$' })}
         </div>
         <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--pizarra);margin:14px 0 8px">Qué lleva</h3>
         <div id="pd-lineas" class="lineas-pedido">${htmlLineas()}</div>
@@ -180,12 +190,15 @@
       alAbrir: n => {
         const abonoEl = n.querySelector('#pd-abono');
         if (abonoEl) abonoEl.oninput = pintarTotales;
+        const envioEl = n.querySelector('#pd-envio');
+        if (envioEl) envioEl.oninput = pintarTotales;
       },
       leer: n => {
         const v = i => { const e = n.querySelector('#' + i); return e ? e.value : ''; };
         const lineas = lineasEditando.filter(l => l.productoId || (l.descripcion || '').trim());
         return { clienteId: v('pd-cli'), estado: v('pd-est'), fecha: v('pd-fecha'),
                  entrega: v('pd-entrega'), abono: A.num(v('pd-abono')), notas: v('pd-notas'),
+                 direccion: v('pd-direccion'), pesoKg: A.num(v('pd-peso')), costoEnvio: A.num(v('pd-envio')),
                  lineas };
       },
       botones: [{ txt: 'Cancelar', valor: null, clase: 'sutil' },
