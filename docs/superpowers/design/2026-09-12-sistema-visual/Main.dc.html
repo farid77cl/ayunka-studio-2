@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;650;700&family=Sacramento&display=swap">
+<style>
+  :root{
+    --crema:#ECE6DA;--carbon:#2F3A40;--coral:#CB5A52;--rosa:#E39B96;--pizarra:#5F7C8E;--terra:#C27A4E;--niebla:#9FB6C4;--mostaza:#D2A14E;
+    --fondo:#F7F4EE;--panel:#FFFFFF;--panel2:#FBF8F3;--borde:#E4DCCE;--borde2:#D6CBB8;
+    --texto:#2F3A40;--suave:#6E7A82;--apagado:#98A2A8;
+    --c-material:#CB5A52;--c-luz:#5F7C8E;--c-maquina:#C27A4E;--c-mano:#4E8C6A;--c-otros:#8C7BA6;
+    --ok:#3F7D5C;--avisa:#A8762A;--malo:#C0453C;
+    --r-caja:12px;--r-campo:8px;--r-pill:6px;
+    --texto-fuente:'Outfit','Segoe UI',system-ui,-apple-system,sans-serif;
+    --fuente-logo:'Sacramento',cursive;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--texto-fuente);background:var(--fondo);color:var(--texto);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--coral)} a:hover{color:#a8453e}
+  .v,.m,td.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  .app{display:flex;min-height:100vh}
+  .lateral{width:218px;flex:0 0 218px;background:var(--panel);border-right:1px solid var(--borde);padding:22px 12px 14px;display:flex;flex-direction:column;gap:2px}
+  .marca{font-weight:650;font-size:21px;letter-spacing:-.2px;padding:0 10px 20px;line-height:1;display:flex;flex-direction:column;align-items:flex-start}
+  .marca-nombre{font-family:var(--fuente-logo);font-size:32px;font-weight:400}
+  .marca small{display:block;font-family:var(--texto-fuente);font-weight:700;font-size:11px;letter-spacing:1.6px;color:var(--coral);margin-top:5px}
+  .marca::after{content:'';display:block;width:30px;height:3px;border-radius:2px;margin:10px 0 0;background:linear-gradient(90deg,var(--coral),var(--niebla) 55%,var(--mostaza))}
+  .nav{background:none;border:0;text-align:left;color:var(--suave);font-family:var(--texto-fuente);font-size:14.5px;font-weight:500;padding:8px 12px;border-radius:var(--r-campo);cursor:pointer;display:flex;gap:9px;align-items:center}
+  .nav.activo{background:color-mix(in srgb,var(--coral) 11%,transparent);color:var(--coral);font-weight:600}
+  .pie-lateral{margin-top:auto;padding:12px 11px 0;font-size:11.5px;color:var(--apagado);line-height:1.5;border-top:1px solid var(--borde)}
+  .principal{flex:1;min-width:0;padding:30px 34px 70px;max-width:960px}
+  .cabecera{display:flex;align-items:baseline;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .cabecera h1{font-size:25px;margin:0;font-weight:650;letter-spacing:-.3px;line-height:1.1}
+  .cabecera .sub{color:var(--apagado);font-size:13.5px}
+  .cabecera .acciones{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .btn{font-family:var(--texto-fuente);font-size:14px;font-weight:600;padding:8px 16px;border-radius:var(--r-campo);cursor:pointer;border:1px solid var(--borde2);background:var(--panel);color:var(--texto)}
+  .btn.primario{background:var(--coral);border-color:var(--coral);color:#fff}
+  .tarjeta{background:var(--panel);border:1px solid var(--borde);border-radius:var(--r-caja);padding:18px 20px;margin-bottom:16px}
+  .tarjeta>h2{font-size:13px;text-transform:uppercase;letter-spacing:.7px;color:var(--apagado);margin:0 0 14px;font-weight:600}
+  .tarjeta.aviso{border-color:var(--terra);background:var(--panel2)}
+  .tarjeta.aviso b{color:var(--terra)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--apagado);font-weight:600;padding:0 10px 9px;border-bottom:1px solid var(--borde)}
+  td{padding:11px 10px;border-bottom:1px solid var(--borde);vertical-align:middle}
+  tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:var(--panel2)}
+  .num{text-align:right} td.num{font-weight:600}
+  .etiqueta{display:inline-block;font-size:12.5px;font-weight:500;padding:2px 9px;border-radius:var(--r-pill);background:var(--panel2);color:var(--suave);white-space:nowrap}
+  .etiqueta.bordado{background:color-mix(in srgb,var(--c-material) 12%,transparent);color:var(--c-material)}
+  .etiqueta.costura{background:color-mix(in srgb,var(--c-otros) 13%,transparent);color:var(--c-otros)}
+  .etiqueta.d3{background:color-mix(in srgb,var(--c-luz) 14%,transparent);color:var(--c-luz)}
+  .chip{font-size:12.5px;font-weight:500;padding:2px 9px;border-radius:var(--r-pill);white-space:nowrap}
+  .chip.falta{background:color-mix(in srgb,var(--terra) 14%,transparent);color:var(--terra)}
+  .chip.ok{background:color-mix(in srgb,var(--ok) 13%,transparent);color:var(--ok)}
+  .campo{display:flex;flex-direction:column;gap:5px;margin-bottom:13px;position:relative}
+  .campo>span{font-size:12.5px;color:var(--suave);font-weight:600}
+  .campo input,.campo select{font-family:var(--texto-fuente);font-size:14.5px;font-weight:500;padding:10px 12px;border:1px solid var(--borde2);border-radius:var(--r-campo);background:var(--panel2);color:var(--texto);width:100%}
+  .campo .signo{position:absolute;left:12px;bottom:11px;font-size:14px;font-weight:500;color:var(--apagado)}
+  .campo.con-signo input{padding-left:26px}
+  .con-panel{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+  .panel-pegado{position:sticky;top:20px}
+</style>
+</helmet>
+<div class="app">
+  <div class="lateral">
+    <div class="marca">
+      <span class="marca-nombre">Ayünka</span>
+      <small>STUDIO</small>
+    </div>
+    <button class="nav">Pendientes<span style="margin-left:auto;font-size:12.5px;color:var(--apagado)">28</span></button>
+    <button class="nav activo">Productos</button>
+    <button class="nav">Pedidos</button>
+    <button class="nav">Clientes</button>
+    <button class="nav">Filamentos</button>
+    <button class="nav">Ventas y gastos</button>
+    <button class="nav">Cola</button>
+    <button class="nav">Cotizar</button>
+    <button class="nav">Personalizados 3D</button>
+    <button class="nav">Historial K2</button>
+    <button class="nav">Producción</button>
+    <button class="nav">Ajustes</button>
+    <div class="pie-lateral"><b>v2.22.0</b><br>al día</div>
+  </div>
+  <div class="principal">
+    <div class="cabecera">
+      <h1>Productos</h1>
+      <span class="sub">38 de 38</span>
+      <div class="acciones">
+        <input class="btn" style="min-width:180px" placeholder="Buscar…">
+        <button class="btn primario">Nuevo producto</button>
+      </div>
+    </div>
+
+    <div class="tarjeta aviso">
+      <b>26 productos no se pueden costear todavía</b> — salen con «—» en las columnas de costo y
+      sugerido. A los de 3D les faltan los gramos o las horas de máquina; a los de bordado y costura,
+      las horas de trabajo a mano.
+    </div>
+
+    <div class="tarjeta">
+      <h2>Empresas (B2B) · 3</h2>
+      <table>
+        <thead><tr><th>SKU</th><th>Producto</th><th>Oficio</th><th class="num">Costo</th><th class="num">Sugerido</th><th class="num">Precio</th><th></th></tr></thead>
+        <tbody>
+          <tr style="background:var(--panel2)">
+            <td style="color:var(--apagado);font-size:12.5px">AY-B2B-001</td>
+            <td><b>Llavero cute — LIDCAR</b></td>
+            <td><span class="etiqueta d3">3D</span></td>
+            <td class="num">$612</td>
+            <td class="num" style="color:var(--pizarra)">$2.142</td>
+            <td class="num"><b>—</b></td>
+            <td><span class="chip falta">revisar</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--apagado);font-size:12.5px">AY-B2B-002</td>
+            <td><b>Placa redonda — Automotriz Briones</b></td>
+            <td><span class="etiqueta d3">3D</span></td>
+            <td class="num">$970</td>
+            <td class="num" style="color:var(--pizarra)">$3.395</td>
+            <td class="num"><b>$3.400</b></td>
+            <td><span class="chip ok">al día</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--apagado);font-size:12.5px">AY-BOR-014</td>
+            <td><b>Individual bordado — margaritas</b></td>
+            <td><span class="etiqueta bordado">Bordado</span></td>
+            <td class="num">—</td>
+            <td class="num">—</td>
+            <td class="num"><b>—</b></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

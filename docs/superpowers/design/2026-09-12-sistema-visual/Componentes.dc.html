@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;650;700&family=Sacramento&display=swap">
+<style>
+  :root{
+    --crema:#ECE6DA;--carbon:#2F3A40;--coral:#CB5A52;--rosa:#E39B96;--pizarra:#5F7C8E;--terra:#C27A4E;--niebla:#9FB6C4;--mostaza:#D2A14E;
+    --fondo:#F7F4EE;--panel:#FFFFFF;--panel2:#FBF8F3;--borde:#E4DCCE;--borde2:#D6CBB8;
+    --texto:#2F3A40;--suave:#6E7A82;--apagado:#98A2A8;
+    --c-material:#CB5A52;--c-luz:#5F7C8E;--c-maquina:#C27A4E;--c-mano:#4E8C6A;--c-otros:#8C7BA6;
+    --ok:#3F7D5C;--avisa:#A8762A;--malo:#C0453C;
+    --r-caja:12px;--r-campo:8px;--r-pill:6px;
+    --texto-fuente:'Outfit','Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--texto-fuente);background:var(--fondo);color:var(--texto);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .v,.m,td.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  .lienzo{padding:34px;display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1000px}
+  .etiqueta-seccion{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--pizarra);font-weight:600;margin:0 0 10px}
+  .tarjeta{background:var(--panel);border:1px solid var(--borde);border-radius:var(--r-caja);padding:18px 20px}
+  .tarjeta>h2{font-size:13px;text-transform:uppercase;letter-spacing:.7px;color:var(--apagado);margin:0 0 14px;font-weight:600}
+  .tarjeta.aviso{border-color:var(--terra);background:var(--panel2)}
+  .tarjeta.aviso b{color:var(--terra)}
+  .btn{font-family:var(--texto-fuente);font-size:14px;font-weight:600;padding:8px 16px;border-radius:var(--r-campo);cursor:pointer;border:1px solid var(--borde2);background:var(--panel);color:var(--texto)}
+  .btn.primario{background:var(--coral);border-color:var(--coral);color:#fff}
+  .btn.sutil{background:transparent;border-color:transparent;color:var(--apagado)}
+  .btn.chico{padding:4px 10px;font-size:13px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .campo{display:flex;flex-direction:column;gap:5px;margin-bottom:13px;position:relative}
+  .campo>span{font-size:12.5px;color:var(--suave);font-weight:600}
+  .campo input,.campo select{font-family:var(--texto-fuente);font-size:14.5px;font-weight:500;padding:10px 12px;border:1px solid var(--borde2);border-radius:var(--r-campo);background:var(--panel2);color:var(--texto);width:100%}
+  .campo .signo{position:absolute;left:12px;bottom:11px;font-size:14px;font-weight:500;color:var(--apagado)}
+  .campo.con-signo input{padding-left:26px}
+  .formulario{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0 15px}
+  .desglose{font-size:14px}
+  .desglose .fila{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--borde)}
+  .desglose .fila:last-child{border-bottom:0}
+  .desglose .fila .c{flex:1;display:flex;align-items:baseline;gap:8px}
+  .desglose .fila .c>.punto{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+  .desglose .fila .n{color:var(--apagado);font-size:12.5px;display:block}
+  .desglose .fila .m{font-weight:600;font-size:15px}
+  .desglose .total{border-top:2px solid var(--texto);border-bottom:0;margin-top:6px;padding-top:11px}
+  .desglose .total .m{font-size:19px;font-weight:700}
+  .etiqueta{display:inline-block;font-size:12.5px;font-weight:500;padding:2px 9px;border-radius:var(--r-pill);background:var(--panel2);color:var(--suave)}
+  .chip{font-size:12.5px;font-weight:500;padding:2px 9px;border-radius:var(--r-pill)}
+  .chip.falta{background:color-mix(in srgb,var(--terra) 14%,transparent);color:var(--terra)}
+  .chip.ok{background:color-mix(in srgb,var(--ok) 13%,transparent);color:var(--ok)}
+  .chip.bajo{background:color-mix(in srgb,var(--malo) 13%,transparent);color:var(--malo)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--apagado);font-weight:600;padding:0 10px 9px;border-bottom:1px solid var(--borde)}
+  td{padding:11px 10px;border-bottom:1px solid var(--borde)}
+  tr:last-child td{border-bottom:0}
+  .num{text-align:right}
+</style>
+</helmet>
+<div class="lienzo">
+
+  <div>
+    <p class="etiqueta-seccion">Tarjeta de aviso — visible siempre</p>
+    <div class="tarjeta aviso">
+      <b>Falta el correo y la clave de Supabase.</b> Sin eso no se puede subir ninguna foto —
+      se configura en Ajustes → Fotos y archivos.
+    </div>
+  </div>
+
+  <div>
+    <p class="etiqueta-seccion">Botones</p>
+    <div class="tarjeta">
+      <div class="row">
+        <button class="btn primario">Guardar</button>
+        <button class="btn">Cancelar</button>
+        <button class="btn sutil">Descartar</button>
+        <button class="btn chico">Duplicar</button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <p class="etiqueta-seccion">Desglose de costos — un color fijo por concepto</p>
+    <div class="tarjeta">
+      <div class="desglose">
+        <div class="fila"><div class="c"><span class="punto" style="background:var(--c-material)"></span><span>Filamento</span></div><div class="m">$412</div></div>
+        <div class="fila"><div class="c"><span class="punto" style="background:var(--c-luz)"></span><span>Luz</span></div><div class="m">$58</div></div>
+        <div class="fila"><div class="c"><span class="punto" style="background:var(--c-maquina)"></span><span>Máquina<span class="n">amortización</span></span></div><div class="m">$108</div></div>
+        <div class="fila"><div class="c"><span class="punto" style="background:var(--c-mano)"></span><span>Mano de obra</span></div><div class="m">$34</div></div>
+        <div class="fila total"><div class="c"><b>Costo</b></div><div class="m">$612</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <p class="etiqueta-seccion">Formulario de edición, dentro de una tarjeta</p>
+    <div class="tarjeta">
+      <h2>Editar producto</h2>
+      <div class="formulario">
+        <label class="campo"><span>Nombre</span><input value="Llavero cute"></label>
+        <label class="campo"><span>Oficio</span><select><option>Impresión 3D</option></select></label>
+        <label class="campo con-signo"><span>Precio</span><span class="signo">$</span><input value="3.400"></label>
+      </div>
+      <button class="btn primario">Guardar</button>
+    </div>
+  </div>
+
+  <div style="grid-column:1/-1">
+    <p class="etiqueta-seccion">Fila de tabla con acciones</p>
+    <div class="tarjeta">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Precio</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><b>Placa redonda — Automotriz Briones</b></td><td class="num">$3.400</td><td><span class="chip ok">al día</span></td></tr>
+          <tr><td><b>Individual bordado — margaritas</b></td><td class="num">—</td><td><span class="chip falta">sin costear</span></td></tr>
+          <tr><td><b>Rollo de PLA blanco</b></td><td class="num">180 g</td><td><span class="chip bajo">bajo stock</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

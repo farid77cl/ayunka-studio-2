@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;650;700&family=Sacramento&display=swap">
+<style>
+  :root{
+    --crema:#ECE6DA;--carbon:#2F3A40;--coral:#CB5A52;--rosa:#E39B96;--pizarra:#5F7C8E;--terra:#C27A4E;--niebla:#9FB6C4;--mostaza:#D2A14E;
+    --fondo:#F7F4EE;--panel:#FFFFFF;--panel2:#FBF8F3;--borde:#E4DCCE;--borde2:#D6CBB8;
+    --texto:#2F3A40;--suave:#6E7A82;--apagado:#98A2A8;
+    --ok:#3F7D5C;--avisa:#A8762A;--malo:#C0453C;
+    --r-caja:12px;--r-campo:8px;--r-pill:6px;
+    --texto-fuente:'Outfit','Segoe UI',system-ui,-apple-system,sans-serif;
+    --fuente-logo:'Sacramento',cursive;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--texto-fuente);background:var(--fondo);color:var(--texto);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .v,.m,td.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  .app{display:flex;min-height:100vh}
+  .lateral{width:218px;flex:0 0 218px;background:var(--panel);border-right:1px solid var(--borde);padding:22px 12px 14px;display:flex;flex-direction:column;gap:2px}
+  .marca{font-weight:650;font-size:21px;letter-spacing:-.2px;padding:0 10px 20px;line-height:1;display:flex;flex-direction:column;align-items:flex-start}
+  .marca-nombre{font-family:var(--fuente-logo);font-size:32px;font-weight:400}
+  .marca small{display:block;font-family:var(--texto-fuente);font-weight:700;font-size:11px;letter-spacing:1.6px;color:var(--coral);margin-top:5px}
+  .marca::after{content:'';display:block;width:30px;height:3px;border-radius:2px;margin:10px 0 0;background:linear-gradient(90deg,var(--coral),var(--niebla) 55%,var(--mostaza))}
+  .nav{background:none;border:0;text-align:left;color:var(--suave);font-family:var(--texto-fuente);font-size:14.5px;font-weight:500;padding:8px 12px;border-radius:var(--r-campo);cursor:pointer;display:flex;gap:9px;align-items:center}
+  .nav.activo{background:color-mix(in srgb,var(--coral) 11%,transparent);color:var(--coral);font-weight:600}
+  .pie-lateral{margin-top:auto;padding:12px 11px 0;font-size:11.5px;color:var(--apagado);line-height:1.5;border-top:1px solid var(--borde)}
+  .principal{flex:1;min-width:0;padding:30px 34px 70px;max-width:960px}
+  .cabecera{display:flex;align-items:baseline;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .cabecera h1{font-size:25px;margin:0;font-weight:650;letter-spacing:-.3px;line-height:1.1}
+  .cabecera .sub{color:var(--apagado);font-size:13.5px}
+  .tarjeta{background:var(--panel);border:1px solid var(--borde);border-radius:var(--r-caja);padding:18px 20px;margin-bottom:16px}
+  .tarjeta>h2{font-size:13px;text-transform:uppercase;letter-spacing:.7px;color:var(--apagado);margin:0 0 14px;font-weight:600}
+  .rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+  .dato{background:var(--panel);border:1px solid var(--borde);border-radius:var(--r-caja);padding:14px 16px}
+  .dato .k{font-size:12px;color:var(--apagado);letter-spacing:.2px;font-weight:500}
+  .dato .v{font-size:25px;font-weight:650;margin-top:3px;line-height:1.1;letter-spacing:-.4px}
+  .dato .n{font-size:12.5px;color:var(--apagado);margin-top:3px}
+  .dato.destaca{border-color:var(--coral)} .dato.destaca .v{color:var(--coral)}
+  .grupo-pieza{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--apagado);margin:18px 0 8px}
+  .piezas-lista{display:flex;flex-direction:column;gap:10px}
+  .pieza-cab{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .pieza-nombre{font-weight:600;font-size:14.5px}
+  .barra-fases{display:flex;gap:2px}
+  .barra-fases span{height:7px;flex:1;border-radius:2px;background:var(--panel2);border:1px solid var(--borde)}
+  .barra-fases span.ok{background:var(--pizarra);border-color:var(--pizarra)}
+  .barra-fases span.aqui{background:var(--terra);border-color:var(--terra)}
+  .pieza-pie{font-size:12px;color:var(--apagado);margin-top:6px}
+  .pieza-pie b{color:var(--texto)}
+  .chip{font-size:12.5px;font-weight:500;padding:2px 9px;border-radius:var(--r-pill);white-space:nowrap}
+  .chip.falta{background:color-mix(in srgb,var(--terra) 14%,transparent);color:var(--terra)}
+</style>
+</helmet>
+<div class="app">
+  <div class="lateral">
+    <div class="marca"><span class="marca-nombre">Ayünka</span><small>STUDIO</small></div>
+    <button class="nav">Pendientes<span style="margin-left:auto;font-size:12.5px;color:var(--apagado)">28</span></button>
+    <button class="nav">Productos</button>
+    <button class="nav">Pedidos</button>
+    <button class="nav">Clientes</button>
+    <button class="nav">Filamentos</button>
+    <button class="nav">Ventas y gastos</button>
+    <button class="nav activo">Cola</button>
+    <button class="nav">Cotizar</button>
+    <button class="nav">Personalizados 3D</button>
+    <button class="nav">Historial K2</button>
+    <button class="nav">Producción</button>
+    <button class="nav">Ajustes</button>
+    <div class="pie-lateral"><b>v2.22.0</b><br>al día</div>
+  </div>
+  <div class="principal">
+    <div class="cabecera"><h1>Cola</h1><span class="sub">semana del 8 al 14 de septiembre</span></div>
+
+    <div class="tarjeta aviso"><b>9 fichas sin horas de máquina</b> — la cola las cuenta en cero, así
+      que el "alcanza / no alcanza" de abajo es optimista mientras no se midan.</div>
+
+    <div class="rejilla">
+      <div class="dato"><div class="k">Horas comprometidas</div><div class="v">47,5 h</div><div class="n">de 78 h/semana</div></div>
+      <div class="dato destaca"><div class="k">Entregas esta semana</div><div class="v">3</div><div class="n">1 urgente</div></div>
+      <div class="dato"><div class="k">Piezas en cola</div><div class="v">6</div><div class="n">7 fases cada una</div></div>
+      <div class="dato"><div class="k">Filamento por gastar</div><div class="v">1,4 kg</div><div class="n">PLA blanco y negro</div></div>
+    </div>
+
+    <div class="tarjeta">
+      <h2>Producción</h2>
+      <div class="grupo-pieza">LIDCAR · bandeja de 19</div>
+      <div class="piezas-lista">
+        <div>
+          <div class="pieza-cab"><span class="pieza-nombre">Placa rectangular NFC</span><span class="chip falta">en curso</span></div>
+          <div class="barra-fases">
+            <span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span>
+            <span class="aqui"></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="pieza-pie">Compuerta 7 pasada · falta <b>chip + entrega</b></div>
+        </div>
+        <div>
+          <div class="pieza-cab"><span class="pieza-nombre">Redondo 15 · Automotriz Briones</span><span class="chip" style="background:color-mix(in srgb,var(--ok) 13%,transparent);color:var(--ok)">listo</span></div>
+          <div class="barra-fases">
+            <span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span>
+            <span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span>
+          </div>
+          <div class="pieza-pie">Entregado el <b>10-sep</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
