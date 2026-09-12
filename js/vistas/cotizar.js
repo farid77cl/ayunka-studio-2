@@ -255,7 +255,8 @@
             <td class="num">${c.cantidad}</td>
             <td class="num"><b>${A.plata(c.total)}</b></td>
             <td>${A.fecha(c.validoHasta)}${vencida ? ' <span class="chip falta">vencida</span>' : ''}</td>
-            <td><button class="btn chico" onclick="Vistas.cotizar.verCotizacion('${A.esc(c.id)}')">Ver documento</button></td>
+            <td><button class="btn chico" onclick="Vistas.cotizar.verCotizacion('${A.esc(c.id)}')">Ver documento</button>
+              <button class="btn chico sutil" onclick="Vistas.cotizar.enviarPorWhatsapp('${A.esc(c.id)}')">WhatsApp</button></td>
             <td>${c.pedidoId ? '<span class="chip ok">ya es pedido</span>' : `<button class="btn chico" onclick="Vistas.cotizar.convertirEnPedido('${A.esc(c.id)}')">Convertir en pedido</button>`}</td>
           </tr>`;
         }).join('')}
@@ -323,6 +324,24 @@
     w.document.close();
   }
 
+  function enviarPorWhatsapp(id) {
+    const cot = Datos.obtener('cotizaciones', id);
+    if (!cot) { A.aviso('Esa cotización ya no existe', 'error'); return; }
+    const cliente = Datos.obtener('clientes', cot.clienteId);
+    const abonoPct = DB.params.abonoPct != null ? DB.params.abonoPct : 0.5;
+    const abono = Math.round(cot.total * abonoPct / 100) * 100;
+    const nombreCliente = cliente ? cliente.nombre.split(' ')[0] : '';
+    const msg = `Hola${nombreCliente ? ' ' + nombreCliente : ''}! Te dejo la cotización que conversamos:\n\n` +
+      `${cot.cantidad} unidades · total ${A.plata(cot.total)}\n` +
+      `Abono para partir: ${A.plata(abono)} · saldo contra entrega: ${A.plata(cot.total - abono)}\n` +
+      `Entrega estimada: ${A.fecha(cot.entrega)}\n` +
+      `Válida hasta el ${A.fecha(cot.validoHasta)}.\n\n` +
+      `Cualquier duda me escribes por acá. Gracias!`;
+    const telefono = ((cliente && cliente.contacto) || '').replace(/[^\d]/g, '');
+    const url = 'https://wa.me/' + telefono + '?text=' + encodeURIComponent(msg);
+    window.open(url, '_blank');
+  }
+
   function convertirEnPedido(id) {
     const cot = Datos.obtener('cotizaciones', id);
     if (!cot) { A.aviso('Esa cotización ya no existe', 'error'); return; }
@@ -342,5 +361,5 @@
   }
 
   window.Vistas = window.Vistas || {};
-  Vistas.cotizar = { pintar, calcular, guardar, guardarCotizacion, verCotizacion, convertirEnPedido };
+  Vistas.cotizar = { pintar, calcular, guardar, guardarCotizacion, verCotizacion, convertirEnPedido, enviarPorWhatsapp };
 })();
