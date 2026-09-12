@@ -11,11 +11,14 @@
 (function () {
   let lectura = null;
   let datos = { gramosBandeja: null, horasBandeja: null, cantidad: 50, oficio: '3d' };
+  let resultado = null; // el último cálculo de calcular(), para poder guardarlo tal cual se ve en pantalla
 
   function pintar() {
     A.$('#contenido').innerHTML = `
       <div class="cabecera"><h1>Cotizar</h1>
         <span class="sub">desde un 3MF</span></div>
+
+      ${htmlCotizacionesRecientes()}
 
       <div class="tarjeta">
         <div id="zona" class="soltar">
@@ -139,6 +142,13 @@
     const dias = Math.ceil(horasTotal / cap);
     const entrega = new Date(Date.now() + dias * 86400000);
 
+    resultado = {
+      archivoOrigen: L.nombre, cantidad: datos.cantidad, piezasPorBandeja: porBandeja,
+      bandejas, precioUnit, costoUnit: c.costo, total: precioUnit * datos.cantidad,
+      horasTotal, entrega: entrega.toISOString().slice(0, 10), lineas: c.lineas,
+      llevaPausa: !!L.pausas
+    };
+
     A.$('#cotizacion').innerHTML = `
       <div class="tarjeta"><h2>Cotización · ${datos.cantidad} piezas</h2>
         <div class="rejilla" style="margin-bottom:14px">
@@ -177,7 +187,7 @@
       <div class="tarjeta"><h2>Por cantidad</h2>
         <table><thead><tr><th class="num">Piezas</th><th class="num">Bandejas</th>
           <th class="num">Horas</th><th class="num">Unitario</th><th class="num">Total</th></tr></thead><tbody>
-          ${tramos.map(t => `<tr${t.n === datos.cantidad ? ' style="background:#FCFAF6;font-weight:600"' : ''}>
+          ${tramos.map(t => `<tr${t.n === datos.cantidad ? ' style="background:var(--panel2);font-weight:600"' : ''}>
             <td class="num">${t.n}</td><td class="num">${t.bandejas}</td>
             <td class="num">${t.horas.toFixed(1)}</td>
             <td class="num">${A.plata(t.unit)}</td>
@@ -189,10 +199,24 @@
       </div>
 
       <div class="tarjeta">
-        <button class="btn primario" onclick="Vistas.cotizar.guardar()">Guardar como producto</button>
-        <span style="color:var(--apagado);font-size:13px;margin-left:10px">
-          Queda en el catálogo con sus gramos, horas y precio, listo para meterlo en un pedido.</span>
+        <h2>Guardar y mandarle al cliente</h2>
+        ${htmlSelectorClienteCotizacion()}
+        <div class="row">
+          <button class="btn primario" onclick="Vistas.cotizar.guardarCotizacion()">Guardar cotización</button>
+          <button class="btn" onclick="Vistas.cotizar.guardar()">Guardar como producto</button>
+        </div>
+        <p style="font-size:12.5px;color:var(--apagado);margin:10px 0 0">
+          «Guardar cotización» la deja ligada al cliente, con ${DB.params.validezCotizacionDias || 15} días
+          de validez, y abre un documento listo para imprimir o guardar como PDF.
+          «Guardar como producto» la deja en el catálogo, sin cliente, lista para un pedido futuro.</p>
       </div>`;
+  }
+
+  function htmlSelectorClienteCotizacion() {
+    const clientes = Datos.activos('clientes').map(c => ({ v: c.id, t: c.nombre }));
+    if (!clientes.length) return `<p style="color:var(--apagado);font-size:13px">No hay clientes todavía — crea uno en Clientes antes de guardar la cotización.</p>`;
+    if (!datos.clienteId || !clientes.some(c => c.v === datos.clienteId)) datos.clienteId = clientes[0].v;
+    return A.selector('cot-cli', 'Cliente', datos.clienteId, clientes);
   }
 
   function guardar() {
@@ -214,6 +238,90 @@
     A.aviso('Guardado en el catálogo: ' + nombre);
   }
 
+  /* ---------- cotizaciones guardadas ---------- */
+  function htmlCotizacionesRecientes() {
+    const cots = Datos.activos('cotizaciones').slice().sort((a, b) => (a.fecha || '') < (b.fecha || '') ? 1 : -1).slice(0, 5);
+    if (!cots.length) return '';
+    const hoy = new Date().toISOString().slice(0, 10);
+    return `<div class="tarjeta"><h2>Cotizaciones recientes</h2>
+      <table><thead><tr><th>Cliente</th><th>Archivo</th><th class="num">Piezas</th>
+        <th class="num">Total</th><th>Válida hasta</th><th></th></tr></thead><tbody>
+        ${cots.map(c => {
+          const cliente = Datos.obtener('clientes', c.clienteId);
+          const vencida = c.validoHasta && c.validoHasta < hoy;
+          return `<tr>
+            <td><b>${A.esc(cliente ? cliente.nombre : '(cliente borrado)')}</b></td>
+            <td style="color:var(--apagado);font-size:12.5px">${A.esc(c.archivoOrigen || '—')}</td>
+            <td class="num">${c.cantidad}</td>
+            <td class="num"><b>${A.plata(c.total)}</b></td>
+            <td>${A.fecha(c.validoHasta)}${vencida ? ' <span class="chip falta">vencida</span>' : ''}</td>
+            <td><button class="btn chico" onclick="Vistas.cotizar.verCotizacion('${A.esc(c.id)}')">Ver documento</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody></table></div>`;
+  }
+
+  function guardarCotizacion() {
+    if (!resultado) return;
+    const clienteId = (document.getElementById('cot-cli') || {}).value;
+    if (!clienteId) { A.aviso('No hay cliente elegido — crea uno en Clientes primero.', 'error'); return; }
+    const hoy = new Date().toISOString().slice(0, 10);
+    const dias = DB.params.validezCotizacionDias || 15;
+    const validoHasta = new Date(Date.now() + dias * 86400000).toISOString().slice(0, 10);
+    const cot = Datos.agregar('cotizaciones', Object.assign({
+      clienteId, fecha: hoy, validoHasta, estado: 'borrador', activo: true
+    }, resultado));
+    Datos.guardar('nueva cotización');
+    A.aviso('Cotización guardada, válida hasta ' + A.fecha(validoHasta));
+    verCotizacion(cot.id);
+    // No se repinta la vista: perdería el cálculo que sigue en pantalla. La lista de
+    // "recientes" se actualiza sola la próxima vez que se entra a Cotizar.
+  }
+
+  /* Documento aparte, en su propia pestaña: se manda con Ctrl+P → Guardar como PDF.
+     No se integra una librería de PDF -- es justo lo que este repo evita (sin compilador,
+     sin dependencias) y el navegador ya sabe imprimir a PDF sin ayuda. */
+  function documentoHTML(cot, cliente) {
+    const abonoPct = DB.params.abonoPct != null ? DB.params.abonoPct : 0.5;
+    const abono = Math.round(cot.total * abonoPct / 100) * 100;
+    return `<!doctype html><html><head><meta charset="utf-8"><title>Cotización — ${A.esc(cliente ? cliente.nombre : '')}</title>
+      <style>
+        body{font-family:'Segoe UI',system-ui,sans-serif;color:#2F3A40;max-width:640px;margin:40px auto;padding:0 20px;font-size:14.5px;line-height:1.5}
+        h1{font-size:22px;margin:0 0 2px;letter-spacing:-.3px}
+        .sub{color:#98A2A8;font-size:13px;margin-bottom:22px}
+        table{width:100%;border-collapse:collapse;margin:14px 0}
+        td,th{padding:8px 0;border-bottom:1px solid #E4DCCE;text-align:left}
+        td.num,th.num{text-align:right}
+        .total{font-size:19px;font-weight:700}
+        .pie{margin-top:26px;font-size:12.5px;color:#6E7A82}
+        @media print{ .no-print{display:none} }
+      </style></head><body>
+      <h1>Ayünka</h1>
+      <div class="sub">Cotización · ${A.fecha(cot.fecha)} · válida hasta ${A.fecha(cot.validoHasta)}</div>
+      <p><b>Cliente:</b> ${A.esc(cliente ? cliente.nombre : '—')}${cliente && cliente.contacto ? ' · ' + A.esc(cliente.contacto) : ''}</p>
+      <table>
+        <tr><th>Descripción</th><th class="num">Cantidad</th><th class="num">Precio unit.</th><th class="num">Total</th></tr>
+        <tr><td>${A.esc((cot.archivoOrigen || 'Pieza personalizada').replace(/\.(gcode\.)?3mf$/i, ''))}</td>
+          <td class="num">${cot.cantidad}</td><td class="num">${A.plata(cot.precioUnit)}</td><td class="num">${A.plata(cot.total)}</td></tr>
+      </table>
+      <p class="total">Total: ${A.plata(cot.total)}</p>
+      <p>Abono sugerido (${Math.round(abonoPct * 100)}%): ${A.plata(abono)} · Saldo contra entrega: ${A.plata(cot.total - abono)}</p>
+      <p>Entrega estimada: ${A.fecha(cot.entrega)}${cot.llevaPausa ? ' · lleva pausa programada para el chip NFC' : ''}</p>
+      <div class="pie">Ayünka Borda Crea · WhatsApp +56 9 8542 1490 · @ayunka.borda.crea</div>
+      <p class="no-print" style="margin-top:30px"><button onclick="window.print()">Imprimir / Guardar como PDF</button></p>
+      </body></html>`;
+  }
+
+  function verCotizacion(id) {
+    const cot = Datos.obtener('cotizaciones', id);
+    if (!cot) { A.aviso('Esa cotización ya no existe', 'error'); return; }
+    const cliente = Datos.obtener('clientes', cot.clienteId);
+    const w = window.open('', '_blank');
+    if (!w) { A.aviso('El navegador bloqueó la ventana — permite pop-ups para ver el documento.', 'error'); return; }
+    w.document.write(documentoHTML(cot, cliente));
+    w.document.close();
+  }
+
   window.Vistas = window.Vistas || {};
-  Vistas.cotizar = { pintar, calcular, guardar };
+  Vistas.cotizar = { pintar, calcular, guardar, guardarCotizacion, verCotizacion };
 })();
