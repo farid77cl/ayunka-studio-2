@@ -170,7 +170,12 @@
       modelo += '   </components>\n  </object>\n';
     }
     modelo += ' </resources>\n <build>\n';
-    for (const c of contenedores) modelo += '  <item objectid="' + c.id + '" transform="1 0 0 0 1 0 0 0 1 0 0 0" printable="1"/>\n';
+    const copias = (opts.copias && opts.copias.length) ? opts.copias : [{ x: 0, y: 0 }];
+    for (const c of contenedores) {
+      for (const cp of copias) {
+        modelo += '  <item objectid="' + c.id + '" transform="1 0 0 0 1 0 0 0 1 ' + f(cp.x) + ' ' + f(cp.y) + ' 0" printable="1"/>\n';
+      }
+    }
     modelo += ' </build>\n</model>\n';
 
     /* --- Metadata/model_settings.config ---
@@ -239,7 +244,8 @@
       partes: hojas.length,
       colores: [...new Set(hojas.map(h => h.extruder))].sort((a, b) => a - b),
       triangulos: hojas.reduce((a, h) => a + h.tris.length, 0),
-      pausaZ
+      pausaZ,
+      copias: copias.length
     };
   }
   function f(n) { return (Math.round(n * 1e4) / 1e4).toString(); }
@@ -291,5 +297,38 @@
     return { ok: !problemas.length, problemas, tieneNegativo, pausaZ: pausaZLeida };
   }
 
-  window.D3D3MF = { exportar3MF, zip, unzip, verificarNFC, crc32, mallaDe };
+  /* ---------- posiciones de bandeja ----------
+     Grilla simple y conservadora: NO es el empaquetado óptimo de la skill
+     llavero-nfc-desde-3mf (esa está afinada a mano para una medida exacta). Deja margen
+     de sobra y evita una zona rectangular (por defecto, la esquina donde vive la torre
+     de purga, medida en esa misma skill: X 18-78 / Y 220-260 con 2 colores). Con más
+     colores la torre crece -- por eso esto es un punto de partida para revisar en
+     Creality Print, no una bandeja lista para imprimir a ciegas. */
+  function posicionesBandeja(anchoPieza, largoPieza, opts) {
+    opts = opts || {};
+    const bed = opts.bed || { x: 260, y: 260 };
+    const margen = opts.margen != null ? opts.margen : 6;
+    const exclusion = opts.exclusion || { x0: 0, y0: 220, x1: 80, y1: 260 };
+    const pasoX = anchoPieza + margen, pasoY = largoPieza + margen;
+    const cols = Math.max(1, Math.floor((bed.x - margen) / pasoX));
+    const filas = Math.max(1, Math.floor((bed.y - margen) / pasoY));
+    const out = [];
+    for (let f = 0; f < filas; f++) {
+      for (let c = 0; c < cols; c++) {
+        // Posición absoluta del CENTRO de la pieza, en coordenadas 0..bed (esquina inferior izquierda = 0,0).
+        const xAbs = margen + pasoX * c + anchoPieza / 2;
+        const yAbs = margen + pasoY * f + largoPieza / 2;
+        const fueraDeBandeja = (xAbs + anchoPieza / 2) > bed.x || (yAbs + largoPieza / 2) > bed.y;
+        const dentroExclusion = !(xAbs + anchoPieza / 2 < exclusion.x0 || xAbs - anchoPieza / 2 > exclusion.x1 ||
+                                   yAbs + largoPieza / 2 < exclusion.y0 || yAbs - largoPieza / 2 > exclusion.y1);
+        if (fueraDeBandeja || dentroExclusion) continue;
+        // Offset relativo al centro de la bandeja, porque exportar3MF posiciona cada
+        // pieza con su propio origen local ya centrado en (0,0).
+        out.push({ x: xAbs - bed.x / 2, y: yAbs - bed.y / 2 });
+      }
+    }
+    return out;
+  }
+
+  window.D3D3MF = { exportar3MF, zip, unzip, verificarNFC, posicionesBandeja, crc32, mallaDe };
 })();

@@ -47,6 +47,7 @@
   let compilado = null;
   let imagenOriginal = null; // ImageData del archivo subido, para reprocesar sin pedirlo de nuevo
   let controlesImagen = { umbral: 0.5, invertir: false, detalle: 0.6, soloMayor: true };
+  let copiasPedidas = 1;
 
   function pintar() {
     proyecto = null; compilado = null; imagenOriginal = null;
@@ -471,6 +472,9 @@
           <b style="font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--pizarra)">Insumos</b>
           <ul style="margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--suave)">
             ${c.bom.map(b => `<li>${A.esc(b)}</li>`).join('')}</ul></div>` : ''}
+        <div class="formulario" style="margin-top:10px">
+          ${A.campo('d3d-copias', 'Copias en la bandeja', copiasPedidas, { tipo: 'number', unidad: 'piezas' })}
+        </div>
         <div class="row" style="margin-top:14px">
           <button class="btn primario" onclick="Vistas.disenos3d.descargar('stl')">Descargar STL</button>
           <button class="btn" onclick="Vistas.disenos3d.descargar('3mf')">Descargar 3MF (multicolor)</button>
@@ -479,7 +483,9 @@
         <p style="font-size:12px;color:var(--apagado);margin-top:10px">
           Los gramos y las horas no se inventan acá: se miden imprimiendo o laminando en
           Creality Print, igual que en Cotizar. Queda guardado sin precio hasta que se midan.
-          Las copias y cuántas caben en la bandeja se calculan al laminar, en Creality Print.</p>
+          Con más de 1 copia, la posición es una grilla conservadora que evita la esquina de
+          la torre de purga -- <b>ábrela en Creality Print y revísala antes de cortar</b>,
+          esto no reemplaza mirarla.</p>
       </div>`;
   }
 
@@ -501,7 +507,18 @@
       archivos.forEach(a => descargarBlob(a.buffer, a.nombre));
       A.aviso(archivos.length + ' archivo(s) STL descargado(s)');
     } else {
-      const r = D3D3MF.exportar3MF(compilado, nombre);
+      const copiasEl = document.getElementById('d3d-copias');
+      const pedidas = copiasEl ? Math.max(1, A.num(copiasEl.value) || 1) : 1;
+      copiasPedidas = pedidas;
+      let posiciones = null;
+      if (pedidas > 1) {
+        posiciones = D3D3MF.posicionesBandeja(compilado.dims.ancho, compilado.dims.alto);
+        if (posiciones.length < pedidas) {
+          A.aviso('En la bandeja caben ' + posiciones.length + ' de las ' + pedidas + ' pedidas -- se generaron esas.', 'error');
+        }
+        posiciones = posiciones.slice(0, pedidas);
+      }
+      const r = D3D3MF.exportar3MF(compilado, nombre, posiciones ? { copias: posiciones } : {});
       if (!r) { A.aviso('No hay nada que exportar', 'error'); return; }
       // Compuerta 5 de la skill llavero-nfc-desde-3mf: releer el archivo ya escrito, no
       // confiar en las variables. Esto no reemplaza cortarlo en Creality Print (compuerta 7,
@@ -517,6 +534,7 @@
       }
       descargarBlob(r.datos, r.nombre);
       A.aviso('3MF descargado: ' + r.objetos + ' pieza(s), ' + r.colores.length + ' color(es)' +
+        (r.copias > 1 ? ' · ' + r.copias + ' copias en la bandeja -- ábrela en Creality Print y revísala antes de cortar' : '') +
         (r.pausaZ != null ? ' · bolsillo NFC con pausa en z=' + r.pausaZ : ''));
     }
   }
