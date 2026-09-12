@@ -37,7 +37,7 @@
           <div class="n">${(horas / (DB.params.capacidadDiaH || 13)).toFixed(1)} días de máquina</div></div>
       </div><div class="tarjeta"><table><thead><tr>
         <th>Cliente</th><th>Entrega</th><th>Estado</th>
-        <th class="num">Total</th><th class="num">Abono</th><th class="num">Saldo</th><th class="num">Horas</th>
+        <th class="num">Total</th><th class="num">Abono</th><th class="num">Saldo</th><th class="num">Horas</th><th></th>
       </tr></thead><tbody>`;
 
     ps.forEach(p => {
@@ -54,6 +54,7 @@
         <td class="num">${A.plata(c.abonado)}</td>
         <td class="num"><b>${c.saldo === null ? '—' : A.plata(c.saldo)}</b></td>
         <td class="num">${Costos.horasPedido(p).toFixed(1)}</td>
+        <td><button class="btn chico" onclick="event.stopPropagation(); Vistas.pedidos.registrarPago('${A.esc(p.id)}')">+ Pago</button></td>
       </tr>`;
     });
 
@@ -199,6 +200,38 @@
     });
   }
 
+  function registrarPago(id) {
+    const p = Datos.obtener('pedidos', id);
+    if (!p) return;
+    A.preguntar({
+      titulo: 'Registrar pago · ' + cliente(p.clienteId),
+      cuerpo: `<div class="formulario">
+          ${A.campo('pg-monto', 'Monto recibido', '', { tipo: 'number', signo: '$' })}
+          ${A.selector('pg-metodo', 'Método', 'transferencia', [
+            { v: 'transferencia', t: 'Transferencia' }, { v: 'efectivo', t: 'Efectivo' }, { v: 'otro', t: 'Otro' }
+          ])}
+        </div>
+        ${htmlHistorialPagos(id)}`,
+      leer: n => ({ monto: A.num((n.querySelector('#pg-monto') || {}).value), metodo: (n.querySelector('#pg-metodo') || {}).value }),
+      botones: [{ txt: 'Cancelar', valor: null, clase: 'sutil' }, { txt: 'Registrar', valor: 'ok', clase: 'primario' }]
+    }).then(({ valor, datos }) => {
+      if (!valor || !datos.monto) return;
+      Movimientos.registrar('pedidos', 'abono', id, datos.monto, 'pago ' + datos.metodo);
+      Datos.guardar('pago registrado');
+      A.aviso('Pago de ' + A.plata(datos.monto) + ' registrado');
+      pintar();
+    });
+  }
+
+  function htmlHistorialPagos(id) {
+    const hist = Movimientos.historialDe('pedidos', id).filter(m => m.campo === 'abono');
+    if (!hist.length) return '<p style="font-size:12.5px;color:var(--apagado);margin:14px 0 0">Sin pagos registrados todavía.</p>';
+    return `<h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--pizarra);margin:16px 0 8px">Pagos ya registrados</h3>
+      <table><thead><tr><th>Fecha</th><th>Motivo</th><th class="num">Monto</th></tr></thead><tbody>
+        ${hist.map(m => `<tr><td>${A.fecha(m.fecha)}</td><td>${A.esc(m.motivo)}</td><td class="num">${A.plata(m.cambio)}</td></tr>`).join('')}
+      </tbody></table>`;
+  }
+
   function nuevo() {
     const hoy = new Date().toISOString().slice(0, 10);
     const p = Datos.agregar('pedidos', {
@@ -209,6 +242,6 @@
   }
 
   window.Vistas = window.Vistas || {};
-  Vistas.pedidos = { pintar, abrir, nuevo, ESTADOS,
+  Vistas.pedidos = { pintar, abrir, nuevo, registrarPago, ESTADOS,
     _lineaProducto, _lineaCampo, _lineaAgregar, _lineaQuitar };
 })();
