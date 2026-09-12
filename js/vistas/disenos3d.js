@@ -125,12 +125,13 @@
         ${htmlSeccionImagen()}
 
         <details class="mas-opciones" id="d3d-mas">
-          <summary>Más opciones — tipografía, relieve, argolla y montaje</summary>
+          <summary>Más opciones — tipografía, relieve, argolla, montaje y bolsillo NFC</summary>
           <div id="d3d-tipografia">${htmlSelectorTipografia()}</div>
           <div id="d3d-relieve">${htmlRelieve()}</div>
           ${proyecto.argolla ? `<h3>Argolla</h3><div id="d3d-argolla">${htmlArgolla()}</div>` : ''}
           ${proyecto.montaje ? `<h3>Montaje en pared</h3><div id="d3d-montaje">${htmlMontaje()}</div>` : ''}
           ${proyecto.led && proyecto.led.modo !== 'ninguno' ? `<h3>Caja de luz</h3><div id="d3d-led">${htmlLed()}</div>` : ''}
+          ${proyecto.nfc ? `<h3>Bolsillo NFC</h3><div id="d3d-nfc">${htmlNfc()}</div>` : ''}
         </details>
 
         <div class="row" style="margin-top:16px">
@@ -148,6 +149,31 @@
       if (altoEl) altoEl.onchange = () => { proyecto.base.alto = A.num(altoEl.value) || proyecto.base.alto; };
     }
     if (esImagen) wireImagen();
+    wireNfc();
+    wireArgollaMontaje();
+  }
+
+  // Los campos de diámetro/posición del bolsillo no pasan por camposTexto() al generar
+  // -- si no se leen al tipear, la edición se pierde en silencio (es el mismo hueco que
+  // ya tenían argolla y montaje, que no se toca acá para no salirse del bolsillo NFC).
+  function wireNfc() {
+    const d = document.getElementById('d3d-nfc-d'), alt = document.getElementById('d3d-nfc-alt'),
+          x = document.getElementById('d3d-nfc-x'), y = document.getElementById('d3d-nfc-y');
+    if (d) d.onchange = () => cambiarNfc('d', d.value);
+    if (alt) alt.onchange = () => cambiarNfc('alt', alt.value);
+    if (x) x.onchange = () => cambiarNfc('x', x.value);
+    if (y) y.onchange = () => cambiarNfc('y', y.value);
+  }
+
+  // Mismo hueco que tenía el bolsillo NFC antes de hoy: estos campos no pasan por
+  // camposTexto() al generar, así que sin este cableado la edición se pierde en silencio.
+  function wireArgollaMontaje() {
+    const ad = document.getElementById('d3d-arg-d'), ax = document.getElementById('d3d-arg-x'), ay = document.getElementById('d3d-arg-y');
+    if (ad) ad.onchange = () => cambiarArgolla('d', ad.value);
+    if (ax) ax.onchange = () => cambiarArgolla('x', ax.value);
+    if (ay) ay.onchange = () => cambiarArgolla('y', ay.value);
+    const md = document.getElementById('d3d-mon-d');
+    if (md) md.onchange = () => cambiarMontaje('d', md.value);
   }
 
   /* ---------- 1 · la forma: miniaturas de verdad, no nombres en una lista ---------- */
@@ -278,6 +304,29 @@
   }
   function cambiarMontaje(campo, valor) {
     proyecto.montaje[campo] = campo === 'activa' ? !!valor : (A.num(valor) || 0);
+  }
+
+  /* ---------- bolsillo NFC ----------
+     El diámetro y la posición se editan; z0 (0,80 mm) no -- es el número que hace calzar
+     los cortes con la capa 0,20/0,20, medido y verificado en la skill llavero-nfc-desde-3mf.
+     Tocarlo a mano descuadra el bolsillo sin avisar. */
+  function htmlNfc() {
+    const n = proyecto.nfc;
+    return `<label style="display:flex;align-items:center;gap:8px;font-size:13.5px;margin-bottom:8px">
+        <input type="checkbox" id="d3d-nfc-activa" ${n.activa ? 'checked' : ''} onchange="Vistas.disenos3d.cambiarNfc('activa', this.checked)">
+        Lleva bolsillo para chip NFC</label>
+      <div class="formulario">
+        ${A.campo('d3d-nfc-d', 'Diámetro del bolsillo', n.d, { tipo: 'number', paso: '0.5', unidad: 'mm' })}
+        ${A.campo('d3d-nfc-alt', 'Profundidad', n.alt, { tipo: 'number', paso: '0.1', unidad: 'mm', nota: '0,6 para adhesivos · 1,2 para etiquetas gruesas' })}
+        ${A.campo('d3d-nfc-x', 'Posición X (desde el centro)', n.x, { tipo: 'number', unidad: 'mm' })}
+        ${A.campo('d3d-nfc-y', 'Posición Y (desde el centro)', n.y, { tipo: 'number', unidad: 'mm' })}
+      </div>
+      <p style="font-size:12px;color:var(--apagado);margin:2px 0 0">
+        Imprimir a capa 0,20 mm y primera capa 0,20 mm. El 3MF ya trae la pausa para meter el
+        chip a mano -- Creality Print la muestra sola al llegar a esa capa.</p>`;
+  }
+  function cambiarNfc(campo, valor) {
+    proyecto.nfc[campo] = campo === 'activa' ? !!valor : (A.num(valor) || 0);
   }
 
   /* ---------- caja de luz: las 5 medidas que decían "invisibles" ---------- */
@@ -454,8 +503,21 @@
     } else {
       const r = D3D3MF.exportar3MF(compilado, nombre);
       if (!r) { A.aviso('No hay nada que exportar', 'error'); return; }
+      // Compuerta 5 de la skill llavero-nfc-desde-3mf: releer el archivo ya escrito, no
+      // confiar en las variables. Esto no reemplaza cortarlo en Creality Print (compuerta 7,
+      // acá no hay laminador) -- solo confirma que el negative_part y la pausa quedaron
+      // adentro del zip, que es lo único que sí se puede verificar sin cortar.
+      if (r.pausaZ != null) {
+        const v = D3D3MF.verificarNFC(r);
+        if (!v.ok) {
+          A.aviso('3MF descargado, pero el bolsillo NFC no quedó bien: ' + v.problemas.join(' '), 'error');
+          descargarBlob(r.datos, r.nombre);
+          return;
+        }
+      }
       descargarBlob(r.datos, r.nombre);
-      A.aviso('3MF descargado: ' + r.objetos + ' pieza(s), ' + r.colores.length + ' color(es)');
+      A.aviso('3MF descargado: ' + r.objetos + ' pieza(s), ' + r.colores.length + ' color(es)' +
+        (r.pausaZ != null ? ' · bolsillo NFC con pausa en z=' + r.pausaZ : ''));
     }
   }
 
@@ -476,7 +538,7 @@
   window.Vistas = window.Vistas || {};
   Vistas.disenos3d = {
     pintar, elegir, generar, descargar, guardar,
-    elegirForma, elegirFuente, cambiarModo, cambiarProf, cambiarArgolla, cambiarMontaje,
+    elegirForma, elegirFuente, cambiarModo, cambiarProf, cambiarArgolla, cambiarMontaje, cambiarNfc,
     // Getters de solo lectura, para poder verificar el estado real sin exponerlo a que
     // alguien lo pise por accidente desde afuera (igual que Supabase._sesionActual).
     _proyectoActual: () => proyecto, _compiladoActual: () => compilado,
