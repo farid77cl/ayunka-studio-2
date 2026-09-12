@@ -55,7 +55,15 @@
       argolla: { activa: false, d: 4.5, x: 0, y: 0 },
       montaje: { activa: false, d: 4.5 },
       led: { modo: 'ninguno', muro: 3, alto: 18, fondo: 2, holgura: 0.3, cable: 6 },
-      bed: { x: 350, y: 350, z: 350 }
+      // Bolsillo para meter un chip NFC a mano durante una pausa de impresión. Medidas
+      // verificadas hasta la compuerta 7 (G-code real) en la skill llavero-nfc-desde-3mf:
+      // círculo de 27 mm entre z=0,80 y z=1,20 -- ojo, es un CÍRCULO, no un cuadrado, aunque
+      // el bounding box sea 27×27. `alt` es el grosor del bolsillo (0,6 mm para adhesivos,
+      // ~1,2 mm para etiquetas gruesas, según mafagrafos lo llama NFC_Thickness).
+      nfc: { activa: false, d: 27, x: 0, y: 0, z0: 0.8, alt: 0.4 },
+      // Medido el 7-sep-2026 contra el perfil de máquina y los límites de Klipper de la K2:
+      // el área imprimible real es 260×260×260, no 350 -- ese era un supuesto sin verificar.
+      bed: { x: 260, y: 260, z: 260 }
     }, extra || {});
   }
 
@@ -236,6 +244,31 @@
       baseFigs = conPasantes;
     }
 
+    /* ---------- bolsillo NFC ----------
+       No es un pasante: es un volumen NEGATIVE_PART que el laminador resta al cortar,
+       no una geometría booleana de verdad (three.js no hace CSG). Por eso vive como su
+       propio sólido, marcado `negativo`, y d3d-3mf.js lo escribe con subtype distinto
+       -- nunca fusionado con otra pieza del mismo color, aunque comparta extrusor 0. */
+    if (hayBase && p.nfc && p.nfc.activa) {
+      const r = Math.max(4, (+p.nfc.d || 27) / 2);
+      const z0 = Math.max(0, +p.nfc.z0 || 0.8);
+      const alt = Math.max(0.2, +p.nfc.alt || 0.4);
+      const CAPA = 0.2;
+      const fueraDeCapa = Math.abs(alt / CAPA - Math.round(alt / CAPA)) > 0.001;
+      if (z0 + alt > grosor - 0.2) {
+        avisos.push('El bolsillo NFC (z ' + z0.toFixed(2) + '–' + (z0 + alt).toFixed(2) + ' mm) no deja al menos 0,2 mm de piso sobre una base de ' + grosor + ' mm: sube el grosor o baja el bolsillo.');
+      } else if (fueraDeCapa) {
+        avisos.push('La profundidad del bolsillo NFC (' + alt + ' mm) no es múltiplo de la capa de 0,20 mm: el corte va a caer a mitad de capa y el hueco queda descuadrado. Usa 0,4 / 0,6 / 0,8 / 1,0 / 1,2.');
+      } else {
+        solidos.push({
+          pieza: 'principal', nombre: 'Bolsillo NFC', negativo: true, color: 0,
+          figs: [{ outer: G.elipse(r, r, 64, +p.nfc.x || 0, +p.nfc.y || 0), holes: [] }],
+          z0, alt
+        });
+        avisos.push('Bolsillo NFC: imprimir a capa 0,20 mm y primera capa 0,20 mm para que los cortes calcen exacto, y agregar la pausa (ya viene en el 3MF) antes de imprimir.');
+      }
+    }
+
     /* Relieves. `z` deja subirlos o hundirlos respecto de la cara de la base, que es
        lo que hace falta cuando la base es una letra de 40 mm y el nombre tiene que
        quedar metido en su cara y no flotando arriba de todo. */
@@ -297,7 +330,7 @@
 
     const bbTot = G.bboxDe(solidos.reduce((a, s) => a.concat(s.figs), []));
     const altMax = solidos.reduce((a, s) => Math.max(a, s.z0 + s.alt), 0);
-    const bed = p.bed || { x: 350, y: 350, z: 350 };
+    const bed = p.bed || { x: 260, y: 260, z: 260 };
     if (bbTot.w > bed.x || bbTot.h > bed.y) avisos.push('El diseño mide ' + bbTot.w.toFixed(0) + '×' + bbTot.h.toFixed(0) + ' mm y no cabe en la bandeja de ' + bed.x + '×' + bed.y + ' mm.');
 
     return { solidos, avisos, bom, dims: { ancho: bbTot.w, alto: bbTot.h, espesor: altMax }, piezas: piezasDe(solidos), colores: coloresDe(solidos) };
@@ -354,7 +387,11 @@
     for (const s of compilado.solidos) {
       if (opts.pieza && s.pieza !== opts.pieza) continue;
       let geo; try { geo = geometriaDe(s); } catch (e) { console.warn('No pude extruir', s.nombre, e); continue; }
-      const mat = new THREE.MeshPhongMaterial({ color: new THREE.Color(hexDe(s.color, opts.paleta)), shininess: 18, flatShading: false });
+      // El bolsillo NFC no es material real -- three.js no hace CSG, así que se ve como un
+      // disco semitransparente para no confundirlo con una pieza sólida más.
+      const mat = s.negativo
+        ? new THREE.MeshPhongMaterial({ color: 0xC0453C, transparent: true, opacity: 0.35, depthWrite: false })
+        : new THREE.MeshPhongMaterial({ color: new THREE.Color(hexDe(s.color, opts.paleta)), shininess: 18, flatShading: false });
       const m = new THREE.Mesh(geo, mat);
       m.userData = { pieza: s.pieza, color: s.color, nombre: s.nombre, capaId: s.capaId || null };
       g.add(m);

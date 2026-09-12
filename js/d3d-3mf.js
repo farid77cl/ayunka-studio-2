@@ -137,7 +137,10 @@
         const m = mallaDe(geos);
         geos.forEach(g => g.dispose && g.dispose());
         if (!m.tris.length) continue;
-        const hoja = { id: ++id, nombre: 'Color ' + color, extruder: color, verts: m.verts, tris: m.tris };
+        // Un bolsillo NFC (negative_part) nunca comparte extrusor con una pieza real -- vive
+        // solo en color 0 -- así que agruparlo por color ya lo aísla en su propia hoja.
+        const negativo = deLaPieza.filter(x => x.color === color).some(x => x.negativo);
+        const hoja = { id: ++id, nombre: negativo ? 'Bolsillo NFC' : 'Color ' + color, extruder: color, verts: m.verts, tris: m.tris, negativo };
         hojas.push(hoja); partes.push(hoja);
       }
       if (!partes.length) continue;
@@ -179,7 +182,10 @@
       cfg += '    <metadata key="name" value="' + esc(c.nombre) + '"/>\n';
       cfg += '    <metadata key="extruder" value="' + c.partes[0].extruder + '"/>\n';
       for (const h of c.partes) {
-        cfg += '    <part id="' + h.id + '" subtype="normal_part">\n';
+        // Creality identifica el negative_part por el NÚMERO de este id, no por su
+        // posición en la lista -- por eso los ids salen siempre del mismo contador ++id
+        // de arriba y nunca se renumeran después de escritos.
+        cfg += '    <part id="' + h.id + '" subtype="' + (h.negativo ? 'negative_part' : 'normal_part') + '">\n';
         cfg += '      <metadata key="name" value="' + esc(h.nombre) + '"/>\n';
         cfg += '      <metadata key="extruder" value="' + h.extruder + '"/>\n';
         cfg += '      <mesh_stat edges_fixed="0" degenerate_facets="0" facets_removed="0" facets_reversed="0" backwards_edges="0"/>\n';
@@ -199,12 +205,32 @@
       ' <Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>\n' +
       '</Relationships>\n';
 
-    const datos = zip([
+    const archivos = [
       { nombre: '[Content_Types].xml', datos: enc.encode(tipos) },
       { nombre: '_rels/.rels', datos: enc.encode(rels) },
       { nombre: '3D/3dmodel.model', datos: enc.encode(modelo) },
       { nombre: 'Metadata/model_settings.config', datos: enc.encode(cfg) }
-    ]);
+    ];
+
+    /* La pausa para meter el chip a mano. Comprobado contra un 3MF real que pasó la
+       compuerta 7 (G-code verificado): custom_gcode_per_layer.xml no necesita entrada en
+       [Content_Types].xml ni en _rels/.rels -- Creality lo encuentra por su ruta. La pausa
+       va una capa (0,20 mm) después del techo del bolsillo, para que el puente que lo tapa
+       se imprima justo después de reanudar. */
+    const bolsillos = compilado.solidos.filter(s => s.negativo);
+    let pausaZ = null;
+    if (bolsillos.length) {
+      const CAPA = 0.2;
+      const techo = Math.max(...bolsillos.map(s => s.z0 + s.alt));
+      pausaZ = Math.round((techo + CAPA) * 100) / 100;
+      const pausas = '<?xml version="1.0" encoding="utf-8"?>\n' +
+        '<custom_gcodes_per_layer>\n<plate>\n<plate_info id="1"/>\n' +
+        '<layer top_z="' + pausaZ + '" type="1" extruder="1" color="" extra="" gcode="PAUSE"/>\n' +
+        '<mode value="MultiAsSingle"/>\n</plate>\n</custom_gcodes_per_layer>\n';
+      archivos.push({ nombre: 'Metadata/custom_gcode_per_layer.xml', datos: enc.encode(pausas) });
+    }
+
+    const datos = zip(archivos);
 
     return {
       nombre: nb.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi, '-').replace(/(^-|-$)/g, '') + '.3mf',
@@ -212,10 +238,58 @@
       objetos: contenedores.length,
       partes: hojas.length,
       colores: [...new Set(hojas.map(h => h.extruder))].sort((a, b) => a - b),
-      triangulos: hojas.reduce((a, h) => a + h.tris.length, 0)
+      triangulos: hojas.reduce((a, h) => a + h.tris.length, 0),
+      pausaZ
     };
   }
   function f(n) { return (Math.round(n * 1e4) / 1e4).toString(); }
 
-  window.D3D3MF = { exportar3MF, zip, crc32, mallaDe };
+  /* ---------- leer el zip de vuelta ----------
+     Simétrico de zip(): todo se escribió "stored" (sin comprimir), así que basta con
+     caminar las cabeceras locales. No es un lector de ZIP genérico -- no hace falta,
+     el único escritor es el de acá arriba. */
+  function unzip(datos) {
+    const dv = new DataView(datos.buffer, datos.byteOffset, datos.byteLength);
+    const out = {};
+    let o = 0;
+    while (o + 4 <= datos.length && dv.getUint32(o, true) === 0x04034b50) {
+      const nombreLen = dv.getUint16(o + 26, true);
+      const extraLen = dv.getUint16(o + 28, true);
+      const tam = dv.getUint32(o + 22, true); // tamaño sin comprimir == comprimido (stored)
+      const nombre = new TextDecoder().decode(datos.subarray(o + 30, o + 30 + nombreLen));
+      const inicioDatos = o + 30 + nombreLen + extraLen;
+      out[nombre] = datos.subarray(inicioDatos, inicioDatos + tam);
+      o = inicioDatos + tam;
+    }
+    return out;
+  }
+
+  /* ---------- compuerta 5, automática ----------
+     "Leer el archivo ya escrito de vuelta. No confiar en las variables del script."
+     (skill llavero-nfc-desde-3mf). Comprueba lo que si se puede comprobar sin cortar:
+     que el bolsillo quedó como negative_part y que la pausa existe y cae donde toca.
+     Lo que NO reemplaza: cortarlo en Creality Print y mirar el G-code (compuerta 7) --
+     eso solo lo puede hacer Farid, acá no hay laminador por línea de comandos. */
+  function verificarNFC(exportado) {
+    const problemas = [];
+    const archivos = unzip(exportado.datos);
+    const cfgTxt = archivos['Metadata/model_settings.config'] ? new TextDecoder().decode(archivos['Metadata/model_settings.config']) : '';
+    const tieneNegativo = /subtype="negative_part"/.test(cfgTxt);
+    if (exportado.pausaZ != null && !tieneNegativo) problemas.push('Se esperaba un negative_part y no está en model_settings.config.');
+
+    const pausaTxt = archivos['Metadata/custom_gcode_per_layer.xml'] ? new TextDecoder().decode(archivos['Metadata/custom_gcode_per_layer.xml']) : null;
+    let pausaZLeida = null;
+    if (exportado.pausaZ != null) {
+      if (!pausaTxt) problemas.push('Falta Metadata/custom_gcode_per_layer.xml -- sin eso la K2 no para para meter el chip.');
+      else {
+        const m = pausaTxt.match(/top_z="([\d.]+)"[^>]*gcode="PAUSE"/);
+        pausaZLeida = m ? parseFloat(m[1]) : null;
+        if (pausaZLeida == null) problemas.push('custom_gcode_per_layer.xml no trae un <layer gcode="PAUSE">.');
+        else if (Math.abs(pausaZLeida - exportado.pausaZ) > 0.001) problemas.push('La pausa quedó en z=' + pausaZLeida + ' y debía quedar en z=' + exportado.pausaZ + '.');
+      }
+    }
+    return { ok: !problemas.length, problemas, tieneNegativo, pausaZ: pausaZLeida };
+  }
+
+  window.D3D3MF = { exportar3MF, zip, unzip, verificarNFC, crc32, mallaDe };
 })();
