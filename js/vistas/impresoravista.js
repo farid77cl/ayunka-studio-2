@@ -87,7 +87,7 @@
     const nombre = archivo.replace(/\.(gcode|stl|3mf)$/i, '').replace(/_/g, ' ');
     const p = Datos.agregar('productos', { sku: '', nombre, categoria: 'sin-categoria', oficio: '3d', material: 'PLA',
       gramos: prop.gramosReales, horas: prop.horasReales, colores: 1, postMin: 0, precio: null, stock: 0, filamentoId: null,
-      foto: '', descripcion: 'Creado desde Historial K2.', archivoOrigen: prop.archivo, extraCosto: 0, extraNota: '', activo: true });
+      anchoMm: null, largoMm: null, foto: '', descripcion: 'Creado desde Historial K2.', archivoOrigen: prop.archivo, extraCosto: 0, extraNota: '', activo: true });
     p.precio = Costos.calcular(p).sugerido;
     Datos.guardar('producto creado desde Historial K2');
     A.aviso('Creado: ' + nombre);

@@ -65,10 +65,13 @@
           ${A.campo('p-gramos', 'Gramos', p.gramos ?? '', { tipo: 'number', unidad: 'g' })}
           ${A.campo('p-horas', 'Horas de máquina', p.horas ?? '', { tipo: 'number', paso: '0.01', unidad: 'h' })}
           ${A.selector('p-filamento', 'Filamento', p.filamentoId || '', opcionesFilamento())}
+          ${A.campo('p-ancho', 'Ancho de la pieza', p.anchoMm ?? '', { tipo: 'number', unidad: 'mm' })}
+          ${A.campo('p-largo', 'Largo de la pieza', p.largoMm ?? '', { tipo: 'number', unidad: 'mm' })}
         ` : `${A.campo('p-horastrabajo', 'Horas de trabajo a mano', p.horasTrabajo ?? '', { tipo: 'number', paso: '0.1', unidad: 'h' })}`}
         ${A.campo('p-extra', 'Costo extra', p.extraCosto || 0, { tipo: 'number', signo: '$' })}
         ${A.campo('p-precio', 'Precio de venta', p.precio ?? '', { tipo: 'number', signo: '$' })}
       </div>
+      ${p.oficio === '3d' ? '<p style="font-size:12px;color:var(--apagado);margin:-4px 0 10px">Ancho y largo aproximados de la pieza en la placa (mirando desde arriba) -- se usan para armar Bandejas mixtas.</p>' : ''}
       <div class="desglose">
         ${c.completo ? c.lineas.map(l => `<div class="fila"><div class="c"><span class="punto" style="background:var(--c-${l.color})"></span><span>${A.esc(l.concepto)}${l.nota ? `<span class="n">${A.esc(l.nota)}</span>` : ''}</span></div><div class="m">${A.plata(l.monto)}</div></div>`).join('')
           + `<div class="fila total"><div class="c"><b>Costo</b></div><div class="m">${A.plata(c.costo)}</div></div>`
@@ -81,7 +84,8 @@
         const base = { nombre: v('p-nombre'), sku: v('p-sku'), oficio, categoria: v('p-categoria'),
                        extraCosto: A.num(v('p-extra')), precio: v('p-precio') === '' ? null : A.num(v('p-precio')) };
         if (oficio === '3d') return Object.assign(base, { gramos: v('p-gramos') === '' ? null : A.num(v('p-gramos')),
-          horas: v('p-horas') === '' ? null : A.num(v('p-horas')), filamentoId: v('p-filamento') || null });
+          horas: v('p-horas') === '' ? null : A.num(v('p-horas')), filamentoId: v('p-filamento') || null,
+          anchoMm: v('p-ancho') === '' ? null : A.num(v('p-ancho')), largoMm: v('p-largo') === '' ? null : A.num(v('p-largo')) });
         return Object.assign(base, { horasTrabajo: v('p-horastrabajo') === '' ? null : A.num(v('p-horastrabajo')) });
       },
       botones: [{ txt: 'Cancelar', valor: null, clase: 'sutil' }, { txt: 'Guardar', valor: 'ok', clase: 'primario' }]
@@ -97,7 +101,7 @@
   function nuevo() {
     const p = Datos.agregar('productos', { sku: '', nombre: 'Producto nuevo', categoria: 'sin-categoria', oficio: '3d',
       material: 'PLA', gramos: null, horas: null, colores: 1, postMin: 0, precio: null, stock: 0, filamentoId: null,
-      foto: '', descripcion: '', extraCosto: 0, extraNota: '', activo: true });
+      anchoMm: null, largoMm: null, foto: '', descripcion: '', extraCosto: 0, extraNota: '', activo: true });
     Datos.guardar('nuevo producto');
     pintar();
     abrir(p.id);
