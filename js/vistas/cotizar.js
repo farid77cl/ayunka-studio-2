@@ -117,7 +117,8 @@
           const cliente = Datos.obtener('clientes', c.clienteId);
           return `<tr><td><b>${A.esc(cliente ? cliente.nombre : '(cliente borrado)')}</b></td>
             <td class="num"><b>${A.plata(c.total)}</b></td>
-            <td><button class="btn chico" onclick="Vistas.cotizar.verCotizacion('${A.esc(c.id)}')">Ver documento</button></td>
+            <td><button class="btn chico" onclick="Vistas.cotizar.verCotizacion('${A.esc(c.id)}')">Ver documento</button>
+              <button class="btn chico" onclick="Vistas.cotizar.descargarPDF('${A.esc(c.id)}')">PDF</button></td>
             <td>${c.pedidoId ? '<span class="chip ok">ya es pedido</span>' : `<button class="btn chico" onclick="Vistas.cotizar.convertirEnPedido('${A.esc(c.id)}')">Convertir en pedido</button>`}</td></tr>`;
         }).join('')}
       </tbody></table></div>`;
@@ -164,6 +165,13 @@
     w.document.close();
   }
 
+  function descargarPDF(id) {
+    const cot = Datos.obtener('cotizaciones', id);
+    if (!cot) { A.aviso('Esa cotización ya no existe', 'error'); return; }
+    const cliente = Datos.obtener('clientes', cot.clienteId);
+    PDF.genQuotePDF(cot, cliente).catch(e => A.aviso('No se pudo generar el PDF: ' + (e.message || e), 'error'));
+  }
+
   function convertirEnPedido(id) {
     const cot = Datos.obtener('cotizaciones', id);
     if (!cot) { A.aviso('Esa cotización ya no existe', 'error'); return; }
@@ -192,5 +200,5 @@
   }
 
   window.Vistas = window.Vistas || {};
-  Vistas.cotizar = { pintar, calcular, guardarCotizacion, verCotizacion, convertirEnPedido, enviarPorWhatsapp };
+  Vistas.cotizar = { pintar, calcular, guardarCotizacion, verCotizacion, descargarPDF, convertirEnPedido, enviarPorWhatsapp };
 })();
