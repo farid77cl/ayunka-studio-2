@@ -1,6 +1,6 @@
 /* Ayünka Studio · arranque y navegación. */
 (function () {
-  const NAV = [{ id: 'productos', label: 'Productos' }, { id: 'pedidos', label: 'Pedidos' }, { id: 'cotizar', label: 'Cotizar' }, { id: 'clientes', label: 'Clientes' }, { id: 'filamentos', label: 'Filamentos' }, { id: 'ajustes', label: 'Ajustes' }]; // se completa vista por vista en la Fase 1
+  const NAV = [{ id: 'productos', label: 'Productos' }, { id: 'pedidos', label: 'Pedidos' }, { id: 'cotizar', label: 'Cotizar' }, { id: 'cola', label: 'Cola' }, { id: 'clientes', label: 'Clientes' }, { id: 'filamentos', label: 'Filamentos' }, { id: 'ajustes', label: 'Ajustes' }]; // se completa vista por vista en la Fase 1
 
   async function arrancar() {
     let db = Datos.leerDisco();
