@@ -1,0 +1,362 @@
+/* Ayünka Studio · sistema visual.
+ *
+ * La paleta es la de la marca, "Acuarela Silvestre": crema, coral, rosa, pizarra, tierra.
+ * Ayünka es bordado y costura hecho a mano -- la pantalla tiene que sentirse cálida y
+ * tranquila, no técnica y a gritos. Mayúsculas solo en etiquetas chicas, nunca en algo
+ * que se lee como texto. Casi cero sombras: la separación es borde de 1px + un fondo un
+ * escalón distinto (excepción: el modal, que sí flota sobre todo lo demás).
+ */
+
+/* ---------- tokens ---------- */
+:root {
+  color-scheme: light;
+
+  --crema:   #ECE6DA;
+  --carbon:  #2F3A40;
+  --coral:   #CB5A52;
+  --rosa:    #E39B96;
+  --pizarra: #5F7C8E;
+  --terra:   #C27A4E;
+  --niebla:  #9FB6C4;
+  --mostaza: #D2A14E;
+
+  --fondo:   #F7F4EE;
+  --panel:   #FFFFFF;
+  --panel2:  #FBF8F3;
+  --borde:   #E4DCCE;
+  --borde2:  #D6CBB8;
+
+  --texto:   #2F3A40;
+  --suave:   #6E7A82;
+  --apagado: #98A2A8;
+
+  --c-material: #CB5A52;
+  --c-luz:      #5F7C8E;
+  --c-maquina:  #C27A4E;
+  --c-mano:     #4E8C6A;
+  --c-otros:    #8C7BA6;
+
+  --ok:     #3F7D5C;
+  --avisa:  #A8762A;
+  --malo:   #C0453C;
+
+  --r-caja: 12px;
+  --r-campo: 8px;
+  --r-pill: 6px;
+
+  --texto-fuente: 'Outfit', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --num-fuente: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+  --fuente-logo: 'Sacramento', cursive;
+}
+
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+  --fondo:   #14161B;
+  --panel:   #1B1E25;
+  --panel2:  #22262F;
+  --borde:   #2C313B;
+  --borde2:  #3A4150;
+  --texto:   #E4E1DA;
+  --suave:   #98A2AE;
+  --apagado: #6B7480;
+  --crema:   #22262F;
+  --coral:   #E2726A;
+  --rosa:    #E39B96;
+  --pizarra: #8FADBF;
+  --c-material: #E2726A;
+  --c-luz:      #8FADBF;
+  --c-maquina:  #D9955F;
+  --c-mano:     #64AE84;
+  --ok:    #64AE84;
+  --avisa: #D2A44E;
+  --malo:  #E0665C;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--texto-fuente);
+  background: var(--fondo);
+  color: var(--texto);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.v, .m, td.num, .total-monto, .dato .v {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ---------- estructura ---------- */
+.app { display: flex; min-height: 100vh; }
+
+.lateral {
+  width: 218px; flex: 0 0 218px;
+  background: var(--panel);
+  border-right: 1px solid var(--borde);
+  padding: 22px 12px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+  position: sticky; top: 0; height: 100vh;
+}
+.marca {
+  font-weight: 650; font-size: 21px; letter-spacing: -.2px;
+  padding: 0 10px 20px; line-height: 1;
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+.marca-nombre { font-family: var(--fuente-logo); font-size: 32px; font-weight: 400; }
+.marca small {
+  display: block; font-family: var(--texto-fuente); font-weight: 700; font-size: 11px;
+  letter-spacing: 1.6px; color: var(--coral); margin-top: 5px;
+}
+.marca::after {
+  content: ''; display: block; width: 30px; height: 3px; border-radius: 2px;
+  margin: 10px 0 0;
+  background: linear-gradient(90deg, var(--coral), var(--niebla) 55%, var(--mostaza));
+}
+
+.nav {
+  background: none; border: 0; text-align: left; color: var(--suave);
+  font-family: var(--texto-fuente); font-size: 14.5px; font-weight: 500;
+  padding: 8px 12px; border-radius: var(--r-campo); cursor: pointer;
+  display: flex; gap: 9px; align-items: center; transition: .12s; width: 100%;
+}
+.nav:hover { background: var(--panel2); color: var(--texto); }
+.nav.activo {
+  background: color-mix(in srgb, var(--coral) 11%, transparent);
+  color: var(--coral); font-weight: 600;
+}
+.nav .cuenta {
+  margin-left: auto; font-size: 12.5px; font-weight: 500;
+  color: var(--apagado); font-variant-numeric: tabular-nums;
+}
+.nav.activo .cuenta { color: color-mix(in srgb, var(--coral) 70%, var(--apagado)); }
+
+.pie-lateral {
+  margin-top: auto; padding: 12px 11px 0; font-size: 11.5px; color: var(--apagado);
+  line-height: 1.5; border-top: 1px solid var(--borde);
+}
+.pie-lateral b { color: var(--suave); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.tema {
+  background: none; border: 1px solid var(--borde); color: var(--suave);
+  border-radius: var(--r-pill); padding: 3px 9px; font: inherit; font-size: 11.5px;
+  cursor: pointer; margin-top: 8px;
+}
+.tema:hover { border-color: var(--borde2); color: var(--texto); }
+
+.principal { flex: 1; min-width: 0; padding: 30px 34px 70px; max-width: 1180px; }
+
+.cabecera { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+.cabecera h1 {
+  font-size: 25px; margin: 0; font-weight: 650; letter-spacing: -.3px; line-height: 1.1;
+}
+.cabecera .sub { color: var(--apagado); font-size: 13.5px; }
+.cabecera .acciones { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+/* ---------- tarjetas ---------- */
+.tarjeta {
+  background: var(--panel); border: 1px solid var(--borde);
+  border-radius: var(--r-caja); padding: 18px 20px; margin-bottom: 16px;
+}
+.tarjeta > h2 {
+  font-size: 13px; text-transform: uppercase; letter-spacing: .7px;
+  color: var(--apagado); margin: 0 0 14px; font-weight: 600;
+}
+.tarjeta.aviso { border-color: var(--terra); background: var(--panel2); }
+.tarjeta.aviso b { color: var(--terra); }
+
+/* ---------- botones ---------- */
+.btn {
+  font-family: var(--texto-fuente); font-size: 14px; font-weight: 600;
+  padding: 8px 16px; border-radius: var(--r-campo); cursor: pointer;
+  border: 1px solid var(--borde2); background: var(--panel); color: var(--texto);
+  transition: .14s;
+}
+.btn:hover { border-color: var(--coral); color: var(--coral); }
+.btn.primario {
+  background: var(--coral); border-color: var(--coral); color: #fff;
+}
+.btn.primario:hover { filter: brightness(1.07); color: #fff; transform: translateY(-1px); }
+.btn.sutil { background: transparent; border-color: transparent; color: var(--apagado); }
+.btn.sutil:hover { background: var(--panel2); color: var(--texto); border-color: transparent; }
+.btn.chico { padding: 4px 10px; font-size: 13px; }
+
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* ---------- tablas: sin bordes verticales, sin cebra ---------- */
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+th {
+  text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .6px;
+  color: var(--apagado); font-weight: 600; padding: 0 10px 9px;
+  border-bottom: 1px solid var(--borde);
+}
+td { padding: 11px 10px; border-bottom: 1px solid var(--borde); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+tbody tr { transition: background .1s; }
+tbody tr:hover { background: var(--panel2); }
+.num { text-align: right; }
+td.num { font-weight: 600; }
+
+/* ---------- etiquetas ---------- */
+.etiqueta {
+  display: inline-block; font-size: 12.5px; font-weight: 500;
+  padding: 2px 9px; border-radius: var(--r-pill);
+  background: var(--panel2); color: var(--suave); white-space: nowrap;
+}
+.etiqueta.bordado { background: color-mix(in srgb, var(--c-material) 12%, transparent); color: var(--c-material); }
+.etiqueta.costura { background: color-mix(in srgb, var(--c-otros) 13%, transparent);    color: var(--c-otros); }
+.etiqueta.d3      { background: color-mix(in srgb, var(--c-luz) 14%, transparent);      color: var(--c-luz); }
+
+.chip {
+  font-size: 12.5px; font-weight: 500;
+  padding: 2px 9px; border-radius: var(--r-pill); white-space: nowrap;
+}
+.chip.falta { background: color-mix(in srgb, var(--terra) 14%, transparent); color: var(--terra); }
+.chip.bajo  { background: color-mix(in srgb, var(--malo) 13%, transparent);  color: var(--malo); }
+.chip.alto  { background: color-mix(in srgb, var(--avisa) 15%, transparent); color: var(--avisa); }
+.chip.ok    { background: color-mix(in srgb, var(--ok) 13%, transparent);    color: var(--ok); }
+
+.vacio { text-align: center; color: var(--apagado); padding: 40px 16px; font-size: 14px; }
+.vacio b { display: block; color: var(--texto); font-size: 16px; margin-bottom: 5px; }
+
+/* ---------- tiles de dato ---------- */
+.rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.dato {
+  background: var(--panel); border: 1px solid var(--borde);
+  border-radius: var(--r-caja); padding: 14px 16px;
+}
+.dato .k {
+  font-size: 12px; color: var(--apagado); letter-spacing: .2px; font-weight: 500;
+}
+.dato .v { font-size: 25px; font-weight: 650; margin-top: 3px; line-height: 1.1; letter-spacing: -.4px; }
+.dato .n { font-size: 12.5px; color: var(--apagado); margin-top: 3px; }
+.dato.destaca { border-color: var(--coral); }
+.dato.destaca .v { color: var(--coral); }
+
+/* ---------- campos ---------- */
+.campo { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; position: relative; }
+.campo.ancho { grid-column: 1 / -1; }
+.campo > span {
+  font-size: 12.5px; color: var(--suave); font-weight: 600;
+}
+.campo > span i { font-style: normal; font-weight: 400; color: var(--apagado); margin-left: 7px; }
+.campo input, .campo select, .campo textarea {
+  font-family: var(--texto-fuente); font-size: 14.5px; font-weight: 500;
+  padding: 10px 12px; border: 1px solid var(--borde2);
+  border-radius: var(--r-campo); background: var(--panel2); color: var(--texto); width: 100%;
+  transition: .12s;
+}
+.campo input[type="number"] { font-variant-numeric: tabular-nums; font-weight: 600; }
+.campo input[type="number"] { -moz-appearance: textfield; }
+.campo input::-webkit-outer-spin-button,
+.campo input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.campo input:focus, .campo select:focus, .campo textarea:focus {
+  outline: none; border-color: var(--coral);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--coral) 14%, transparent);
+}
+.campo .unidad {
+  position: absolute; right: 12px; bottom: 11px; pointer-events: none;
+  font-size: 13px; font-weight: 500; color: var(--apagado);
+}
+.campo.con-signo input { padding-left: 26px; }
+.campo .signo {
+  position: absolute; left: 12px; bottom: 11px; pointer-events: none;
+  font-size: 14px; font-weight: 500; color: var(--apagado);
+}
+.formulario { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 0 15px; }
+
+/* ---------- desglose de costos ---------- */
+.desglose { font-size: 14px; }
+.desglose .fila {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 0; border-bottom: 1px solid var(--borde);
+}
+.desglose .fila:last-child { border-bottom: 0; }
+.desglose .fila .c { flex: 1; display: flex; align-items: baseline; gap: 8px; }
+.desglose .fila .c > .punto {
+  width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px; align-self: center;
+}
+.desglose .fila .n { color: var(--apagado); font-size: 12.5px; font-family: var(--texto-fuente); display: block; }
+.desglose .fila .m { font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums; }
+.desglose .total {
+  border-top: 2px solid var(--texto); border-bottom: 0;
+  margin-top: 6px; padding-top: 11px;
+}
+.desglose .total .m { font-size: 19px; font-weight: 700; }
+
+.barra { height: 6px; border-radius: 3px; background: var(--panel2); overflow: hidden; }
+.barra > div { height: 100%; transition: width .5s ease; }
+
+/* ---------- panel pegado: el total nunca se pierde de vista ---------- */
+.con-panel { display: grid; grid-template-columns: 1fr 330px; gap: 16px; align-items: start; }
+.panel-pegado { position: sticky; top: 20px; }
+.total-caja {
+  background: var(--panel); border: 1px solid var(--coral);
+  border-radius: var(--r-caja); padding: 18px 20px; text-align: center;
+}
+.total-caja .k {
+  font-size: 12px; letter-spacing: .3px; color: var(--apagado); font-weight: 500;
+}
+.total-monto { font-size: 36px; font-weight: 700; color: var(--coral); line-height: 1.1; margin: 3px 0; letter-spacing: -.6px; }
+.total-caja .n { font-size: 13px; color: var(--apagado); }
+
+/* ---------- modal y avisos ---------- */
+.modal-fondo {
+  position: fixed; inset: 0; background: rgba(20,22,27,.5); backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 90;
+}
+.modal {
+  background: var(--panel); border: 1px solid var(--borde); border-radius: 16px;
+  max-width: 660px; width: 100%; padding: 24px 26px;
+  box-shadow: 0 20px 60px rgba(20,22,27,.28); max-height: 88vh; overflow: auto;
+}
+.modal h2 {
+  margin: 0 0 16px; font-size: 21px; font-weight: 650; letter-spacing: -.3px; line-height: 1.2;
+}
+.modal-cuerpo { font-size: 14.5px; }
+.modal-botones { display: flex; gap: 9px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
+
+/* El mensaje flotante que se va solo. Su clase es SIEMPRE .toast, nunca .aviso -- ver el
+   comentario al principio de js/ui.js sobre por qué esto no se negocia. */
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 14px);
+  background: var(--texto); color: var(--fondo); padding: 11px 20px; border-radius: 24px;
+  font-size: 14px; font-weight: 500;
+  opacity: 0; pointer-events: none; transition: .2s; z-index: 95;
+}
+.toast.visible { opacity: 1; transform: translate(-50%, 0); }
+.toast.error { background: var(--malo); color: #fff; }
+
+.comparacion { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.comparacion > div { border: 1px solid var(--borde); border-radius: var(--r-caja); padding: 14px 16px; }
+.comparacion h3 { margin: 0 0 3px; font-family: var(--num-fuente); font-size: 17px; text-transform: uppercase; }
+.comparacion .cuando { font-size: 12.5px; color: var(--apagado); margin-bottom: 9px; }
+.comparacion ul { margin: 0; padding-left: 17px; font-size: 13.5px; color: var(--suave); }
+
+/* ---------- zona de soltar archivos ---------- */
+.soltar {
+  border: 2px dashed var(--borde2); border-radius: var(--r-caja);
+  padding: 40px 20px; text-align: center; cursor: pointer; transition: .15s;
+}
+.soltar:hover, .soltar.encima { border-color: var(--coral); background: var(--panel2); }
+.soltar .t { font-size: 16.5px; font-weight: 600; }
+.soltar .s { color: var(--apagado); font-size: 13.5px; margin-top: 3px; }
+
+@media (max-width: 900px) {
+  .con-panel { grid-template-columns: 1fr; }
+  .panel-pegado { position: static; }
+}
+@media (max-width: 820px) {
+  .app { flex-direction: column; }
+  .lateral {
+    width: auto; flex: none; height: auto; position: sticky; top: 0; z-index: 20;
+    flex-direction: row; overflow-x: auto; padding: 9px 10px; gap: 5px;
+    border-right: 0; border-bottom: 1px solid var(--borde);
+  }
+  .marca, .pie-lateral { display: none; }
+  .nav { white-space: nowrap; width: auto; }
+  .principal { padding: 18px 15px 60px; }
+  .cabecera h1 { font-size: 22px; }
+  .comparacion { grid-template-columns: 1fr; }
+  .dato .v { font-size: 22px; }
+}
