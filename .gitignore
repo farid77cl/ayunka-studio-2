@@ -1,0 +1,5 @@
+node_modules/
+agente/config.json
+agente/*.json
+!agente/config.example.json
+!agente/package.json

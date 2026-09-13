@@ -1,0 +1,16 @@
+{
+  "name": "ayunka-agente-k2",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Puente local: WebSocket de la K2 -> Firestore, para el estado en vivo de Historial K2.",
+  "type": "commonjs",
+  "main": "k2-puente.js",
+  "scripts": {
+    "start": "node k2-puente.js",
+    "debug": "node k2-puente.js --debug"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "ws": "^8.18.0"
+  }
+}
