@@ -5,6 +5,7 @@
     { id: 'pedidos', label: 'Pedidos' }, { id: 'cotizar', label: 'Cotizar' },
     { id: 'disenos3d', label: 'Personalizados 3D' }, { id: 'perfiles', label: 'Perfiles' },
     { id: 'cola', label: 'Cola' }, { id: 'finanzas', label: 'Ventas y gastos' }, { id: 'whatsapp', label: 'WhatsApp' },
+    { id: 'impresora', label: 'Historial K2' },
     { id: 'clientes', label: 'Clientes' }, { id: 'filamentos', label: 'Filamentos' },
     { id: 'ajustes', label: 'Ajustes' }
   ];
