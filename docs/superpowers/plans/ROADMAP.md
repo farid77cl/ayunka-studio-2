@@ -141,7 +141,7 @@ momento del flujo: cotización enviada, pedido confirmado, pedido listo para ret
 
 ---
 
-## Fase 6 · La impresora en vivo
+## Fase 6 · La impresora en vivo ✅ 2026-09-13
 
 Investigado el 1-sep (`negocio/.planning/QUE-COMPRAR-QUE-CONSTRUIR.md`), nunca
 implementado: WebSocket `ws://<ip>:9999` de la K2 (firmware de fábrica, **sin root**),
@@ -153,13 +153,23 @@ K2 directo (una página `https` no puede hablarle a un `http`/`ws` de la LAN).
 
 **Hecho cuando:** Farid ve en qué capa va la impresora desde el teléfono, en la calle.
 
+Hecho: vista **Historial K2** (`js/vistas/impresoravista.js` + `js/impresora.js`) que
+empareja piezas del historial con productos del catálogo por `archivoOrigen`, propone
+gramos/horas reales (nunca aplica sola, siempre hay un click de por medio), permite crear
+un producto desde una pieza huérfana, y muestra arriba el estado en vivo leyendo
+`Nube.leerImpresoraViva()`. El agente (`agente/k2-puente.js`, Node.js, corre aparte de la
+PWA en la misma red que la K2) se escribió con lo investigado pero **no se pudo probar
+contra una K2 real** -- el `README.md` de `agente/` lo deja explícito arriba de todo y
+trae un modo `--debug` para capturar los mensajes reales antes de confiar en el parseo.
+
 ---
 
-## Fase 7 · Envíos reales y bandejas mezclando pedidos
+## Fase 7 · Envíos reales y bandejas mezclando pedidos ✅ 2026-09-13 (envíos sigue bloqueado)
 
 **Envíos:** costo real vía Chilexpress -- bloqueado en la cuenta/clave de
 `developers.wschilexpress.com`. Los campos (dirección, peso, costo manual) ya están desde
 hoy en el modelo de Pedidos; esto solo agrega el cálculo automático cuando exista la clave.
+**Sigue bloqueado** -- nada nuevo que programar hasta que Farid consiga la clave.
 
 **Bandejas mezclando pedidos:** hoy (y en la v1) una bandeja es piezas del MISMO producto.
 Nadie resuelve "estos 4 pedidos de 3 clientes caben en una placa de la K2" -- según la
@@ -169,6 +179,14 @@ hoja de ruta, sin nada que portar.
 
 **Hecho cuando:** se pueden elegir N pedidos abiertos y la app arma una bandeja que los
 mezcla, dentro de 260×260 y evitando la torre de purga.
+
+Hecho: vista **Bandejas mixtas** (`js/bandejas.js` + `js/vistas/bandejasvista.js`).
+Requirió una decisión de modelo de datos que no tenía respuesta obvia en el código
+existente -- se le preguntó a Farid cómo representar el tamaño físico de cada pieza, y
+eligió agregar ancho/largo (mm) opcionales al producto en vez de un conteo aproximado
+"piezas por bandeja" o prescindir de la geometría. El empaquetado es por filas (shelf
+packing), no un slicer: suficiente para decidir qué entra junto, dejando explícito en la
+UI que la placa real se arma después en el slicer.
 
 ---
 
