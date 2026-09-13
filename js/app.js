@@ -1,6 +1,6 @@
 /* Ayünka Studio · arranque y navegación. */
 (function () {
-  const NAV = []; // se llena en la Fase 1, una entrada por vista: {id, label}
+  const NAV = [{ id: 'ajustes', label: 'Ajustes' }]; // se completa vista por vista en la Fase 1
 
   async function arrancar() {
     let db = Datos.leerDisco();
