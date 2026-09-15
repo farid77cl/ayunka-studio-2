@@ -1,5 +1,5 @@
 /* Vista: Historial K2. Trae el historial (por archivo), propone gramos/horas reales, y
- * muestra el estado EN VIVO si el agente local ya está empujando a Firestore (Fase 6). */
+ * muestra el estado EN VIVO si el agente local ya está empujando a Supabase (Fase 6). */
 (function () {
   let propuestas = [], resumen = null, piezasOriginales = [];
 

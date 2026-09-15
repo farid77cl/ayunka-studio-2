@@ -1,4 +1,4 @@
-/* Ayünka Studio · sincronización con Firestore.
+/* Ayünka Studio · sincronización con Supabase (Postgres, schema "ayunka").
  *
  * Cuatro reglas que no se relajan:
  *  1. La nube nunca gana en silencio. Si hay conflicto, se muestra qué hay de cada lado
@@ -9,36 +9,38 @@
  *     localStorage no puede ser a la vez la víctima y la red de seguridad.
  *  4. Se sube apenas hay sesión, sin esperar a que alguien edite algo.
  *
- * Un documento POR FICHA -- no la base entera en un solo documento. Editar un producto
- * en el PC ya no puede pisar un filamento nuevo del teléfono.
+ * Una FILA por ficha (tabla por colección, columna `ficha` jsonb) -- no la base entera en
+ * un solo documento. Editar un producto en el PC ya no puede pisar un filamento nuevo del
+ * teléfono. `activo` vive dentro de `ficha`, no es columna aparte.
  */
 (function () {
   const CFG = 'ayunka-nube-cfg';
   const APAGADA = 'ayunka-nube-apagada';
   const VISTO = 'ayunka-nube-visto';
 
-  const st = { lista: false, aplicando: false, fs: null, base: null,
-               timer: null, estado: 'desactivada', correo: null };
+  const st = { lista: false, aplicando: false, sb: null, base: null,
+               canal: null, estado: 'desactivada', correo: null };
 
   function cfg() {
     if (localStorage.getItem(APAGADA) === 'si') return null;
     let l = null;
     try { l = JSON.parse(localStorage.getItem(CFG) || 'null'); } catch (e) {}
-    const fb = (l && l.firebase) || (window.AYUNKA_CFG && AYUNKA_CFG.firebase);
+    const sp = (l && l.supabase) || (window.AYUNKA_CFG && AYUNKA_CFG.supabase);
     const espacio = (l && l.espacio) || (window.AYUNKA_CFG && AYUNKA_CFG.espacio) || 'ayunka';
-    if (!fb || !fb.projectId || !l || !l.correo || !l.clave) return null;
-    return { firebase: fb, espacio, correo: l.correo, clave: l.clave };
+    if (!sp || !sp.url || !sp.clave || !l || !l.correo || !l.clave) return null;
+    return { supabase: sp, espacio, correo: l.correo, clave: l.clave };
   }
   const configurado = () => !!cfg();
   const encendida = () => st.lista;
 
-  function guardarCfg(firebase, espacio, correo, clave) {
+  function guardarCfg(supabase, espacio, correo, clave) {
     localStorage.removeItem(APAGADA);
-    localStorage.setItem(CFG, JSON.stringify({ firebase, espacio, correo, clave }));
+    localStorage.setItem(CFG, JSON.stringify({ supabase, espacio, correo, clave }));
   }
   function apagar() {
     localStorage.setItem(APAGADA, 'si');
     st.lista = false;
+    if (st.canal) { st.sb.removeChannel(st.canal); st.canal = null; }
     nota('desactivada');
   }
 
@@ -47,72 +49,81 @@
     document.dispatchEvent(new CustomEvent('nube:estado', { detail: m }));
   }
 
-  function raiz(c) { return st.fs.doc(st.db, 'negocios', c.espacio); }
-
   async function bajarTodo(c) {
     const out = { params: {}, _actualizado: 0 };
-    const cab = await st.fs.getDoc(raiz(c));
-    if (cab.exists()) {
-      const d = cab.data() || {};
-      out.params = d.params || {};
-      out._actualizado = d.actualizado || 0;
-    }
+    const { data: cab } = await st.sb.from('espacios').select().eq('espacio', c.espacio).maybeSingle();
+    if (cab) { out.params = cab.params || {}; out._actualizado = cab.actualizado || 0; }
     for (const col of Datos.COLECCIONES) {
-      const snap = await st.fs.getDocs(st.fs.collection(raiz(c), col));
-      out[col] = snap.docs.map(d => d.data());
+      const { data, error } = await st.sb.from(col).select('id,ficha').eq('espacio', c.espacio);
+      if (error) throw error;
+      out[col] = (data || []).map(r => r.ficha);
     }
     return out;
   }
 
   async function subirTodo(c, motivo) {
-    const lote = [];
-    lote.push(st.fs.setDoc(raiz(c), {
-      params: DB.params || {},
-      actualizado: DB._actualizado || Date.now(),
-      porQuien: st.correo || '?',
-      motivo: motivo || 'subida completa'
-    }, { merge: true }));
+    const { error: eEsp } = await st.sb.from('espacios').upsert({
+      espacio: c.espacio, params: DB.params || {}, actualizado: DB._actualizado || Date.now(),
+      por_quien: st.correo || '?', motivo: motivo || 'subida completa'
+    });
+    if (eEsp) throw eEsp;
     for (const col of Datos.COLECCIONES) {
-      for (const f of (DB[col] || [])) {
-        lote.push(st.fs.setDoc(st.fs.doc(raiz(c), col, String(f.id)), f));
-      }
+      const filas = (DB[col] || []).map(f => ({ espacio: c.espacio, id: String(f.id), actualizado: DB._actualizado || Date.now(), ficha: f }));
+      if (!filas.length) continue;
+      const { error } = await st.sb.from(col).upsert(filas);
+      if (error) throw error;
     }
-    await Promise.all(lote);
     st.base = JSON.parse(JSON.stringify(DB));
   }
 
   async function subirCambios(c, motivo) {
     if (!st.base) return subirTodo(c, motivo);
-    const tareas = [];
+    let huboCambios = false;
     for (const col of Datos.COLECCIONES) {
       const antes = new Map((st.base[col] || []).map(f => [String(f.id), JSON.stringify(f)]));
+      const filas = [];
       for (const f of (DB[col] || [])) {
         const id = String(f.id);
         if (antes.get(id) !== JSON.stringify(f)) {
-          tareas.push(st.fs.setDoc(st.fs.doc(raiz(c), col, id), f));
+          filas.push({ espacio: c.espacio, id, actualizado: DB._actualizado || Date.now(), ficha: f });
         }
         antes.delete(id);
       }
+      // Fichas que desaparecieron del todo del arreglo local (no solo activo:false).
+      // Datos.quitar() nunca borra del arreglo, así que esto es defensivo -- en la
+      // práctica solo Datos.reemplazar() reemplaza el arreglo entero, y ese camino
+      // también resetea `st.base`, por lo que esta rama no debería dispararse nunca.
       for (const id of antes.keys()) {
-        tareas.push(st.fs.setDoc(st.fs.doc(raiz(c), col, id), { activo: false }, { merge: true }));
+        const { data: fila } = await st.sb.from(col).select('ficha').eq('espacio', c.espacio).eq('id', id).maybeSingle();
+        if (fila && fila.ficha) {
+          const ficha = Object.assign({}, fila.ficha, { activo: false });
+          filas.push({ espacio: c.espacio, id, actualizado: DB._actualizado || Date.now(), ficha });
+        }
+      }
+      if (filas.length) {
+        huboCambios = true;
+        const { error } = await st.sb.from(col).upsert(filas);
+        if (error) throw error;
       }
     }
-    if (JSON.stringify(st.base.params) !== JSON.stringify(DB.params) || tareas.length) {
-      tareas.push(st.fs.setDoc(raiz(c), {
-        params: DB.params || {}, actualizado: DB._actualizado || Date.now(),
-        porQuien: st.correo || '?', motivo: motivo || 'edición'
-      }, { merge: true }));
+    if (JSON.stringify(st.base.params) !== JSON.stringify(DB.params) || huboCambios) {
+      const { error } = await st.sb.from('espacios').upsert({
+        espacio: c.espacio, params: DB.params || {}, actualizado: DB._actualizado || Date.now(),
+        por_quien: st.correo || '?', motivo: motivo || 'edición'
+      });
+      if (error) throw error;
+    } else if (!huboCambios) {
+      nota('sin cambios que subir'); return;
     }
-    if (!tareas.length) { nota('sin cambios que subir'); return; }
-    await Promise.all(tareas);
     st.base = JSON.parse(JSON.stringify(DB));
     nota('guardada en la nube ' + new Date().toLocaleTimeString('es-CL'));
   }
 
+  let timer = null;
   function guardarPronto(motivo) {
     if (!st.lista || st.aplicando) return;
-    clearTimeout(st.timer);
-    st.timer = setTimeout(() => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
       const c = cfg(); if (!c) return;
       subirCambios(c, motivo).catch(e => nota('error al guardar: ' + (e.message || e)));
     }, 1500);
@@ -159,27 +170,44 @@
     st.aplicando = false;
   }
 
+  function suscribirRealtime(c) {
+    if (st.canal) st.sb.removeChannel(st.canal);
+    let canal = st.sb.channel('ayunka-' + c.espacio);
+    const todas = ['espacios', ...Datos.COLECCIONES];
+    for (const tabla of todas) {
+      canal = canal.on('postgres_changes',
+        { event: '*', schema: 'ayunka', table: tabla, filter: 'espacio=eq.' + c.espacio },
+        () => { if (!st.aplicando) refrescarDesdeNube(c); });
+    }
+    canal.subscribe();
+    st.canal = canal;
+  }
+
+  async function refrescarDesdeNube(c) {
+    if (st.aplicando) return;
+    try {
+      const remoto = await bajarTodo(c);
+      if ((remoto._actualizado || 0) > (DB._actualizado || 0)) {
+        aplicarRemoto(remoto);
+        nota('actualizado desde otro equipo ' + new Date().toLocaleTimeString('es-CL'));
+      }
+    } catch (e) { /* un fallo de refresco en vivo no es crítico, se reintenta con el próximo cambio */ }
+  }
+
   async function conectar(alConflicto) {
     const c = cfg();
     if (!c) { nota('desactivada'); return; }
     try {
       nota('conectando…');
-      const [appM, authM, fsM] = await Promise.all([
-        import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),
-        import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js'),
-        import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')
-      ]);
-      const app = appM.initializeApp(c.firebase);
-      const auth = authM.getAuth(app);
-      try {
-        await authM.signInWithEmailAndPassword(auth, c.correo, c.clave);
-        st.correo = c.correo;
-      } catch (e) {
-        nota('no pude entrar: ' + (e.code || e.message) + ' — revisa el correo y la clave en Ajustes');
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      st.sb = createClient(c.supabase.url, c.supabase.clave, { db: { schema: 'ayunka' } });
+
+      const { error: eAuth } = await st.sb.auth.signInWithPassword({ email: c.correo, password: c.clave });
+      if (eAuth) {
+        nota('no pude entrar: ' + eAuth.message + ' — revisa el correo y la clave en Ajustes');
         return;
       }
-      st.fs = fsM;
-      st.db = fsM.getFirestore(app);
+      st.correo = c.correo;
 
       if (!localStorage.getItem(VISTO) && hayDatosReales(DB)) {
         Datos.descargarRespaldo('antes-de-sincronizar');
@@ -204,6 +232,7 @@
         st.lista = true; st.base = JSON.parse(JSON.stringify(DB)); nota('al día');
       }
       localStorage.setItem(VISTO, String(Date.now()));
+      suscribirRealtime(c);
     } catch (e) {
       console.error(e);
       nota('error: ' + (e.message || e));
@@ -212,10 +241,11 @@
 
   async function leerImpresoraViva() {
     const c = cfg();
-    if (!c || !st.lista || !st.fs) return null;
+    if (!c || !st.lista || !st.sb) return null;
     try {
-      const snap = await st.fs.getDoc(st.fs.doc(raiz(c), 'impresora', 'k2'));
-      return snap.exists() ? snap.data() : null;
+      const { data } = await st.sb.from('impresora_estado').select().eq('espacio', c.espacio).maybeSingle();
+      if (!data) return null;
+      return { estado: data.estado, capaActual: data.capa_actual, capaTotal: data.capa_total, progreso: data.progreso };
     } catch (e) { return null; }
   }
 

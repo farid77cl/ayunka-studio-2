@@ -54,7 +54,7 @@
     const correo = (document.getElementById('aj-correo') || {}).value;
     const clave = (document.getElementById('aj-clave') || {}).value;
     if (!correo || !clave) { A.aviso('Escribe correo y clave', 'error'); return; }
-    Nube.guardarCfg(AYUNKA_CFG.firebase, AYUNKA_CFG.espacio, correo, clave);
+    Nube.guardarCfg(AYUNKA_CFG.supabase, AYUNKA_CFG.espacio, correo, clave);
     Nube.conectar(plan => new Promise(resolve => resolve(null))).then(() => pintar());
   }
 

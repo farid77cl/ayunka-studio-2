@@ -100,4 +100,65 @@
 
 ### Pendiente
 - [x] Activar GitHub Pages en el repo nuevo — hecho el 15-sep, `https://farid77cl.github.io/ayunka-studio-2/` en vivo (y se apagó el de la v1 vieja, que quedaba encima).
-- [ ] Lo que quedó pendiente de la Sesión 1 sigue todo abierto salvo el agente K2, ya probado en la Sesión 3 (envíos bloqueados, datos reales sin migrar, Firebase sin configurar, READMEs por carpeta).
+- [ ] Lo que quedó pendiente de la Sesión 1 sigue todo abierto salvo el agente K2, ya probado en la Sesión 3 (envíos bloqueados, datos reales sin migrar, READMEs por carpeta). Firebase se reemplazó por Supabase en la Sesión 4 — ver ahí los pasos que le faltan a Farid.
+
+---
+
+## Sesión 4 — Firebase se retira, Supabase queda como único backend · 2026-09-15
+
+### Lo que se hizo
+- Se decidió (con Farid, actuando yo como si fuera el CTO) dejar de usar Firebase/Firestore
+  del todo y consolidar en Supabase, que ya se usaba para storage y para el pipeline de
+  redes sociales con n8n — un solo proveedor en vez de dos resolviendo el mismo problema.
+- Se creó el schema Postgres `ayunka` (dedicado, no `public`) en el proyecto real
+  `ncuvdpydwnepbysadoux`, vía la API de Supabase: 12 tablas (una por colección de
+  `Datos.COLECCIONES`, más `espacios` y `impresora_estado`), RLS habilitado con policy para
+  cuentas autenticadas, grants sin `anon`, y Realtime activado sobre las 12 tablas.
+- Se reescribió `js/nube.js` completo manteniendo la misma API pública que ya usaban
+  `app.js`/`ajustes.js` (mismo diseño: documento raíz por espacio, diff antes de subir,
+  resolución de conflicto por fecha) — solo cambió el motor de abajo, de Firestore a
+  Supabase (`@supabase/supabase-js@2`, cargado igual que antes con `import()` dinámico).
+  El listener en vivo (antes `onSnapshot`) ahora es `postgres_changes` de Supabase Realtime.
+- Se migró `agente/k2-puente.js` (el puente K2 → nube, probado hoy en la Sesión 3) de
+  `firebase-admin` a `@supabase/supabase-js` con la `service_role` key.
+- Se probó en vivo, sirviendo la app localmente con Playwright: la vista Ajustes carga sin
+  errores, el SDK de Supabase se conecta al proyecto real, y un intento de login con
+  credenciales inventadas llegó de verdad a la API de Supabase y volvió el error esperado
+  ("Invalid login credentials") mostrado limpio en pantalla, sin ninguna excepción de JS.
+
+### Decisiones
+- **Schema dedicado (`ayunka`), no prefijo en `public`.** El mismo proyecto Supabase ya
+  tiene tablas `tr_*` de otro proyecto de Farid completamente distinto (parece un tracker de
+  relatos/lecturas) — usar un schema propio evita cualquier choque, a cambio de un paso
+  manual de Farid (exponer el schema en el dashboard, ver Pendiente).
+- **"Documento por fila" (jsonb), no normalización relacional completa.** Se mantiene la
+  misma forma que tenía Firestore (cada ficha es un objeto plano guardado en una columna
+  `ficha jsonb`) en vez de partir cada colección en columnas/tablas relacionadas de verdad.
+  Es una migración de plataforma, no un rediseño de datos — normalizar después no exige
+  otra migración de proveedor, porque ya queda en Postgres.
+- **Solo `k2-puente.js` sigue vivo** como agente de la K2. `negocio/impresora/agente-k2.js`
+  (la otra implementación, vía Moonraker) queda intacto en su repo pero documentado como
+  reemplazado — dos agentes escribiendo el mismo dato ya había causado una duplicación
+  real (ver Sesión 3).
+- **No se tocó `ayunka-studio` (v1)**, que se queda con Firestore hasta que esta v2 la
+  reemplace del todo — migrar sus datos reales es un trabajo aparte, más riesgoso, y no
+  hacía falta para esta pasada.
+
+### Archivos creados o modificados
+- `js/nube.js` — reescritura completa (Firestore → Supabase).
+- `js/config.js` — bloque `firebase` fuera, `supabase.url`/`clave` reales adentro.
+- `js/vistas/ajustes.js`, `js/vistas/impresoravista.js` — referencias/comentarios
+  actualizados.
+- `agente/k2-puente.js`, `agente/package.json`, `agente/config.example.json`,
+  `agente/README.md` — todo migrado a Supabase.
+
+### Pendiente
+- [ ] **Farid tiene que hacer 3 cosas a mano** antes de que la sincronización funcione de
+  verdad (no las puedo hacer yo, no hay herramienta para esto):
+  1. Exponer el schema `ayunka`: Project Settings → Data API → "Exposed schemas" → agregarlo.
+  2. Crear el usuario de Supabase Auth (Authentication → Users → Add user) con el correo y
+     clave que se van a usar en Ajustes.
+  3. Sacar la `service_role` key (Project Settings → API) para `agente/config.json`.
+- [ ] Una vez hecho lo anterior, probar de punta a punta: conectar desde Ajustes, crear un
+  cliente/producto/pedido real, y confirmar que llega a las tablas y que Realtime lo
+  refleja en una segunda pestaña/dispositivo.

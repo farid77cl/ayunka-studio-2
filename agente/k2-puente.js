@@ -1,20 +1,16 @@
 /* Ayünka Studio -- puente local K2.
  *
- * ################################################################
- * # NO VERIFICADO CONTRA UNA IMPRESORA K2 REAL. Ver README.md.  #
- * ################################################################
- *
  * Se conecta por WebSocket a la K2 (ws://<ip>:9999, subprotocolo "wsslicer",
  * según la investigación en .planning/QUE-COMPRAR-QUE-CONSTRUIR.md del repo
  * "negocio" y el proyecto de referencia 3dg1luk43/ha_creality_ws) y escribe
- * el estado normalizado en Firestore, en negocios/{espacio}/impresora/k2 --
- * el mismo documento que Nube.leerImpresoraViva() ya sabe leer.
+ * el estado normalizado en Supabase, tabla ayunka.impresora_estado (fila por
+ * espacio) -- la misma que Nube.leerImpresoraViva() ya sabe leer.
+ *
+ * Verificado contra la K2 real de Farid el 15-sep-2026 (ver interpretar() más
+ * abajo y sesion-log.md, Sesión 3).
  *
  * Corre con --debug para SOLO imprimir cada mensaje crudo por consola, sin
- * escribir nada a Firestore. Úsalo primero: como el formato exacto de los
- * mensajes no está confirmado contra hardware real, lo más seguro es mirar
- * qué manda la impresora de verdad antes de confiar en lo que este script
- * interpreta.
+ * escribir nada a Supabase.
  */
 'use strict';
 const fs = require('fs');
@@ -69,10 +65,9 @@ async function main() {
   const cfg = cargarConfig();
   let db = null;
   if (!DEBUG) {
-    const admin = require('firebase-admin');
-    const credPath = path.isAbsolute(cfg.credencialesFirebase) ? cfg.credencialesFirebase : path.join(__dirname, cfg.credencialesFirebase);
-    admin.initializeApp({ credential: admin.credential.cert(require(credPath)) });
-    db = admin.firestore();
+    const { createClient } = require('@supabase/supabase-js');
+    // service_role: bypassa RLS, igual que la cuenta de servicio de Firebase antes.
+    db = createClient(cfg.supabaseUrl, cfg.supabaseServiceKey, { db: { schema: 'ayunka' } });
   }
 
   let ultimaEscritura = 0;
@@ -83,17 +78,22 @@ async function main() {
     const ahora = Date.now();
     if (ahora - ultimaEscritura < MIN_MS_ENTRE_ESCRITURAS) return;
     ultimaEscritura = ahora;
+    const fila = {
+      espacio: cfg.espacio || 'ayunka',
+      estado: datos.estado, capa_actual: datos.capaActual, capa_total: datos.capaTotal,
+      progreso: datos.progreso, actualizado: new Date(ahora).toISOString()
+    };
     try {
-      await db.collection('negocios').doc(cfg.espacio || 'ayunka').collection('impresora').doc('k2')
-        .set(Object.assign({ actualizado: ahora }, datos), { merge: true });
+      const { error } = await db.from('impresora_estado').upsert(fila);
+      if (error) throw error;
     } catch (e) {
-      console.error('No se pudo escribir en Firestore:', e.message || e);
+      console.error('No se pudo escribir en Supabase:', e.message || e);
     }
   }
 
   function conectar(intentos) {
     const url = `ws://${cfg.impresoraIp}:9999`;
-    console.log(`Conectando a ${url} (subprotocolo wsslicer)${DEBUG ? ' -- modo debug, sin escribir a Firestore' : ''}...`);
+    console.log(`Conectando a ${url} (subprotocolo wsslicer)${DEBUG ? ' -- modo debug, sin escribir a Supabase' : ''}...`);
     const ws = new WebSocket(url, 'wsslicer');
 
     ws.on('open', () => { console.log('Conectado a la K2.'); intentos = 0; });

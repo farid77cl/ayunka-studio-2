@@ -1,5 +1,6 @@
 {
   "impresoraIp": "192.168.1.50",
   "espacio": "ayunka",
-  "credencialesFirebase": "./service-account.json"
+  "supabaseUrl": "https://ncuvdpydwnepbysadoux.supabase.co",
+  "supabaseServiceKey": "la 'service_role' secret key -- Project Settings > API. NUNCA la publishable."
 }
