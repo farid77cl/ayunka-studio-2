@@ -1,1 +1,4 @@
-{ "name": "Ayünka Studio", "short_name": "Ayünka", "start_url": "./", "display": "standalone", "background_color": "#F7F4EE", "theme_color": "#CB5A52" }
+{ "name": "Ayünka Studio", "short_name": "Ayünka", "start_url": "./", "display": "standalone", "background_color": "#F7F4EE", "theme_color": "#CB5A52", "icons": [
+  { "src": "icono/icon-192.png", "sizes": "192x192", "type": "image/png" },
+  { "src": "icono/icon-512.png", "sizes": "512x512", "type": "image/png" }
+] }

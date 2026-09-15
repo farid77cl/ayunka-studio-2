@@ -35,11 +35,49 @@
 - Ver `git log` para el detalle completo, un commit por pieza funcional.
 
 ### Pendiente
-- [ ] Probar `agente/k2-puente.js` contra una K2 real con `npm run debug`, y ajustar `interpretar()` en `js/impresora.js` según el formato real de los mensajes.
 - [ ] Envíos por Chilexpress: bloqueado en la clave de `developers.wschilexpress.com` — nada más que programar hasta que Farid la consiga.
 - [ ] Migrar los datos reales (productos, filamentos, clientes, pedido de LIDCAR) al modelo nuevo — hoy la app parte con `datos/semilla.json` vacío.
 - [ ] Configurar Firebase real en `js/config.js` (hoy todo en blanco) para que la sincronización funcione fuera de pruebas locales.
 - [ ] Falta un `README.md` en la raíz y por carpeta, como en el resto de los repos del negocio (regla no opcional del `CLAUDE.md` de `negocio/`).
+
+---
+
+## Sesión 3 — Auditoría completa contra el ROADMAP y la K2 real, en el taller · 2026-09-15
+
+### Lo que se hizo
+- Se auditaron las 8 fases del ROADMAP contra el sitio publicado, con Playwright real
+  (no solo lectura de código): crear cliente/producto/pedido, generar llavero con NFC,
+  descargar y verificar `.creality_printer`/PDF con herramientas independientes de
+  Python, correr el verificador de G-code contra los dos gcode de referencia. Detalle
+  completo en `negocio/.planning/REVISION-STUDIO-2-2026-09-15.md`.
+- Con Farid físicamente al lado de la K2 (mismo `192.168.100.x`), se probó
+  `agente/k2-puente.js --debug` contra la impresora real por primera vez.
+
+### Decisiones
+- Con el mensaje real capturado, se corrigió `interpretar()`: los nombres de campo
+  adivinados (`totalLayer`, `percent`/`progress`, `state` como texto) no coincidían con
+  ninguno reales (`TotalLayer`, `printProgress`, `state` como código numérico). El mapeo
+  de códigos de estado (0/4/5) sale del proyecto de referencia externo
+  `3dg1luk43/ha_creality_ws` — solo el código 1 ("imprimiendo") quedó confirmado en vivo;
+  los demás no se probaron a propósito, para no arriesgar el trabajo real en curso.
+
+### Errores y cómo se resolvieron
+- `interpretar()` encadenaba candidatos con `||`, que trata `0` como ausente — si la capa
+  real fuera 0 nunca se habría leído. Se cambió a un `primero()` que solo descarta `null`.
+
+### Archivos creados o modificados
+- `agente/k2-puente.js` — `interpretar()` con los nombres de campo reales y el mapeo de
+  estados, verificado de nuevo con `npm run debug` contra la K2 real tras el cambio.
+
+### Pendiente
+- [ ] Confirmar los códigos de estado 0/4/5 (preparando/detenida/pausada) contra la K2
+  real cuando corresponda naturalmente (no forzar una pausa solo para probarlo).
+- Los 4 hallazgos nuevos de la auditoría (precio sugerido exige guardar dos veces,
+  Cotizar no se refresca solo, botón de WhatsApp en Cotizar no existe en pantalla,
+  ventana horaria de la K2 en Cola nunca implementada) y los mensajes de WhatsApp de
+  "pedido confirmado"/"listo para retiro" que nunca existieron: detalle y contexto
+  completo en `negocio/.planning/REVISION-STUDIO-2-2026-09-15.md`.
+- Envíos Chilexpress, datos reales, Firebase y READMEs: sigue todo abierto (ver arriba).
 
 ---
 
@@ -61,5 +99,5 @@
 - `sesion-log.md` — esta bitácora.
 
 ### Pendiente
-- [ ] Activar GitHub Pages en el repo nuevo si se quiere una URL pública como la de la v1.
-- [ ] Lo que quedó pendiente de la Sesión 1 sigue todo abierto (agente K2 sin probar, envíos bloqueados, datos reales sin migrar, Firebase sin configurar, READMEs por carpeta).
+- [x] Activar GitHub Pages en el repo nuevo — hecho el 15-sep, `https://farid77cl.github.io/ayunka-studio-2/` en vivo (y se apagó el de la v1 vieja, que quedaba encima).
+- [ ] Lo que quedó pendiente de la Sesión 1 sigue todo abierto salvo el agente K2, ya probado en la Sesión 3 (envíos bloqueados, datos reales sin migrar, Firebase sin configurar, READMEs por carpeta).
