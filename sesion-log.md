@@ -159,6 +159,77 @@
   2. Crear el usuario de Supabase Auth (Authentication → Users → Add user) con el correo y
      clave que se van a usar en Ajustes.
   3. Sacar la `service_role` key (Project Settings → API) para `agente/config.json`.
-- [ ] Una vez hecho lo anterior, probar de punta a punta: conectar desde Ajustes, crear un
-  cliente/producto/pedido real, y confirmar que llega a las tablas y que Realtime lo
-  refleja en una segunda pestaña/dispositivo.
+- [x] ~~Una vez hecho lo anterior, probar de punta a punta~~ — hecho en la Sesión 5: Farid
+  conectó desde Ajustes con su propio Chrome y funcionó.
+
+---
+
+## Sesión 5 — Farid conecta de verdad, el agente de la K2 queda corriendo solo · 2026-09-15
+
+### Lo que se hizo
+- Se agregó el favicon e ícono PWA: la "A" mayúscula del logo (tipografía Sacramento),
+  recortada en los 5 tamaños que pide `manifest.webmanifest` (16/32/180/192/512).
+- Se guio a Farid paso a paso (usuario básico en Supabase, lo pidió explícito) por los 3
+  pasos manuales que quedaron pendientes de la Sesión 4: exponer el schema `ayunka` en
+  Data API, crear el usuario de Supabase Auth, sacar la `service_role` key.
+- Farid probó la conexión él mismo desde su Chrome en Ajustes — primero "no sale nada"
+  (el usuario que iba a reciclar no servía), luego creó uno nuevo y confirmó "ahora sí":
+  login real contra Supabase Auth, sin errores en pantalla.
+- Se activó `agente/k2-puente.js` de verdad, conectado a la K2 real y escribiendo en
+  `ayunka.impresora_estado`.
+- Se intentó dejarlo arrancando solo con el Programador de tareas de Windows: bloqueado
+  por permisos ("Acceso denegado") al crear/cambiar/borrar la tarea desde este agente: y
+  aun cuando Farid la configuró él mismo desde la interfaz gráfica, el proceso lanzado
+  moría sin dejar ni una línea en `registro.log` — se abandonó el Programador de tareas
+  por completo (documentado en `agente/README.md`).
+- Se dejó arrancando solo vía la carpeta de Inicio de Windows
+  (`ayunka-agente-k2.bat` → `agente/arrancar.bat`) — sí funciona al iniciar sesión.
+- El agente se cayó dos veces más después de eso, sin causa identificada (no fue un
+  reinicio del PC, `registro.log` corta a mitad sin línea de código de salida). Se
+  reescribió `arrancar.bat` como un loop que se relanza solo 5 segundos después de
+  cualquier caída, en vez de depender de encontrar la causa real.
+- Se encontró y corrigió por separado que la vista **Historial K2** solo pintaba el
+  estado en vivo una vez al entrar a la vista (`pintarVivo()` sin `setInterval`) — Farid
+  la veía "congelada" aunque el agente sí estuviera escribiendo. Se agregó refresco cada
+  10s, con `clearInterval` al salir de la vista, verificado con Playwright.
+- Verificación final cruzada: capa 15/15, 93% en la K2 real (Moonraker) = mismo valor en
+  `ayunka.impresora_estado` (Supabase) = mismo valor en la vista de la app.
+
+### Decisiones
+- **Loop de reintento en vez de seguir buscando la causa de la caída.** Dos caídas sin
+  rastro (ni error, ni reinicio, ni log) ya es un patrón, no un evento aislado — con
+  Farid queriendo "algo simple que funcione solo", una mitigación que se recupera en 5s
+  es mejor que seguir invirtiendo tiempo en diagnosticar algo que no deja evidencia.
+- **Carpeta de Inicio en vez de Programador de tareas.** No es la solución "correcta" en
+  Windows (no sobrevive sin sesión iniciada), pero es la única que de verdad funcionó en
+  este equipo — probarlo importa más que la elegancia de la solución.
+
+### Errores y cómo se resolvieron
+- El Programador de tareas de Windows resultó no funcional en este equipo para este uso:
+  ni yo pude crearlo/cambiarlo (permiso denegado desde este agente) ni, cuando Farid lo
+  armó a mano, el proceso sobrevivía. No se encontró la causa — se documentó como
+  conocida y se cambió de mecanismo en vez de seguir insistiendo.
+- La vista Historial K2 parecía "no sincronizar" cuando en realidad el problema era del
+  frontend (nunca se refrescaba sola), no del agente — un recordatorio de revisar los dos
+  lados (agente y vista) por separado antes de asumir cuál está roto.
+
+### Archivos creados o modificados
+- `icono/favicon-16.png`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`,
+  `icon-512.png`, `index.html`, `manifest.webmanifest` — favicon e ícono PWA.
+- `agente/arrancar.bat` — reescrito como loop que se relanza solo tras cualquier caída.
+- `agente/README.md` — documentado que el Programador de tareas falló y cuál es la
+  alternativa que sí funciona.
+- `js/vistas/impresoravista.js` — `pintarVivo()` ahora se repite cada 10s con
+  `setInterval`/`clearInterval`.
+- Fuera del repo (no se sube a git): `agente/config.json` con los datos reales, y
+  `%APPDATA%\...\Startup\ayunka-agente-k2.bat` para el arranque automático.
+
+### Pendiente
+- [ ] **Causa real de por qué el agente se cae solo** sigue sin encontrarse — el loop de
+  reintento es una mitigación, no una corrección. Si vuelve a pasar seguido, vale la pena
+  revisar memoria/permisos de OneDrive sobre esa carpeta.
+- [ ] Borrar a mano la tarea "Ayünka - agente K2" del Programador de tareas (quedó creada
+  pero sin usarse) — no se pudo borrar por permisos desde este agente.
+- Los 5 hallazgos de la auditoría de la Sesión 3 (precio sugerido, Cotizar sin refresco,
+  botón de WhatsApp muerto, ventana horaria de Cola, mensajes de WhatsApp que faltan)
+  siguen abiertos, sin tocar.
