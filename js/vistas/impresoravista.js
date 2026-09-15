@@ -2,6 +2,8 @@
  * muestra el estado EN VIVO si el agente local ya está empujando a Supabase (Fase 6). */
 (function () {
   let propuestas = [], resumen = null, piezasOriginales = [];
+  let vivoTimer = null;
+  const VIVO_MS = 10000; // cada cuánto se refresca sola el estado en vivo
 
   function pintar() {
     A.$('#contenido').innerHTML = `
@@ -17,12 +19,15 @@
     const zona = A.$('#imp-zona'), input = A.$('#imp-archivo');
     zona.onclick = () => input.click();
     input.onchange = e => e.target.files[0] && cargarArchivo(e.target.files[0]);
+    clearInterval(vivoTimer);
     pintarVivo();
+    vivoTimer = setInterval(pintarVivo, VIVO_MS);
   }
 
   async function pintarVivo() {
     const cont = document.getElementById('imp-vivo');
-    if (!cont) return;
+    // ya no estamos en esta vista (se navegó a otra parte) -- deja de refrescar sola
+    if (!cont) { clearInterval(vivoTimer); return; }
     if (!Nube.encendida() || !Nube.leerImpresoraViva) {
       cont.innerHTML = '<h2>Estado en vivo</h2><p style="font-size:13px;color:var(--apagado)">Sin sincronización, no hay estado en vivo -- prende la nube en Ajustes.</p>';
       return;
