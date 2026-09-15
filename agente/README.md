@@ -52,6 +52,27 @@ npm start       # modo real: interpreta y escribe a Supabase
 Pensado para dejarlo corriendo en el mismo equipo/red que la K2 (por
 ejemplo, la Raspberry que ya corre n8n) -- no es parte de la PWA.
 
+## Que arranque solo con Windows
+
+`arrancar.bat` (en esta misma carpeta) es un envoltorio: entra a esta carpeta,
+corre `node k2-puente.js`, y guarda todo -- salida normal y errores -- en
+`registro.log` (no se sube a git). Úsalo siempre en vez de invocar `node`
+directo, porque si el proceso se cae sin este registro no hay forma de saber
+por qué.
+
+**El Programador de tareas de Windows falló en este equipo** (15-sep-2026):
+la tarea se creaba y se podía lanzar a mano, pero el proceso moría solo sin
+dejar ningún rastro en `registro.log` -- ni siquiera la primera línea. No se
+encontró la causa (probablemente algo de sesión/credenciales del Programador
+en este PC en particular) y no vale la pena seguir insistiendo.
+
+**Lo que sí funciona:** un acceso directo a `arrancar.bat` en la carpeta de
+Inicio de Windows (`shell:startup`, o
+`%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup`). Verificado que
+arranca solo al iniciar sesión y sincroniza en vivo contra la K2 real. Si se
+cambia de equipo, copiar `ayunka-agente-k2.bat` (que solo llama a
+`arrancar.bat`) a esa carpeta de Inicio del equipo nuevo.
+
 ## Trampas conocidas
 
 - **La `service_role` key tiene acceso total al proyecto de Supabase**,
