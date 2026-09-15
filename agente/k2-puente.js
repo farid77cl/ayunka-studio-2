@@ -34,16 +34,29 @@ function cargarConfig() {
 
 function numero(v) { return (typeof v === 'number' && isFinite(v)) ? v : null; }
 function texto(v) { return (typeof v === 'string' && v.trim()) ? v.trim() : null; }
+function primero(...vals) { for (const v of vals) { if (v != null) return v; } return null; }
 
-/* Interpretación defensiva -- probamos varios nombres de campo posibles
- * porque no hay un mensaje real capturado todavía. Cualquier campo que no
- * se pueda leer simplemente no se manda (mejor omitir que inventar). */
+/* Mensaje real capturado el 15-sep-2026 contra la K2 de Farid (hostname K2-5CDF,
+ * modelo F021, firmware DWIN 1.1.6.7), en vivo con npm run --debug mientras imprimía
+ * "RUDY Automotriz 19_PLA_8h35m25s.gcode". Reemplaza los nombres de campo adivinados:
+ * la capa viene en "layer" (esto sí coincidía), pero el total viene en "TotalLayer"
+ * (con mayúscula, solo en el primer mensaje completo -- los mensajes siguientes son
+ * deltas y no siempre lo traen) y el progreso en "printProgress" (0-100, no 0-1). El
+ * estado es un CÓDIGO NUMÉRICO ("state": 1 mientras imprimía), no un texto -- el
+ * mapeo de abajo sale del proyecto de referencia 3dg1luk43/ha_creality_ws
+ * (custom_components/ha_creality_ws/sensor.py, clase PrintStatusSensor). Solo el
+ * código 1 ("imprimiendo") está confirmado contra la K2 real hoy -- los códigos 0/4/5
+ * salen de esa referencia externa, no de una prueba propia (no se puede pausar/detener
+ * un trabajo real solo para confirmarlo). */
+const MAPA_ESTADO = { 0: 'preparando', 1: 'imprimiendo', 4: 'detenida', 5: 'pausada' };
+
 function interpretar(msg) {
   const p = msg.print || msg.data || msg;
-  const estado = texto(p.state) || texto(p.status) || texto(msg.state);
-  const capaActual = numero(p.layer) || numero(p.curLayer) || numero(p.layer_num) || numero(p.mc_layer);
-  const capaTotal = numero(p.totalLayer) || numero(p.total_layer_num) || numero(p.layerCount);
-  const progreso = numero(p.percent) || numero(p.progress) || numero(p.mc_percent);
+  const codigoEstado = numero(p.state);
+  const estado = codigoEstado != null ? (MAPA_ESTADO[codigoEstado] || `estado ${codigoEstado}`) : (texto(p.state) || texto(p.status) || texto(msg.state));
+  const capaActual = primero(numero(p.layer), numero(p.curLayer), numero(p.layer_num), numero(p.mc_layer));
+  const capaTotal = primero(numero(p.TotalLayer), numero(p.totalLayer), numero(p.total_layer_num), numero(p.layerCount));
+  const progreso = primero(numero(p.printProgress), numero(p.dProgress), numero(p.percent), numero(p.progress), numero(p.mc_percent));
   const out = {};
   if (estado) out.estado = estado;
   if (capaActual != null) out.capaActual = capaActual;
