@@ -42,6 +42,29 @@
 
 ---
 
+## Sesión 2 — Publicación en GitHub y bitácora · 2026-09-14
+
+### Lo que se hizo
+- Se subió el repo reescrito a GitHub como `farid77cl/ayunka-studio-2`, rama `main`.
+- Se creó esta bitácora.
+
+### Decisiones
+- El repo viejo (`farid77cl/ayunka-studio-2`, historial hasta el 12-sep) se renombró a `farid77cl/ayunka-studio-2-archivo` en vez de borrarse, para conservar el nombre `ayunka-studio-2` (y así la URL de GitHub Pages) para el repo nuevo. Decisión de Farid entre tres opciones planteadas.
+- Se usó HTTPS para el push en vez de SSH: la verificación de host SSH falló en esta máquina/entorno y HTTPS con el token de `gh` funcionó sin fricción.
+- La rama local se renombró de `master` a `main` antes de subir, para que coincida con la convención del repo viejo y de GitHub Pages.
+
+### Errores y cómo se resolvieron
+- `gh repo create ... --push` falló con "Host key verification failed" al intentar por SSH. Se cambió el remoto a `https://github.com/farid77cl/ayunka-studio-2.git` y el push funcionó usando la autenticación por token que ya tenía `gh`.
+
+### Archivos creados o modificados
+- `sesion-log.md` — esta bitácora.
+
+### Pendiente
+- [x] Activar GitHub Pages en el repo nuevo — hecho el 15-sep, `https://farid77cl.github.io/ayunka-studio-2/` en vivo (y se apagó el de la v1 vieja, que quedaba encima).
+- [ ] Lo que quedó pendiente de la Sesión 1 sigue todo abierto salvo el agente K2, ya probado en la Sesión 3 (envíos bloqueados, datos reales sin migrar, READMEs por carpeta). Firebase se reemplazó por Supabase en la Sesión 4 — ver ahí los pasos que le faltan a Farid.
+
+---
+
 ## Sesión 3 — Auditoría completa contra el ROADMAP y la K2 real, en el taller · 2026-09-15
 
 ### Lo que se hizo
@@ -78,29 +101,6 @@
   "pedido confirmado"/"listo para retiro" que nunca existieron: detalle y contexto
   completo en `negocio/.planning/REVISION-STUDIO-2-2026-09-15.md`.
 - Envíos Chilexpress, datos reales, Firebase y READMEs: sigue todo abierto (ver arriba).
-
----
-
-## Sesión 2 — Publicación en GitHub y bitácora · 2026-09-14
-
-### Lo que se hizo
-- Se subió el repo reescrito a GitHub como `farid77cl/ayunka-studio-2`, rama `main`.
-- Se creó esta bitácora.
-
-### Decisiones
-- El repo viejo (`farid77cl/ayunka-studio-2`, historial hasta el 12-sep) se renombró a `farid77cl/ayunka-studio-2-archivo` en vez de borrarse, para conservar el nombre `ayunka-studio-2` (y así la URL de GitHub Pages) para el repo nuevo. Decisión de Farid entre tres opciones planteadas.
-- Se usó HTTPS para el push en vez de SSH: la verificación de host SSH falló en esta máquina/entorno y HTTPS con el token de `gh` funcionó sin fricción.
-- La rama local se renombró de `master` a `main` antes de subir, para que coincida con la convención del repo viejo y de GitHub Pages.
-
-### Errores y cómo se resolvieron
-- `gh repo create ... --push` falló con "Host key verification failed" al intentar por SSH. Se cambió el remoto a `https://github.com/farid77cl/ayunka-studio-2.git` y el push funcionó usando la autenticación por token que ya tenía `gh`.
-
-### Archivos creados o modificados
-- `sesion-log.md` — esta bitácora.
-
-### Pendiente
-- [x] Activar GitHub Pages en el repo nuevo — hecho el 15-sep, `https://farid77cl.github.io/ayunka-studio-2/` en vivo (y se apagó el de la v1 vieja, que quedaba encima).
-- [ ] Lo que quedó pendiente de la Sesión 1 sigue todo abierto salvo el agente K2, ya probado en la Sesión 3 (envíos bloqueados, datos reales sin migrar, READMEs por carpeta). Firebase se reemplazó por Supabase en la Sesión 4 — ver ahí los pasos que le faltan a Farid.
 
 ---
 
