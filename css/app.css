@@ -360,3 +360,36 @@ td.num { font-weight: 600; }
   .comparacion { grid-template-columns: 1fr; }
   .dato .v { font-size: 22px; }
 }
+
+/* ---------- Plantillas (pantalla simple) ---------- */
+.pl-rejilla { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.pl-variantes { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 16px; }
+.pl-variante { display: inline-flex; align-items: center; gap: 8px; }
+.pl-muestra { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,.25); flex: none; }
+.pl-campos .campo input { font-size: 17px; }
+.pl-check { display: flex; align-items: center; gap: 8px; font-size: 13.5px; margin: 0 0 13px; }
+.pl-error { color: var(--malo); font-size: 12.5px; min-height: 0; }
+.pl-error:empty { display: none; }
+.pl-estado { font-size: 13px; margin: 2px 0 12px; min-height: 18px; color: var(--suave); }
+.pl-ok { color: var(--ok); font-weight: 600; }
+.pl-malo { color: var(--malo); }
+.pl-suave, .pl-calc { color: var(--apagado); }
+.pl-descargar { width: 100%; padding: 12px; font-size: 15px; }
+.pl-descargar:disabled { opacity: .45; cursor: not-allowed; transform: none; filter: none; }
+.pl-ayuda { margin-top: 14px; border: 1px solid var(--borde); border-radius: var(--r-campo); padding: 10px 12px; background: var(--panel2); font-size: 13.5px; }
+.pl-ayuda summary { cursor: pointer; font-weight: 600; }
+.pl-ayuda ol { margin: 10px 0 8px; padding-left: 20px; }
+.pl-ayuda li { margin-bottom: 7px; line-height: 1.45; }
+.pl-paleta { display: grid; gap: 6px; margin-top: 6px; }
+.pl-carrete { display: grid; grid-template-columns: 18px 1fr; align-items: center; gap: 0 8px; font-size: 13px; }
+.pl-carrete i { grid-column: 2; font-style: normal; color: var(--apagado); font-size: 12px; }
+.pl-nota { margin: 10px 0 0; }
+.pl-vista { padding: 8px; }
+.pl-lienzo { width: 100%; aspect-ratio: 1 / 1; max-height: 70vh; border-radius: var(--r-caja); background: radial-gradient(circle at 50% 40%, var(--panel2), var(--fondo)); cursor: grab; overflow: hidden; }
+.pl-lienzo canvas { display: block; width: 100%; height: 100%; }
+.pl-lienzo:active { cursor: grabbing; }
+.pl-pie { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--apagado); padding: 6px 4px 0; }
+@media (max-width: 820px) {
+  .pl-rejilla { grid-template-columns: 1fr; }
+  .pl-vista { order: -1; }
+}

@@ -353,13 +353,13 @@
     const variante = plantilla.variantes.find(v => v.id === varianteId) || plantilla.variantes[0];
     const colores = Object.assign({}, variante.colores);
     const act = activos(plantilla, valores);
-    const extra = {}, info = {}, avisos = [];
+    const extra = {}, info = {}, avisos = [], faltan = [];
     const sumar = (id, figs) => { extra[id] = (extra[id] || []).concat(figs); };
 
     for (const p of plantilla.parametros || []) {
       const v = valores[p.id];
       if (p.tipo === 'texto') {
-        if (!p.requerido && !act[p.id]) continue;
+        if (!act[p.id] && (!p.requerido || opts.borrador)) { if (p.requerido) faltan.push(p.id); continue; }
         const r = await textoParam(p, v, cargarBytes);
         sumar(p.pieza, r.letras);
         if (p.borde) sumar(p.borde.pieza, r.borde);
@@ -405,7 +405,7 @@
         piezas.slice(0, -1).some(p => p.subtipo === 'negative_part')) {
       throw new Error('Plantilla mal hecha: el negative_part tiene que ir último.');
     }
-    return { plantilla: plantilla.id, variante: variante.id, colores, filamentos, piezas, info, avisos };
+    return { plantilla: plantilla.id, variante: variante.id, colores, filamentos, piezas, info, avisos, faltan };
   }
 
   /** Paleta de carretes para la ayuda: filamento N -> color y para qué se usa. */

@@ -3,6 +3,7 @@
   const NAV = [
     { id: 'pendientes', label: 'Pendientes' }, { id: 'productos', label: 'Productos' },
     { id: 'pedidos', label: 'Pedidos' }, { id: 'cotizar', label: 'Cotizar' },
+    { id: 'plantillas', label: 'Plantillas' },
     { id: 'disenos3d', label: 'Personalizados 3D' }, { id: 'perfiles', label: 'Perfiles' },
     { id: 'cola', label: 'Cola' }, { id: 'bandejas', label: 'Bandejas mixtas' },
     { id: 'finanzas', label: 'Ventas y gastos' }, { id: 'whatsapp', label: 'WhatsApp' },

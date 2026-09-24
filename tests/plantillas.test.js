@@ -159,3 +159,12 @@ test('cada plantilla del catálogo: formato, negativo último, variantes con per
     for (const q of p.parametros) assert.ok(['texto', 'telefono-qr', 'interruptor', 'color'].includes(q.tipo), q.tipo);
   }
 });
+
+test('borrador: sin nombre todavía, compone solo las piezas fijas (para la vista previa)', async () => {
+  const c = await motor();
+  const r = await c.Plantillas.componer(MOCHILA, 'neutra', { nombre: '' }, { cargarBytes: c.cargarBytesLocal, borrador: true });
+  assert.equal(pieza(r, 'nombre').figs.length, 0);
+  assert.equal(r.info.nombre, undefined);
+  assert.ok(r.faltan.includes('nombre'));
+  await assert.rejects(componer('neutra', { nombre: '' }), e => e.usuario && e.campo === 'nombre');
+});

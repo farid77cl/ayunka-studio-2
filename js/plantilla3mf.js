@@ -180,5 +180,5 @@
     return { ok: !problemas.length, problemas };
   }
 
-  window.Plantilla3MF = { exportar, verificar, nombres };
+  window.Plantilla3MF = { exportar, verificar, nombres, extruir, espejar };
 })();
