@@ -55,7 +55,7 @@ el test baja las mismas libs de la CDN a `tests/.cache/`). Python 3.12 + shapely
 - Produces: `window.Plantillas = { componer(plantilla, varianteId, valores, opts) → Promise<{ piezas: [{ id, nombre, subtipo, rol, color, extrusor, z:[z0,z1], espejoX, figs }], avisos: [], info: { nombre: { cap, fuente } } }>, normalizarTelefono(s) → string|null, geo: { union, offset, diferencia, interseccion, area, perdidaFina } }`. `opts.cargarBytes(url) → Promise<ArrayBuffer>` (por defecto `fetch`). Error de usuario: `throw Object.assign(new Error(msg), { usuario: true })`.
 
 - [ ] **Step 1: Test que falla** — `componer(mochila, 'nino', { nombre: 'MATEO' })`: la pieza `nombre` tiene figuras; `info.nombre.cap` entre 8 y 11; nombre+0,8 dentro de la zona; `nombre ∩ contorno` = 0 mm²; `perdidaFina` ≤ 8 % en cada pieza.
-- [ ] **Step 2:** correr `node --test tests/` → FAIL (`Plantillas` no existe).
+- [ ] **Step 2:** correr `node --test "tests/*.test.js"` → FAIL (`Plantillas` no existe).
 - [ ] **Step 3: Implementar** texto → anillos (opentype, curvas aplanadas) → unión Clipper (NonZero) → tracking/rendija ≥ 0,7 → tildes subidas → engrosado de piezas finas → bucle de `cap` con la regla normal/condensada → ojos de letra → borde (sticker) a la pieza `borde.pieza`.
 - [ ] **Step 4:** tests PASS. Sumar casos: `MAXIMILIANO` cabe (condensada, cap < 5); `MAXIMILIANO JOSÉ` lanza error de usuario «no cabe»; `SOFÍA` → la tilde queda a ≥ 0,7 de la I.
 - [ ] **Step 5: Commit** `feat(plantillas): motor que ajusta el nombre a la zona con trazo mínimo`.
@@ -91,5 +91,5 @@ el test baja las mismas libs de la CDN a `tests/.cache/`). Python 3.12 + shapely
 ### Task 6: Cierre
 
 - [ ] README de plantillas (cómo agregar una) en `plantillas/README.md`; bitácora en `sesion-log.md`; ROADMAP una línea.
-- [ ] `superpowers:verification-before-completion`: correr `node --test tests/` completo y releer la salida antes de informar.
+- [ ] `superpowers:verification-before-completion`: correr `node --test "tests/*.test.js"` completo y releer la salida antes de informar.
 - [ ] Commit `docs: plantillas simples — cómo agregar una plantilla y bitácora`.

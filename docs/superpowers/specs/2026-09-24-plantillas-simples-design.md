@@ -130,7 +130,7 @@ muestra siempre como botones.
    arriba (copiar `exportar_plantilla()` de `generar_mochila.py` como molde).
 3. Sumar `{ "id": "<id>", "archivo": "<id>.json" }` a `plantillas/catalogo.json`.
 4. Si usa una fuente nueva, copiarla a `fuentes/` con su licencia.
-5. `node --test tests/` — el test genérico de plantillas corre sobre **todas** las del
+5. `node --test "tests/*.test.js"` — el test genérico de plantillas corre sobre **todas** las del
    catálogo (piezas, negativo último, pausa, perfil por variante).
 
 No se programa pantalla: la arma `js/vistas/plantillas.js` desde `parametros`.
