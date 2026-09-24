@@ -1,6 +1,6 @@
 {
   "formato": "catalogo/1",
   "plantillas": [
-    { "id": "mochila-nfc-v3", "archivo": "mochila-nfc-v3.json" }
+    { "id": "mochila-nfc-v3", "archivo": "mochila-nfc-v3.json", "nombre": "Llavero mochila NFC" }
   ]
 }
