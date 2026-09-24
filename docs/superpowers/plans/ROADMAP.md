@@ -86,6 +86,11 @@ que hoy, verificado contra `stl/RUDY Automotriz 19 - una placa_PLA_53m39s.gcode`
 `negocio`) como caso conocido-bueno y `LIDCAR redondo 15 v4 - SIN BOLSILLO...gcode` como
 caso conocido-malo.
 
+**Plantillas simples (24-sep, rama `feat/plantillas-simples`):** catálogo de productos
+listos (`plantillas/`), el primero la mochila NFC v3 exportada desde Python; pantalla de un
+minuto armada desde el JSON. Spec `specs/2026-09-24-plantillas-simples-design.md`, plan
+`plans/2026-09-24-plantillas-simples.md`.
+
 ---
 
 ## Fase 3 · Generador de perfiles de impresión

@@ -233,3 +233,42 @@
 - Los 5 hallazgos de la auditoría de la Sesión 3 (precio sugerido, Cotizar sin refresco,
   botón de WhatsApp muerto, ventana horaria de Cola, mensajes de WhatsApp que faltan)
   siguen abiertos, sin tocar.
+
+## Sesión 6 — Plantillas simples: la mochila NFC en un minuto · 2026-09-24
+
+### Lo que se hizo
+- Rama `feat/plantillas-simples` (sin push ni merge). Spec y plan en `docs/superpowers/`.
+- **Catálogo de plantillas** (`plantillas/`): cada producto es un JSON `plantilla/1` con
+  variantes (colores + perfil de Creality por variante), piezas fijas en 2D, parámetros
+  tipados (texto, teléfono-QR, interruptor, color) y la ayuda «Después de descargar».
+  Primera plantilla: **mochila NFC v3**, exportada con `generar_mochila.py
+  --exportar-plantilla` (repo `negocio`). Fredoka Bold normal y condensada en `fuentes/` (OFL).
+- `js/plantillamotor.js`: el nombre (opentype + Clipper) con las mismas reglas del Python y
+  el QR del teléfono (qrcode-generator, v2-Q, módulo 1,3 mm). `js/plantilla3mf.js`: el 3MF
+  con el armazón de la plantilla (perfil, pausa, part ids). `js/vistas/plantillas.js`: la
+  pantalla, menú **Plantillas**.
+- Pruebas: `node --test "tests/*.test.js"` — 22 pruebas, bajan las libs de la misma CDN a
+  `tests/.cache/`. Flujo real probado en Chromium headless (Playwright).
+
+### Resultados medidos
+- MATEO sale condensada a 8,9 mm y MAXIMILIANO a 4,2 mm: **lo mismo que el Python**.
+  «MAXIMILIANO JOSÉ» da el mensaje «no cabe» y el botón queda apagado.
+- MATEO/niño contra `Mochila NFC 65 - nino MATEO v3.3mf`: mismas 6 piezas, subtipos y
+  extrusores; perfil idéntico; PAUSE en 2,6; bolsillo ±13,5 × z 2,0–2,4. Volúmenes:
+  cuerpo 10880,71 = 10880,71; nombre 200,15 vs 199,78; contorno 1260,35 vs 1260,07 mm³.
+- El ALEX/neutra bajado desde el navegador trae las mismas piezas y perfil que el v3 de Python.
+- El QR del 3MF bajado (SOFÍA/niña) se leyó con OpenCV: `tel:+56912345678`.
+
+### Errores y cómo se resolvieron
+- El earcut de three.js dejaba la malla del QR **no-manifold** (76 aristas sueltas): tiende
+  puentes entre huecos colineales con otros bordes. Se escribió una extrusión propia que
+  parte los triángulos con vértices en medio de una arista. Hay un test que cuenta aristas.
+- La primera versión del motor tardaba 13 s en MATEO y 48 s en MAXIMILIANO: medir el ancho
+  por búsqueda binaria (18 offsets por letra) era el cuello. Se cambió por un solo offset
+  umbral y un caché por letra: ~1,4 s en el navegador.
+
+### Pendiente
+- [ ] **Compuerta 7**: cortar un 3MF bajado de la app en Creality Print y verificar el
+  G-code (bolsillo vacío en 2,2/2,4, puente en 2,6 tras el PAUSE). No se hizo aquí.
+- [ ] Imprimir uno y escanear el QR impreso.
+- [ ] El 3MF de la app pesa ~1,5–1,8 MB (ZIP sin comprimir) contra ~200 KB del Python.
