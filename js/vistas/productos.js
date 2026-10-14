@@ -23,6 +23,7 @@
     let h = `<div class="cabecera"><h1>Productos</h1><span class="sub">${ps.length} de ${todos.length}</span>
       <div class="acciones">
         <input id="buscar" class="btn" style="min-width:200px" placeholder="Buscar…" value="${A.esc(filtro)}">
+        <button class="btn sutil" onclick="Vistas.productos.recargarSemilla()">📥 Cargar catálogo oficial</button>
         <button class="btn" onclick="Vistas.productos.exportarCatalogoMeta()">Exportar catálogo (Meta)</button>
         <button class="btn primario" onclick="Vistas.productos.nuevo()">Nuevo producto</button>
       </div></div>`;
@@ -130,6 +131,22 @@
     A.aviso(productos.length + ' productos exportados.');
   }
 
+  async function recargarSemilla() {
+    try {
+      A.aviso('Cargando catálogo oficial…');
+      const s = await Datos.cargarSemilla();
+      const db = Datos.leerDisco() || Datos.vacia();
+      db.productos = s.productos || [];
+      Datos.reemplazar(db, 'recarga manual catálogo');
+      Datos.guardar('catálogo oficial recargado');
+      A.aviso(`¡Catálogo cargado! ${db.productos.length} productos listos.`);
+      pintar();
+    } catch(e) {
+      A.aviso('Error al cargar catálogo: ' + e.message, 'error');
+    }
+  }
+
   window.Vistas = window.Vistas || {};
-  Vistas.productos = { pintar, abrir, nuevo, exportarCatalogoMeta, CATS };
+  Vistas.productos = { pintar, abrir, nuevo, exportarCatalogoMeta, recargarSemilla, CATS };
 })();
+

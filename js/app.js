@@ -54,11 +54,25 @@
 
   async function arrancar() {
     let db = Datos.leerDisco();
-    if (!db) {
-      try { db = await Datos.cargarSemilla(); }
-      catch (e) { db = Datos.vacia(); }
+    if (!db || !db.productos || db.productos.length === 0) {
+      try {
+        const s = await Datos.cargarSemilla();
+        if (db) {
+          db.productos = s.productos || [];
+          if (!db.clientes || !db.clientes.length) db.clientes = s.clientes || [];
+          if (!db.filamentos || !db.filamentos.length) db.filamentos = s.filamentos || [];
+        } else {
+          db = s;
+        }
+        Datos.reemplazar(db, 'semilla inicial');
+        Datos.guardar('carga catálogo oficial');
+      } catch (e) {
+        if (!db) db = Datos.vacia();
+        Datos.reemplazar(db, 'arranque');
+      }
+    } else {
+      Datos.reemplazar(db, 'arranque');
     }
-    Datos.reemplazar(db, 'arranque');
     renderNav();
     window.addEventListener('hashchange', render);
     render();
