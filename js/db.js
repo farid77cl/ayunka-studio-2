@@ -86,8 +86,15 @@
   }
 
   async function cargarSemilla() {
-    const r = await fetch('./datos/semilla.json', { cache: 'no-store' });
-    const s = await r.json();
+    const urls = ['/studio/datos/semilla.json', './datos/semilla.json', 'datos/semilla.json'];
+    let s = null;
+    for (const u of urls) {
+      try {
+        const r = await fetch(u, { cache: 'no-store' });
+        if (r.ok) { s = await r.json(); break; }
+      } catch (e) {}
+    }
+    if (!s) throw new Error('No se pudo encontrar semilla.json en ninguna ruta');
     const db = vacia();
     db.params = s.params || {};
     COLECCIONES.forEach(c => { if (Array.isArray(s[c])) db[c] = s[c]; });

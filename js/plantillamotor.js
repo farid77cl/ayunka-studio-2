@@ -267,13 +267,43 @@
     return null;
   }
 
+  /** Ojos con borde (_abrir_ojos del Python, 25-sep): el ojo queda como hueco de la letra y
+   *  lo ocupa el borde oscuro. La isla oscura tiene que imprimirse (perdidaFina <= perdidaMax):
+   *  el ojo triangular de la A se abre, como mucho 0,34 mm, y solo si la letra no queda más
+   *  fina que antes. Si no alcanza, se cierra con el color de la letra. */
+  function abrirOjos(g, p) {
+    const pmax = p.perdidaMax || 0.08;
+    const out = [];
+    for (const f of g) {
+      const letra = [{ outer: f.outer, holes: [] }];
+      const base = perdidaFina([f]);
+      let ojos = [];
+      for (const h of f.holes || []) {
+        const H = [{ outer: h, holes: [] }];
+        if (!anchoAlMenos(H, 0.3)) continue;
+        let d = 0, hd = H;
+        while (perdidaFina(hd) > pmax && d < 0.34) { d += 0.02; hd = interseccion(offset(H, d), letra); }
+        if (perdidaFina(hd) > pmax) continue;
+        if (perdidaFina(diferencia(letra, union(ojos.concat(hd)))) > base + 0.01) continue;
+        ojos = ojos.concat(hd);
+      }
+      out.push(...(ojos.length ? diferencia(letra, union(ojos)) : letra));
+    }
+    return union(out);
+  }
+
   /** Ojos de letra y borde tipo sticker. Devuelve { letras, borde }. */
   function ojosYBorde(g, p) {
-    const ojoMin = p.ojoMin || 0;
-    const letras = union(g.map(f => ({ outer: f.outer, holes: (f.holes || []).filter(h => anchoAlMenos([{ outer: h, holes: [] }], ojoMin)) })));
-    if (!p.borde) return { letras, borde: [] };
+    if (!p.borde) {
+      const ojoMin = p.ojoMin || 0;
+      const letras = union(g.map(f => ({ outer: f.outer, holes: (f.holes || []).filter(h => anchoAlMenos([{ outer: h, holes: [] }], ojoMin)) })));
+      return { letras, borde: [] };
+    }
+    const letras = abrirOjos(g, p);
+    const minimo = p.rendijaMin || 0.64;
     let sticker = offset(letras, p.borde.mm);
-    sticker = sticker.map(f => ({ outer: f.outer, holes: (f.holes || []).filter(h => area(offset([{ outer: h, holes: [] }], -0.5)) > 1.0) }));
+    // dentro de un ojo grande (la O) queda fondo visible solo si mide >= el mínimo
+    sticker = sticker.map(f => ({ outer: f.outer, holes: (f.holes || []).filter(h => anchoAlMenos([{ outer: h, holes: [] }], minimo)) }));
     return { letras, borde: diferencia(sticker, letras) };
   }
 

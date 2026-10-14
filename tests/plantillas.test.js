@@ -31,6 +31,23 @@ test('MATEO/niño: el nombre sale grande, dentro de su zona con borde, sin tocar
   for (const f of nombre) assert.ok(G.perdidaFina([f]) <= 0.08, 'trazo fino en una letra');
 });
 
+test('ojos con borde: la A y la O de MATEO quedan huecas y las llena el borde oscuro', async () => {
+  const c = await motor(), G = c.Plantillas.geo;
+  const huecos = figs => figs.reduce((t, f) => t.concat((f.holes || []).map(h => [{ outer: h, holes: [] }])), []);
+  const r = await componer('nino', { nombre: 'MATEO' });
+  const ojos = huecos(pieza(r, 'nombre').figs);
+  assert.equal(ojos.length, 2, 'la A y la O tienen ojo (antes la A salía maciza)');
+  const contorno = pieza(r, 'contorno').figs;
+  for (const o of ojos) {
+    const isla = G.interseccion(o, contorno);
+    assert.ok(G.area(isla) > 0.5, 'el ojo lo ocupa el borde oscuro');
+    assert.ok(G.perdidaFina(isla) <= 0.08, 'isla oscura imprimible: ' + G.perdidaFina(isla));
+  }
+  const s = await componer('nina', { nombre: 'Sofía' });
+  const fondo = huecos(pieza(s, 'nombre').figs).map(o => G.area(G.diferencia(o, pieza(s, 'contorno').figs)));
+  assert.ok(Math.max(...fondo) > 1, 'la O de SOFÍA deja ver el fondo dentro del anillo oscuro');
+});
+
 test('MAXIMILIANO cabe con la condensada, más chico', async () => {
   const r = await componer('nino', { nombre: 'Maximiliano' });
   assert.equal(r.info.nombre.fuente, 1, 'condensada');
