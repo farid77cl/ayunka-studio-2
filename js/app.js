@@ -73,6 +73,15 @@
     } else {
       Datos.reemplazar(db, 'arranque');
     }
+    const btnRet = document.getElementById('btn-retorno-suite');
+    if (btnRet) {
+      btnRet.addEventListener('click', e => {
+        if (window.parent && window.parent !== window) {
+          e.preventDefault();
+          window.parent.postMessage('ir-a-taller', '*');
+        }
+      });
+    }
     renderNav();
     window.addEventListener('hashchange', render);
     render();
@@ -151,6 +160,7 @@
     if (subnav) {
       subnav.innerHTML = `
         <div class="subtabs-scroll">
+          <a href="/" class="subtab subtab-retorno" onclick="if(window.parent&&window.parent!==window){event.preventDefault();window.parent.postMessage('ir-a-taller','*');}" style="background:var(--panel2);font-weight:700;color:var(--coral);text-decoration:none">← 🖨️ Taller</a>
           ${salon.vistas.map(v => `
             <button type="button" class="subtab ${v.id === id ? 'active' : ''}" onclick="location.hash='#/${v.id}'">
               ${v.icono} ${A.esc(v.label)}
