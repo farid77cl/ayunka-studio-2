@@ -593,8 +593,8 @@
       "activo": true
     },
     {
-      "id": "prod_ay_3d_001",
-      "sku": "AY-3D-001",
+      "id": "prod_ay_3d_020",
+      "sku": "AY-3D-020",
       "nombre": "Máscara Jack Skellington (K2 rápida)",
       "categoria": "personalizados",
       "oficio": "3d",
@@ -609,8 +609,8 @@
       "activo": true
     },
     {
-      "id": "prod_ay_3d_002",
-      "sku": "AY-3D-002",
+      "id": "prod_ay_3d_021",
+      "sku": "AY-3D-021",
       "nombre": "Llavero Mochila NFC con QR",
       "categoria": "personalizados",
       "oficio": "3d",
@@ -625,8 +625,8 @@
       "activo": true
     },
     {
-      "id": "prod_ay_3d_003",
-      "sku": "AY-3D-003",
+      "id": "prod_ay_3d_022",
+      "sku": "AY-3D-022",
       "nombre": "Caja de Luz LED Personalizada",
       "categoria": "personalizados",
       "oficio": "3d",
@@ -641,8 +641,8 @@
       "activo": true
     },
     {
-      "id": "prod_ay_3d_004",
-      "sku": "AY-3D-004",
+      "id": "prod_ay_3d_023",
+      "sku": "AY-3D-023",
       "nombre": "Atril y Porta Llavero Ayünka",
       "categoria": "personalizados",
       "oficio": "3d",
@@ -657,8 +657,8 @@
       "activo": true
     },
     {
-      "id": "prod_ay_3d_005",
-      "sku": "AY-3D-005",
+      "id": "prod_ay_3d_024",
+      "sku": "AY-3D-024",
       "nombre": "Alfiletero Magnético de Costura",
       "categoria": "bordado-costura",
       "oficio": "3d",
@@ -673,8 +673,8 @@
       "activo": true
     },
     {
-      "id": "prod_ay_3d_010",
-      "sku": "AY-3D-010",
+      "id": "prod_ay_3d_025",
+      "sku": "AY-3D-025",
       "nombre": "Llavero Corporativo Autos León 24",
       "categoria": "empresas",
       "oficio": "3d",
