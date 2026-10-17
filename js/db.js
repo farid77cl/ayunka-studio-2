@@ -85,6 +85,27 @@
     } catch (e) { console.error(e); return false; }
   }
 
+  // La semilla se revisa ANTES de cargarla: ids unicos, nombre en texto, listas donde van listas.
+  function validarSemilla(s) {
+    const errores = [];
+    if (!s || typeof s !== 'object') return { ok: false, errores: ['la semilla no es un objeto'] };
+    COLECCIONES.forEach(c => {
+      if (s[c] !== undefined && !Array.isArray(s[c])) errores.push(`"${c}" debe ser una lista`);
+    });
+    ['productos', 'clientes', 'filamentos'].forEach(c => {
+      if (!Array.isArray(s[c])) return;
+      const vistos = new Set(), rep = new Set();
+      s[c].forEach((x, i) => {
+        if (!x || typeof x !== 'object') { errores.push(`${c}[${i}] no es una ficha`); return; }
+        if (!x.id || typeof x.id !== 'string') errores.push(`${c}[${i}] sin id`);
+        else if (vistos.has(x.id)) rep.add(x.id); else vistos.add(x.id);
+        if (c === 'productos' && (!x.nombre || typeof x.nombre !== 'string')) errores.push(`${c}[${i}] (${x.id}) sin nombre de texto`);
+      });
+      rep.forEach(id => errores.push(`${c}: id repetido ${id}`));
+    });
+    return { ok: errores.length === 0, errores };
+  }
+
   async function cargarSemilla() {
     const urls = ['/studio/datos/semilla.json', './datos/semilla.json', 'datos/semilla.json'];
     let s = null;
@@ -95,6 +116,8 @@
       } catch (e) {}
     }
     if (!s) throw new Error('No se pudo encontrar semilla.json en ninguna ruta');
+    const v = validarSemilla(s);
+    if (!v.ok) throw new Error('La semilla no es válida, no se cargó: ' + v.errores.slice(0, 4).join('; '));
     const db = vacia();
     db.params = s.params || {};
     COLECCIONES.forEach(c => { if (Array.isArray(s[c])) db[c] = s[c]; });
@@ -128,7 +151,7 @@
   window.DB = DB;
   window.Datos = {
     CLAVE, ESQUEMA, COLECCIONES,
-    nuevoId, vacia, migrar, leerDisco, guardar, cargarSemilla, reemplazar,
+    nuevoId, vacia, migrar, leerDisco, guardar, cargarSemilla, validarSemilla, reemplazar,
     descargarRespaldo, obtener, agregar, quitar, activos,
     resumen: db => {
       const o = {};

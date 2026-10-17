@@ -67,6 +67,8 @@
         Datos.reemplazar(db, 'semilla inicial');
         Datos.guardar('carga catálogo oficial');
       } catch (e) {
+        console.error(e);
+        setTimeout(() => A.aviso('Catálogo oficial no cargado: ' + e.message, 'error'), 600);
         if (!db) db = Datos.vacia();
         Datos.reemplazar(db, 'arranque');
       }
