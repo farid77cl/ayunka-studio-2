@@ -60,3 +60,9 @@ test('copia previa a sincronizar: queda DENTRO de la app, una sola, sin descarga
   assert.equal(clics, 0, 'guardar la copia no descarga ningun archivo');
   assert.equal(D.CLAVE_COPIA, 'ayunka-db-antes-de-sincronizar');
 });
+
+test('app.js no manda postMessage con destino "*"', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
+  assert.equal(/postMessage\([^)]*['"]\*['"]/.test(src), false);
+  assert.ok(/postMessage\('ir-a-taller',\s*window\.location\.origin\)/.test(src));
+});
