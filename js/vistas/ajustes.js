@@ -35,6 +35,7 @@
 
       <div class="tarjeta"><h2>Respaldo</h2>
         <button class="btn" onclick="Datos.descargarRespaldo('manual')">Descargar respaldo</button>
+        ${(() => { const cp = Datos.leerCopiaPrevia(); return cp ? `<p style="font-size:13px;color:var(--apagado);margin:12px 0 8px">Copia guardada antes de sincronizar (${A.esc(String(cp.fecha).slice(0, 16).replace('T', ' '))})</p><button class="btn" onclick="Datos.descargarCopiaPrevia()">Descargar</button>` : ''; })()}
       </div>`;
   }
 

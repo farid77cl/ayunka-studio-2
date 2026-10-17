@@ -4,3 +4,4 @@ agente/*.json
 !agente/config.example.json
 !agente/package.json
 agente/registro.log
+tests/.cache/

@@ -23,14 +23,16 @@
     let h = `<div class="cabecera"><h1>Productos</h1><span class="sub">${ps.length} de ${todos.length}</span>
       <div class="acciones">
         <input id="buscar" class="btn" style="min-width:200px" placeholder="Buscar…" value="${A.esc(filtro)}">
+        <button class="btn sutil" onclick="Vistas.productos.recargarSemilla()">📥 Cargar catálogo oficial</button>
         <button class="btn" onclick="Vistas.productos.exportarCatalogoMeta()">Exportar catálogo (Meta)</button>
         <button class="btn primario" onclick="Vistas.productos.nuevo()">Nuevo producto</button>
       </div></div>`;
 
-    Object.keys(CATS).forEach(cat => {
+    const todasCat = Array.from(new Set([...Object.keys(CATS), ...Object.keys(porCat)]));
+    todasCat.forEach(cat => {
       const lista = porCat[cat];
       if (!lista || !lista.length) return;
-      h += `<div class="tarjeta"><h2>${A.esc(CATS[cat])} · ${lista.length}</h2>
+      h += `<div class="tarjeta"><h2>${A.esc(CATS[cat] || cat)} · ${lista.length}</h2>
         <table><thead><tr><th>SKU</th><th>Producto</th><th>Oficio</th>
           <th class="num">Costo</th><th class="num">Sugerido</th><th class="num">Precio</th></tr></thead><tbody>
         ${lista.map(p => {
@@ -44,7 +46,15 @@
             <td class="num"><b>${c.precio == null ? '—' : A.plata(c.precio)}</b></td></tr>`;
         }).join('')}</tbody></table></div>`;
     });
-    if (!ps.length) h += '<div class="tarjeta"><div class="vacio"><b>No hay productos que coincidan</b></div></div>';
+    if (!todos.length) {
+      h += `<div class="tarjeta"><div class="vacio" style="padding:32px 16px">
+        <p style="font-size:16px;margin-bottom:12px">💎 Tu vitrina local está vacía en este dispositivo.</p>
+        <p style="font-size:13px;color:var(--apagado);margin-bottom:16px">Puedes cargar los 42 productos oficiales del taller (Jack Skellington, Llaveros NFC, Bordados y B2B) con sus costos y precios oficiales.</p>
+        <button class="btn primario" onclick="Vistas.productos.recargarSemilla()">📥 Cargar catálogo oficial (42 productos)</button>
+      </div></div>`;
+    } else if (!ps.length) {
+      h += '<div class="tarjeta"><div class="vacio"><b>No hay productos que coincidan con la búsqueda</b></div></div>';
+    }
     A.$('#contenido').innerHTML = h;
     const b = A.$('#buscar');
     if (b) { b.oninput = e => { filtro = e.target.value; pintar(); A.$('#buscar').focus(); }; if (filtro) b.focus(); }
@@ -130,6 +140,27 @@
     A.aviso(productos.length + ' productos exportados.');
   }
 
+  async function recargarSemilla() {
+    try {
+      A.aviso('Cargando catálogo oficial…');
+      const s = await Datos.cargarSemilla();
+      const db = Datos.leerDisco() || Datos.vacia();
+      const hoy = (db.productos || []).length, nuevo = (s.productos || []).length;
+      if (!confirm(`Hoy tienes ${hoy} productos. Al cargar el catálogo oficial quedarán ${nuevo} y se pierden los cambios que hiciste a mano. ¿Seguro?`)) {
+        A.aviso('Sin cambios.');
+        return;
+      }
+      db.productos = s.productos || [];
+      Datos.reemplazar(db, 'recarga manual catálogo');
+      Datos.guardar('catálogo oficial recargado');
+      A.aviso(`¡Catálogo cargado! ${db.productos.length} productos listos.`);
+      pintar();
+    } catch(e) {
+      A.aviso('Error al cargar catálogo: ' + e.message, 'error');
+    }
+  }
+
   window.Vistas = window.Vistas || {};
-  Vistas.productos = { pintar, abrir, nuevo, exportarCatalogoMeta, CATS };
+  Vistas.productos = { pintar, abrir, nuevo, exportarCatalogoMeta, recargarSemilla, CATS };
 })();
+

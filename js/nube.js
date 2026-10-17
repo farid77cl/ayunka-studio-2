@@ -17,6 +17,7 @@
   const CFG = 'ayunka-nube-cfg';
   const APAGADA = 'ayunka-nube-apagada';
   const VISTO = 'ayunka-nube-visto';
+  const ANTES = 'ayunka-db-antes-de-sincronizar';
 
   const st = { lista: false, aplicando: false, sb: null, base: null,
                canal: null, estado: 'desactivada', correo: null };
@@ -210,7 +211,7 @@
       st.correo = c.correo;
 
       if (!localStorage.getItem(VISTO) && hayDatosReales(DB)) {
-        Datos.descargarRespaldo('antes-de-sincronizar');
+        try { localStorage.setItem(ANTES, JSON.stringify(Datos.armarCopiaPrevia(DB))); } catch (e) { console.error(e); }   // dentro de la app; no se descarga nada solo
       }
 
       nota('comparando…');

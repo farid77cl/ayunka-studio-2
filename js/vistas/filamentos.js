@@ -4,7 +4,10 @@
     const fs = Datos.activos('filamentos');
     A.$('#contenido').innerHTML = `
       <div class="cabecera"><h1>Filamentos</h1><span class="sub">${fs.length}</span>
-        <div class="acciones"><button class="btn primario" onclick="Vistas.filamentos.nuevo()">Nuevo rollo</button></div></div>
+        <div class="acciones">
+          <button class="btn" onclick="Vistas.filamentos.sincronizarSpoolman()">🔄 Sincronizar Spoolman</button>
+          <button class="btn primario" onclick="Vistas.filamentos.nuevo()">Nuevo rollo</button>
+        </div></div>
       <div class="tarjeta"><table><thead><tr><th></th><th>Material</th><th>Marca / color</th>
         <th class="num">Quedan</th><th class="num">$/g</th><th></th></tr></thead><tbody>
         ${fs.map(f => `<tr onclick="Vistas.filamentos.abrir('${A.esc(f.id)}')" style="cursor:pointer">
@@ -51,6 +54,51 @@
     abrir(f.id);
   }
 
+  async function sincronizarSpoolman() {
+    try {
+      A.aviso('Consultando Spoolman…');
+      const r = await fetch('/api/spoolman/spool');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const bobinas = await r.json();
+      let agregados = 0, actualizados = 0;
+      bobinas.forEach(b => {
+        if (b.archived) return;
+        const fil = b.filament || {};
+        const vendor = (fil.vendor || {}).name || '';
+        const nombre = fil.name || 'PLA';
+        const mat = fil.material || 'PLA';
+        const hex = fil.color_hex ? '#' + fil.color_hex.replace('#', '') : '#cccccc';
+        const precio = b.price || (fil.price) || 16000;
+        const gramos = Math.round(b.remaining_weight != null ? b.remaining_weight : (fil.weight || 1000));
+        
+        let f = Datos.activos('filamentos').find(item => item.spoolmanId === b.id || (item.marca === vendor && item.color === nombre));
+        if (f) {
+          f.spoolmanId = b.id;
+          f.gramosQuedan = gramos;
+          f.precioKg = precio;
+          actualizados++;
+        } else {
+          Datos.agregar('filamentos', {
+            spoolmanId: b.id,
+            material: mat,
+            marca: vendor,
+            color: nombre,
+            hex: hex,
+            precioKg: precio,
+            gramosQuedan: gramos,
+            activo: true
+          });
+          agregados++;
+        }
+      });
+      Datos.guardar('sincronización con Spoolman');
+      A.aviso(`Spoolman: ${agregados} nuevos, ${actualizados} actualizados.`);
+      pintar();
+    } catch (e) {
+      A.aviso('Error al conectar con Spoolman: ' + e.message, 'error');
+    }
+  }
+
   window.Vistas = window.Vistas || {};
-  Vistas.filamentos = { pintar, abrir, nuevo };
+  Vistas.filamentos = { pintar, abrir, nuevo, sincronizarSpoolman };
 })();

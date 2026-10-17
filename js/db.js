@@ -72,9 +72,9 @@
     return true;
   }
 
-  function descargarRespaldo(sufijo) {
+  function descargarRespaldo(sufijo, datos) {
     try {
-      const txt = JSON.stringify(DB, null, 1);
+      const txt = JSON.stringify(datos || DB, null, 1);
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' }));
       const d = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
@@ -85,9 +85,51 @@
     } catch (e) { console.error(e); return false; }
   }
 
+  // Copia previa a la primera sincronizacion: vive dentro de la app (una sola, se reemplaza).
+  // La escritura la hace nube.js (setItem). Nunca se descarga sola; en Ajustes la Ama decide si la baja.
+  const CLAVE_COPIA = 'ayunka-db-antes-de-sincronizar';
+  function armarCopiaPrevia(db) { return { fecha: new Date().toISOString(), db }; }
+  function leerCopiaPrevia() {
+    try { return JSON.parse(localStorage.getItem(CLAVE_COPIA) || 'null'); } catch (e) { return null; }
+  }
+  function descargarCopiaPrevia() {
+    const cp = leerCopiaPrevia();
+    return cp ? descargarRespaldo('antes-de-sincronizar', cp.db) : false;
+  }
+
+  // La semilla se revisa ANTES de cargarla: ids unicos, nombre en texto, listas donde van listas.
+  function validarSemilla(s) {
+    const errores = [];
+    if (!s || typeof s !== 'object') return { ok: false, errores: ['la semilla no es un objeto'] };
+    COLECCIONES.forEach(c => {
+      if (s[c] !== undefined && !Array.isArray(s[c])) errores.push(`"${c}" debe ser una lista`);
+    });
+    ['productos', 'clientes', 'filamentos'].forEach(c => {
+      if (!Array.isArray(s[c])) return;
+      const vistos = new Set(), rep = new Set();
+      s[c].forEach((x, i) => {
+        if (!x || typeof x !== 'object') { errores.push(`${c}[${i}] no es una ficha`); return; }
+        if (!x.id || typeof x.id !== 'string') errores.push(`${c}[${i}] sin id`);
+        else if (vistos.has(x.id)) rep.add(x.id); else vistos.add(x.id);
+        if (c === 'productos' && (!x.nombre || typeof x.nombre !== 'string')) errores.push(`${c}[${i}] (${x.id}) sin nombre de texto`);
+      });
+      rep.forEach(id => errores.push(`${c}: id repetido ${id}`));
+    });
+    return { ok: errores.length === 0, errores };
+  }
+
   async function cargarSemilla() {
-    const r = await fetch('./datos/semilla.json', { cache: 'no-store' });
-    const s = await r.json();
+    const urls = ['/studio/datos/semilla.json', './datos/semilla.json', 'datos/semilla.json'];
+    let s = null;
+    for (const u of urls) {
+      try {
+        const r = await fetch(u, { cache: 'no-store' });
+        if (r.ok) { s = await r.json(); break; }
+      } catch (e) {}
+    }
+    if (!s) throw new Error('No se pudo encontrar semilla.json en ninguna ruta');
+    const v = validarSemilla(s);
+    if (!v.ok) throw new Error('La semilla no es válida, no se cargó: ' + v.errores.slice(0, 4).join('; '));
     const db = vacia();
     db.params = s.params || {};
     COLECCIONES.forEach(c => { if (Array.isArray(s[c])) db[c] = s[c]; });
@@ -121,8 +163,8 @@
   window.DB = DB;
   window.Datos = {
     CLAVE, ESQUEMA, COLECCIONES,
-    nuevoId, vacia, migrar, leerDisco, guardar, cargarSemilla, reemplazar,
-    descargarRespaldo, obtener, agregar, quitar, activos,
+    nuevoId, vacia, migrar, leerDisco, guardar, cargarSemilla, validarSemilla, reemplazar,
+    descargarRespaldo, CLAVE_COPIA, armarCopiaPrevia, leerCopiaPrevia, descargarCopiaPrevia, obtener, agregar, quitar, activos,
     resumen: db => {
       const o = {};
       COLECCIONES.forEach(c => o[c] = (db[c] || []).length);
