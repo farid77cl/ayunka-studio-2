@@ -194,12 +194,15 @@ body {
 }
 .btn:hover { border-color: var(--coral); color: var(--coral); }
 .btn.primario {
-  background: var(--coral); border-color: var(--coral); color: #fff;
+  background: var(--terra); border-color: var(--terra); color: #fff;
+  /* terracota + blanco = 3,39:1: solo vale en letra grande y en negrita */
+  font-size: 18.66px; font-weight: 700; min-height: 44px;
 }
 .btn.primario:hover { filter: brightness(1.07); color: #fff; transform: translateY(-1px); }
-.btn.sutil { background: transparent; border-color: transparent; color: var(--apagado); }
+.btn.sutil { background: transparent; border-color: transparent; color: var(--apagado); min-height: 44px; }
 .btn.sutil:hover { background: var(--panel2); color: var(--texto); border-color: transparent; }
 .btn.chico { padding: 4px 10px; font-size: 13px; }
+.btn.primario.chico { font-size: 18.66px; }   /* el primario no baja de letra grande (terracota 3,39:1) */
 
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
@@ -385,7 +388,7 @@ td.num { font-weight: 600; }
   }
   .subtab {
     background: var(--panel2); border: 1px solid var(--borde); border-radius: var(--r-campo);
-    padding: 6px 12px; font-size: 13px; font-weight: 500; color: var(--suave);
+    padding: 6px 12px; min-height: 44px; font-size: 13px; font-weight: 500; color: var(--suave);
     white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
   }
   .subtab.active {
