@@ -145,6 +145,11 @@
       A.aviso('Cargando catálogo oficial…');
       const s = await Datos.cargarSemilla();
       const db = Datos.leerDisco() || Datos.vacia();
+      const hoy = (db.productos || []).length, nuevo = (s.productos || []).length;
+      if (!confirm(`Hoy tienes ${hoy} productos. Al cargar el catálogo oficial quedarán ${nuevo} y se pierden los cambios que hiciste a mano. ¿Seguro?`)) {
+        A.aviso('Sin cambios.');
+        return;
+      }
       db.productos = s.productos || [];
       Datos.reemplazar(db, 'recarga manual catálogo');
       Datos.guardar('catálogo oficial recargado');
