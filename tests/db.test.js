@@ -38,3 +38,25 @@ test('rechaza nombre que no es texto y colecciones que no son arreglos', () => {
   assert.equal(r.ok, false);
   assert.ok(r.errores.length >= 2);
 });
+
+test('copia previa a sincronizar: queda DENTRO de la app, una sola, sin descargar nada', () => {
+  const mem = {};
+  const c = { console, Date, Math, JSON, Promise, URL, setTimeout };
+  c.window = c;
+  c.localStorage = { getItem: k => (k in mem ? mem[k] : null), setItem: (k, v) => { mem[k] = String(v); }, removeItem: k => { delete mem[k]; } };
+  let clics = 0;
+  c.document = { createElement: () => ({ click() { clics++; } }), body: {} };
+  vm.createContext(c);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'db.js'), 'utf8'), c, { filename: 'js/db.js' });
+  const D = c.window.Datos;
+  assert.equal(D.leerCopiaPrevia(), null);
+  // lo que hace nube.js: escribir UNA clave con la copia armada
+  c.localStorage.setItem(D.CLAVE_COPIA, JSON.stringify(D.armarCopiaPrevia({ productos: [{ id: 'a' }] })));
+  c.localStorage.setItem(D.CLAVE_COPIA, JSON.stringify(D.armarCopiaPrevia({ productos: [{ id: 'a' }, { id: 'b' }] })));
+  const cp = D.leerCopiaPrevia();
+  assert.equal(cp.db.productos.length, 2, 'la segunda reemplaza a la primera');
+  assert.ok(cp.fecha);
+  assert.equal(Object.keys(mem).filter(k => k === 'ayunka-db-antes-de-sincronizar').length, 1);
+  assert.equal(clics, 0, 'guardar la copia no descarga ningun archivo');
+  assert.equal(D.CLAVE_COPIA, 'ayunka-db-antes-de-sincronizar');
+});

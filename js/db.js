@@ -72,9 +72,9 @@
     return true;
   }
 
-  function descargarRespaldo(sufijo) {
+  function descargarRespaldo(sufijo, datos) {
     try {
-      const txt = JSON.stringify(DB, null, 1);
+      const txt = JSON.stringify(datos || DB, null, 1);
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' }));
       const d = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
@@ -83,6 +83,18 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
       return true;
     } catch (e) { console.error(e); return false; }
+  }
+
+  // Copia previa a la primera sincronizacion: vive dentro de la app (una sola, se reemplaza).
+  // La escritura la hace nube.js (setItem). Nunca se descarga sola; en Ajustes la Ama decide si la baja.
+  const CLAVE_COPIA = 'ayunka-db-antes-de-sincronizar';
+  function armarCopiaPrevia(db) { return { fecha: new Date().toISOString(), db }; }
+  function leerCopiaPrevia() {
+    try { return JSON.parse(localStorage.getItem(CLAVE_COPIA) || 'null'); } catch (e) { return null; }
+  }
+  function descargarCopiaPrevia() {
+    const cp = leerCopiaPrevia();
+    return cp ? descargarRespaldo('antes-de-sincronizar', cp.db) : false;
   }
 
   // La semilla se revisa ANTES de cargarla: ids unicos, nombre en texto, listas donde van listas.
@@ -152,7 +164,7 @@
   window.Datos = {
     CLAVE, ESQUEMA, COLECCIONES,
     nuevoId, vacia, migrar, leerDisco, guardar, cargarSemilla, validarSemilla, reemplazar,
-    descargarRespaldo, obtener, agregar, quitar, activos,
+    descargarRespaldo, CLAVE_COPIA, armarCopiaPrevia, leerCopiaPrevia, descargarCopiaPrevia, obtener, agregar, quitar, activos,
     resumen: db => {
       const o = {};
       COLECCIONES.forEach(c => o[c] = (db[c] || []).length);
